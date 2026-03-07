@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "435201888855",
+    "firebase_url": "https://magic-5bc89-default-rtdb.firebaseio.com",
+    "project_id": "magic-5bc89",
+    "storage_bucket": "magic-5bc89.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:435201888855:android:d675c6f87636c80a934912",
+        "android_client_info": {
+          "package_name": "com.mari.magic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "435201888855-c126hcvi6n41nal2fkg6l7i8g37cfltu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mari.magic",
+            "certificate_hash": "21205442c0c887e5a8bb9743cfe0ac1906c12806"
+          }
+        },
+        {
+          "client_id": "435201888855-psv5bfustuu7qjuo1qqug9dql3gqoc37.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPriQL0IWUAzK-NbXEv8URVgNnNv2SGms"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "435201888855-psv5bfustuu7qjuo1qqug9dql3gqoc37.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

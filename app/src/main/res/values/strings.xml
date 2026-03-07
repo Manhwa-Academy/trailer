@@ -1,0 +1,12 @@
+<resources>
+
+    <string name="app_name">Magic</string>
+
+    <string name="default_web_client_id">435201888855-c126hcvi6n41nal2fkg6l7i8g37cfltu.apps.googleusercontent.com</string>
+
+    <string name="nav_home">Home</string>
+    <string name="nav_movies">Movies</string>
+    <string name="nav_tv">TV Series</string>
+    <string name="nav_settings">Settings</string>
+
+</resources>

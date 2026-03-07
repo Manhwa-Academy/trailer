@@ -1,0 +1,10 @@
+<resources>
+
+    <style name="Base.Theme.Magic" parent="Theme.Material3.DayNight.NoActionBar">
+
+        <item name="colorSurface">#121212</item>
+        <item name="colorOnSurface">#FFFFFF</item>
+
+    </style>
+
+</resources>

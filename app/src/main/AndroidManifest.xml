@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.mari.magic">
+
+    <!-- Internet permission -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:allowBackup="true"
+        android:theme="@style/Theme.Magic"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true">
+
+        <!-- Main Home -->
+        <activity
+            android:name=".home.MainActivity"
+            android:exported="false" />
+
+        <!-- Anime Detail -->
+        <activity
+            android:name=".home.AnimeDetailActivity"
+            android:exported="false" />
+
+        <!-- Trailer screen -->
+        <activity
+            android:name=".home.AnimeTrailerActivity"
+            android:exported="false"
+            android:hardwareAccelerated="false"/>
+
+        <!-- Auth screens -->
+        <activity
+            android:name=".auth.LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".auth.SignupFormActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".auth.AuthActivity"
+            android:exported="false" />
+        <activity android:name=".home.SearchActivity"/>
+        <!-- App launcher -->
+        <activity
+            android:name=".auth.WelcomeActivity"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+    </application>
+</manifest>
