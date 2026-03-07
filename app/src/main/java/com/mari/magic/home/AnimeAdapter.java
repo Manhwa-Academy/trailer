@@ -48,7 +48,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder>{
 
         holder.title.setText(title);
 
-        double rating = anime.getRating() / 10.0;
+        // rating đã là 0–10
+        double rating = anime.getRating();
         holder.rating.setText("⭐ " + String.format("%.1f", rating));
 
         // Load GIF loading trước
@@ -75,6 +76,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder>{
     private void openDetail(Anime anime,String title){
 
         Intent intent = new Intent(context, AnimeDetailActivity.class);
+
+        intent.putExtra("animeId", anime.getId());
 
         intent.putExtra("title", title);
         intent.putExtra("englishTitle", anime.getEnglishTitle());

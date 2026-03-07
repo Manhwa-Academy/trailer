@@ -58,8 +58,7 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("YT_DEBUG", "Trailer ID: " + trailer);
-        loadYoutubeViews(trailer);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anime_detail);
 
@@ -138,8 +137,7 @@ public class AnimeDetailActivity extends AppCompatActivity {
         txtTitle.setText(displayTitle);
 
         // ===== RATING =====
-
-        double score = rating / 10.0;
+        double score = rating;
         txtRating.setText("⭐ " + String.format("%.1f", score));
 
         if(genres != null)
@@ -149,30 +147,20 @@ public class AnimeDetailActivity extends AppCompatActivity {
             txtDesc.setText(Html.fromHtml(desc, Html.FROM_HTML_MODE_LEGACY));
 
         // ===== EXTRA INFO =====
-        if(studio != null && !studio.equals("Unknown"))
+
+        if(studio != null)
             txtStudio.setText("Studio: " + studio);
-        else
-            txtStudio.setVisibility(TextView.GONE);
 
-        if(director != null && !director.equals("Unknown"))
+        if(director != null)
             txtDirector.setText("Director: " + director);
-        else
-            txtDirector.setVisibility(TextView.GONE);
 
-        if(season != null && !season.equals("Unknown") && !season.equals("null"))
+        if(season != null)
             txtSeason.setText("Season: " + season);
-        else
-            txtSeason.setVisibility(TextView.GONE);
 
-        if(duration > 0)
-            txtDuration.setText("Duration: " + duration + " min");
-        else
-            txtDuration.setVisibility(TextView.GONE);
+        txtDuration.setText("Duration: " + duration + " min");
 
-        if(format != null && !format.equals("Unknown"))
+        if(format != null)
             txtFormat.setText("Type: " + format);
-        else
-            txtFormat.setVisibility(TextView.GONE);
 
         NumberFormat nf = NumberFormat.getInstance(Locale.US);
         txtViews.setText("Views: " + nf.format(views));
@@ -318,9 +306,19 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
     private void saveHistory(){
 
-        if(auth.getCurrentUser()==null) return;
+        if(auth.getCurrentUser()==null){
+            Log.e("HISTORY_DEBUG","User not logged in");
+            return;
+        }
+
+        if(animeId == null){
+            Log.e("HISTORY_DEBUG","animeId null");
+            return;
+        }
 
         String uid = auth.getCurrentUser().getUid();
+
+        Log.d("HISTORY_DEBUG","Saving history for "+animeId);
 
         Map<String,Object> data = new HashMap<>();
 
@@ -330,11 +328,11 @@ public class AnimeDetailActivity extends AppCompatActivity {
         data.put("rating", rating);
         data.put("trailer", trailer);
 
-        data.put("studio", studio);
-        data.put("director", director);
-        data.put("season", season);
+        data.put("studio", studio != null ? studio : "Unknown");
+        data.put("director", director != null ? director : "Unknown");
+        data.put("season", season != null ? season : "Unknown");
         data.put("duration", duration);
-        data.put("format", format);
+        data.put("format", format != null ? format : "Unknown");
 
         data.put("romajiTitle", romajiTitle);
         data.put("nativeTitle", nativeTitle);
@@ -347,7 +345,11 @@ public class AnimeDetailActivity extends AppCompatActivity {
                 .document(uid)
                 .collection("history")
                 .document(animeId)
-                .set(data);
+                .set(data)
+                .addOnSuccessListener(unused ->
+                        Log.d("HISTORY_DEBUG","History saved successfully"))
+                .addOnFailureListener(e ->
+                        Log.e("HISTORY_DEBUG","History save failed",e));
     }
 
     // ===============================
@@ -436,21 +438,33 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
     private void loadYoutubeViews(String trailerId){
 
-        if(trailerId == null || trailerId.isEmpty()) return;
+        Log.d("YT_DEBUG","Received trailerId = " + trailerId);
+
+        if(trailerId == null || trailerId.isEmpty()){
+            Log.e("YT_DEBUG","Trailer ID NULL");
+            return;
+        }
 
         String url =
                 "https://www.googleapis.com/youtube/v3/videos?id="
                         + trailerId +
                         "&part=statistics&key=AIzaSyBrm4ovRR5rbFQkK4DtjsfKf8bToom0IF4";
 
+        Log.d("YT_DEBUG","API URL = " + url);
+
         JsonObjectRequest request =
                 new JsonObjectRequest(Request.Method.GET, url, null,
 
                         response -> {
 
+                            Log.d("YT_DEBUG","API RESPONSE = " + response.toString());
+
                             try{
 
-                                JSONArray items = response.getJSONArray("items");
+                                JSONArray items =
+                                        response.getJSONArray("items");
+
+                                Log.d("YT_DEBUG","Items size = " + items.length());
 
                                 if(items.length() > 0){
 
@@ -458,24 +472,27 @@ public class AnimeDetailActivity extends AppCompatActivity {
                                             items.getJSONObject(0)
                                                     .getJSONObject("statistics");
 
-                                    long viewCount =
-                                            Long.parseLong(stats.getString("viewCount"));
+                                    long viewCount = Long.parseLong(stats.getString("viewCount")); ;
+
+                                    Log.d("YT_DEBUG","ViewCount = " + viewCount);
 
                                     txtViews.setText(
                                             "Views: " +
                                                     NumberFormat.getInstance().format(viewCount)
                                     );
                                 }
+                                else{
+                                    Log.e("YT_DEBUG","No items returned from YouTube API");
+                                }
 
                             }catch(Exception e){
-                                e.printStackTrace();
+                                Log.e("YT_DEBUG","JSON ERROR", e);
                             }
 
                         },
 
                         error -> {
-                            error.printStackTrace();
-                            txtViews.setText("Views: N/A");
+                            Log.e("YT_DEBUG","API ERROR", error);
                         }
                 );
 

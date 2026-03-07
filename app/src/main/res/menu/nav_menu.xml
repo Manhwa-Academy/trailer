@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:title="TRANG CHỦ"/>
+
+    <item
+        android:id="@+id/nav_new"
+        android:title="ANIME MỚI"/>
+
+    <item
+        android:id="@+id/nav_random"
+        android:title="XEM ANIME NGẪU NHIÊN"/>
+
+    <item
+        android:id="@+id/nav_history"
+        android:title="LỊCH SỬ XEM"/>
+
+    <item
+        android:id="@+id/nav_type"
+        android:title="DẠNG ANIME"/>
+
+    <item
+        android:id="@+id/nav_top"
+        android:title="TOP ANIME"/>
+
+    <item
+        android:id="@+id/nav_genre"
+        android:title="THỂ LOẠI"/>
+
+    <item
+        android:id="@+id/nav_season"
+        android:title="SEASON"/>
+
+    <item
+        android:id="@+id/nav_library"
+        android:title="THƯ VIỆN"/>
+
+    <item
+        android:id="@+id/nav_schedule"
+        android:title="LỊCH CHIẾU"/>
+
+</menu>

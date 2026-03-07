@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_nav"
+        android:title="Menu"
+        android:icon="@drawable/ic_menu"
+        app:showAsAction="always"/>
+
+</menu>

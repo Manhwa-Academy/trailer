@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-
+import com.mari.magic.utils.AnimeParser;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -119,7 +119,8 @@ public class HomeFragment extends Fragment {
                 "query {" +
                         " movies: Page(page:1, perPage:20) {" +
                         "  media(type:ANIME, format:MOVIE, sort:POPULARITY_DESC) {" +
-                        "   title { romaji english native }"+
+                        "   id " +
+                        "   title { romaji english native }" +
                         "   format" +
                         "   season" +
                         "   seasonYear" +
@@ -127,15 +128,18 @@ public class HomeFragment extends Fragment {
                         "   averageScore" +
                         "   description" +
                         "   genres" +
+                        "   isAdult" +   // ⭐ THÊM DÒNG NÀY
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
+
                         " series: Page(page:1, perPage:20) {" +
                         "  media(type:ANIME, format:TV, sort:POPULARITY_DESC) {" +
-                        "   title { romaji english native }"+
+                        "   id " +
+                        "   title { romaji english native }" +
                         "   format" +
                         "   season" +
                         "   seasonYear" +
@@ -143,6 +147,7 @@ public class HomeFragment extends Fragment {
                         "   averageScore" +
                         "   description" +
                         "   genres" +
+                        "   isAdult" +   // ⭐ THÊM DÒNG NÀY
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
@@ -240,7 +245,7 @@ public class HomeFragment extends Fragment {
 
     // ================= PARSE =================
 
-    private void parseAnime(JSONArray media,List<Anime> list,AnimeAdapter adapter){
+    private void parseAnime(JSONArray media, List<Anime> list, AnimeAdapter adapter){
 
         list.clear();
 
@@ -248,144 +253,11 @@ public class HomeFragment extends Fragment {
 
             for(int i=0;i<media.length();i++){
 
-                JSONObject anime = media.getJSONObject(i);
+                JSONObject obj = media.getJSONObject(i);
 
-                JSONObject titleObj = anime.getJSONObject("title");
+                Anime anime = AnimeParser.parse(obj);
 
-                String romaji = TextUtils.clean(titleObj.optString("romaji"));
-                String english = TextUtils.clean(titleObj.optString("english"));
-                String nativeTitle = TextUtils.clean(titleObj.optString("native"));
-
-                String title = TextUtils.bestTitle(english, romaji, nativeTitle);
-
-                String poster = anime
-                        .getJSONObject("coverImage")
-                        .optString("large","");
-
-                double rating = anime.optDouble("averageScore",0);
-
-                String description = anime.optString("description","");
-
-                // ===== GENRES =====
-
-                String genres = "";
-
-                JSONArray genresArray = anime.optJSONArray("genres");
-
-                if(genresArray!=null){
-
-                    for(int g=0;g<genresArray.length();g++){
-
-                        genres += genresArray.optString(g);
-
-                        if(g < genresArray.length()-1)
-                            genres += ", ";
-                    }
-                }
-
-                // ===== TRAILER =====
-
-                String trailer = "";
-
-                if(anime.has("trailer") && !anime.isNull("trailer")){
-
-                    JSONObject trailerObj = anime.getJSONObject("trailer");
-
-                    String site = trailerObj.optString("site","");
-                    String id = trailerObj.optString("id","");
-
-                    if(site.equalsIgnoreCase("youtube"))
-                        trailer = id;
-                }
-
-                // ===== FORMAT =====
-
-                String format = anime.optString("format","Unknown");
-
-                // ===== SEASON =====
-
-                String season = anime.optString("season","");
-
-                int seasonYear = anime.optInt("seasonYear",0);
-
-                if(!season.isEmpty())
-                    season = season + " " + seasonYear;
-
-                // ===== DURATION =====
-
-                int duration = anime.optInt("duration",0);
-
-                // ===== STUDIO =====
-
-                String studio = "";
-
-                JSONObject studios = anime.optJSONObject("studios");
-
-                if(studios != null){
-
-                    JSONArray nodes = studios.optJSONArray("nodes");
-
-                    if(nodes != null && nodes.length() > 0){
-
-                        studio = nodes.getJSONObject(0)
-                                .optString("name","");
-                    }
-                }
-
-                // ===== DIRECTOR =====
-
-                String director = "";
-
-                JSONObject staff = anime.optJSONObject("staff");
-
-                if(staff != null){
-
-                    JSONArray nodes = staff.optJSONArray("nodes");
-
-                    if(nodes != null){
-
-                        for(int s=0;s<nodes.length();s++){
-
-                            JSONObject person = nodes.getJSONObject(s);
-
-                            JSONArray jobs = person.optJSONArray("primaryOccupations");
-
-                            if(jobs != null){
-
-                                for(int j=0;j<jobs.length();j++){
-
-                                    if(jobs.getString(j).equalsIgnoreCase("Director")){
-
-                                        director = person
-                                                .getJSONObject("name")
-                                                .optString("full","");
-
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // ===== CREATE OBJECT =====
-
-                Anime animeObj = new Anime(title,poster,trailer,rating);
-
-                animeObj.setEnglishTitle(english);
-                animeObj.setRomajiTitle(romaji);
-                animeObj.setNativeTitle(nativeTitle);
-
-                animeObj.setDescription(description);
-                animeObj.setGenres(genres);
-
-                animeObj.setFormat(format);
-                animeObj.setSeason(season);
-                animeObj.setDuration(duration);
-                animeObj.setStudio(studio);
-                animeObj.setDirector(director);
-
-                list.add(animeObj);
+                list.add(anime);
             }
 
             adapter.notifyDataSetChanged();

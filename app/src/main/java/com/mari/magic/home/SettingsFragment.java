@@ -177,7 +177,16 @@ public class SettingsFragment extends Fragment {
 
             FirebaseAuth.getInstance().signOut();
 
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            Toast.makeText(getContext(),
+                    "Logged out successfully",
+                    Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(getActivity(),
+                    com.mari.magic.auth.WelcomeActivity.class);
+
+            // ⭐ Xóa toàn bộ stack
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+
             startActivity(intent);
 
             if(getActivity()!=null){
@@ -185,7 +194,6 @@ public class SettingsFragment extends Fragment {
             }
         });
     }
-
     // =============================
     // CLEAR CACHE
     // =============================

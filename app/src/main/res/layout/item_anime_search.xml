@@ -34,6 +34,19 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"/>
 
+        <ImageView
+            android:id="@+id/btnFavorite"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_margin="6dp"
+            android:src="@drawable/ic_favorite"
+            app:tint="#FF0000"
+
+            android:visibility="gone"
+
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"/>
+
         <TextView
             android:id="@+id/txtTitle"
             android:layout_width="match_parent"

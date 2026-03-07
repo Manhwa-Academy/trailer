@@ -25,7 +25,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import com.mari.magic.utils.AnimeParser;
+import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import android.content.Intent;
 public class SearchActivity extends AppCompatActivity {
 
     private static final String TAG = "SEARCH_DEBUG";
@@ -113,6 +116,7 @@ public class SearchActivity extends AppCompatActivity {
                 "query ($search: String) {" +
                         " Page(page:1, perPage:30) {" +
                         "  media(search:$search, type:ANIME) {" +
+                        "   id" +
                         "   title { romaji english native }" +
                         "   coverImage { large }" +
                         "   averageScore" +
@@ -121,14 +125,14 @@ public class SearchActivity extends AppCompatActivity {
                         "   isAdult" +
                         "   format" +
                         "   season" +
+                        "   seasonYear" +
                         "   duration" +
                         "   studios { nodes { name } }" +
-                        "   staff(perPage:10) { nodes { name { full } } }" +
+                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
                         "   trailer { id }" +
                         "  }" +
                         " }" +
                         "}";
-
         try{
 
             JSONObject body = new JSONObject();
@@ -157,109 +161,19 @@ public class SearchActivity extends AppCompatActivity {
 
                                     for(int i=0;i<media.length();i++){
 
-                                        JSONObject anime = media.getJSONObject(i);
+                                        JSONObject obj = media.getJSONObject(i);
 
-                                        JSONObject titleObj = anime.getJSONObject("title");
-                                        String romaji = TextUtils.clean(titleObj.optString("romaji"));
-                                        String english = TextUtils.clean(titleObj.optString("english"));
-                                        String nativeTitle = TextUtils.clean(titleObj.optString("native"));
-                                        String format = anime.optString("format","");
-                                        String season = anime.optString("season","");
-                                        int duration = anime.optInt("duration",0);
-                                        String poster = anime
-                                                .getJSONObject("coverImage")
-                                                .optString("large","");
+                                        Anime anime = AnimeParser.parse(obj);
 
-                                        double rating = anime.optDouble("averageScore",0);
+                                        String romaji = anime.getRomajiTitle() != null ? anime.getRomajiTitle() : "";
+                                        String english = anime.getEnglishTitle() != null ? anime.getEnglishTitle() : "";
+                                        String nativeTitle = anime.getNativeTitle() != null ? anime.getNativeTitle() : "";
 
-                                        String description = anime.optString("description","");
-
-                                        boolean isAdult = anime.optBoolean("isAdult",false);
-                                        String studio = "";
-
-                                        JSONObject studiosObj = anime.optJSONObject("studios");
-
-                                        if(studiosObj != null){
-
-                                            JSONArray nodes = studiosObj.optJSONArray("nodes");
-
-                                            if(nodes != null && nodes.length() > 0){
-                                                studio = nodes.getJSONObject(0).optString("name","");
-                                            }
-                                        }
-                                        String director = "";
-
-                                        JSONObject staffObj = anime.optJSONObject("staff");
-
-                                        if(staffObj != null){
-
-                                            JSONArray nodes = staffObj.optJSONArray("nodes");
-
-                                            if(nodes != null && nodes.length() > 0){
-                                                director = nodes.getJSONObject(0)
-                                                        .getJSONObject("name")
-                                                        .optString("full","");
-                                            }
-                                        }
-                                        // ===== GENRES =====
-                                        String genres = "";
-                                        JSONArray genresArray = anime.optJSONArray("genres");
-
-                                        if(genresArray != null){
-
-                                            for(int g=0; g<genresArray.length(); g++){
-
-                                                genres += genresArray.optString(g);
-
-                                                if(g < genresArray.length()-1)
-                                                    genres += ", ";
-                                            }
-                                        }
-
-                                        String trailer = "";
-
-                                        if(anime.has("trailer") && !anime.isNull("trailer")){
-                                            trailer = anime
-                                                    .getJSONObject("trailer")
-                                                    .optString("id","");
-                                        }
-
-                                        // ===== SEARCH MATCH =====
                                         if(romaji.toLowerCase().contains(key) ||
                                                 english.toLowerCase().contains(key) ||
                                                 nativeTitle.toLowerCase().contains(key)){
 
-                                            // ⭐ fallback title
-                                            String title;
-
-                                            if(english != null && !english.equals("null") && !english.isEmpty())
-                                                title = english;
-
-                                            else if(romaji != null && !romaji.equals("null") && !romaji.isEmpty())
-                                                title = romaji;
-
-                                            else if(nativeTitle != null && !nativeTitle.equals("null") && !nativeTitle.isEmpty())
-                                                title = nativeTitle;
-
-                                            else
-                                                title = "Unknown";
-
-                                            Anime animeObj =
-                                                    new Anime(title, poster, trailer, rating);
-
-                                            animeObj.setAdult(isAdult);
-                                            animeObj.setDescription(description);
-                                            animeObj.setGenres(genres);
-                                            animeObj.setFormat(format);
-                                            animeObj.setSeason(season);
-                                            animeObj.setDuration(duration);
-                                            animeObj.setStudio(studio);
-                                            animeObj.setDirector(director);
-                                            animeObj.setEnglishTitle(english);
-                                            animeObj.setRomajiTitle(romaji);
-                                            animeObj.setNativeTitle(nativeTitle);
-
-                                            searchList.add(animeObj);
+                                            searchList.add(anime);
                                         }
                                     }
 

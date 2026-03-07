@@ -34,8 +34,6 @@ public class Anime {
     private boolean favorite;
     private boolean isAdult;
 
-    // ================= CONSTRUCTOR =================
-
     public Anime(){}
 
     public Anime(String title, String poster, String trailer, double rating){
@@ -52,35 +50,41 @@ public class Anime {
     }
 
     public String getTitle() {
-        return title;
+
+        if(title != null && !title.isEmpty()) return title;
+        if(englishTitle != null && !englishTitle.isEmpty()) return englishTitle;
+        if(romajiTitle != null && !romajiTitle.isEmpty()) return romajiTitle;
+        if(nativeTitle != null && !nativeTitle.isEmpty()) return nativeTitle;
+
+        return "Unknown";
     }
 
     public String getEnglishTitle() {
-        return englishTitle;
+        return englishTitle != null ? englishTitle : "";
     }
 
     public String getRomajiTitle() {
-        return romajiTitle;
+        return romajiTitle != null ? romajiTitle : "";
     }
 
     public String getNativeTitle() {
-        return nativeTitle;
+        return nativeTitle != null ? nativeTitle : "";
     }
 
     public String getVietnameseTitle() {
-        return vietnameseTitle;
+        return vietnameseTitle != null ? vietnameseTitle : "";
     }
 
     public String getPoster() {
-        return poster;
+        return poster != null ? poster : "";
     }
 
     public String getTrailer() {
-        return trailer;
+        return trailer != null ? trailer : "";
     }
 
     public String getVideoUrl() {
-        return videoUrl;
+        return videoUrl != null ? videoUrl : "";
     }
 
     public double getRating() {
@@ -92,23 +96,23 @@ public class Anime {
     }
 
     public String getDescription() {
-        return description;
+        return description != null ? description : "";
     }
 
     public String getGenres() {
-        return genres;
+        return genres != null ? genres : "";
     }
 
     public String getStudio() {
-        return studio;
+        return studio != null ? studio : "Unknown";
     }
 
     public String getDirector() {
-        return director;
+        return director != null ? director : "Unknown";
     }
 
     public String getSeason() {
-        return season;
+        return season != null ? season : "Unknown";
     }
 
     public int getDuration() {
@@ -116,7 +120,7 @@ public class Anime {
     }
 
     public String getFormat() {
-        return format;
+        return format != null ? format : "Unknown";
     }
 
     public long getViews() {
@@ -170,7 +174,13 @@ public class Anime {
     }
 
     public void setRating(double rating) {
-        this.rating = rating;
+
+        // AniList trả averageScore 0–100
+        if(rating > 10){
+            this.rating = rating / 10.0;
+        }else{
+            this.rating = rating;
+        }
     }
 
     public void setYear(int year) {
@@ -217,24 +227,16 @@ public class Anime {
         isAdult = adult;
     }
 
-    // ================= DEBUG =================
-
     @Override
     public String toString() {
         return "Anime{" +
                 "id=" + id +
-                ", title='" + title + '\'' +
-                ", englishTitle='" + englishTitle + '\'' +
-                ", romajiTitle='" + romajiTitle + '\'' +
+                ", title='" + getTitle() + '\'' +
                 ", rating=" + rating +
                 ", year=" + year +
                 ", format='" + format + '\'' +
                 ", studio='" + studio + '\'' +
                 ", director='" + director + '\'' +
-                ", duration=" + duration +
-                ", views=" + views +
-                ", trailer='" + trailer + '\'' +
-                ", isAdult=" + isAdult +
                 '}';
     }
 }
