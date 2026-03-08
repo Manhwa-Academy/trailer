@@ -18,7 +18,7 @@
 
         <!-- SPLASH SCREEN (LAUNCHER) -->
         <activity
-            android:name=".home.SplashActivity"
+            android:name=".ui.splash.SplashActivity"
             android:exported="true">
 
             <intent-filter>
@@ -30,27 +30,27 @@
 
         <!-- MAIN APP -->
         <activity
-            android:name=".home.MainActivity"
+            android:name=".MainActivity"
             android:exported="false" />
 
         <!-- SEARCH -->
         <activity
-            android:name=".home.SearchActivity"
+            android:name=".ui.search.SearchActivity"
             android:exported="false" />
 
         <!-- GENRE -->
         <activity
-            android:name=".home.GenreAnimeActivity"
+            android:name=".ui.genre.GenreAnimeActivity"
             android:exported="false" />
 
         <!-- ANIME DETAIL -->
         <activity
-            android:name=".home.AnimeDetailActivity"
+            android:name=".ui.detail.AnimeDetailActivity"
             android:exported="false" />
 
         <!-- TRAILER -->
         <activity
-            android:name=".home.AnimeTrailerActivity"
+            android:name=".ui.detail.AnimeTrailerActivity"
             android:exported="false"
             android:hardwareAccelerated="false"/>
 
@@ -72,6 +72,12 @@
             android:name=".auth.WelcomeActivity"
             android:exported="false"/>
 
+        <activity
+            android:name=".ui.season.SeasonAnimeActivity"
+            android:exported="false"/>
+        <activity
+            android:name=".ui.home.SeeAllActivity"
+            android:exported="false"/>
     </application>
 
 </manifest>

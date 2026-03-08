@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.mari.magic.R;
-import com.mari.magic.home.MainActivity;
+import com.mari.magic.MainActivity;
 
 import com.google.android.gms.auth.api.signin.*;
 import com.google.android.gms.common.api.ApiException;

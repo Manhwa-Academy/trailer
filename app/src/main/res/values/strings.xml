@@ -4,41 +4,91 @@
 
     <string name="default_web_client_id">435201888855-c126hcvi6n41nal2fkg6l7i8g37cfltu.apps.googleusercontent.com</string>
 
+    <!-- Navigation -->
     <string name="nav_home">Home</string>
     <string name="nav_movies">Movies</string>
     <string name="nav_tv">TV Series</string>
     <string name="nav_settings">Settings</string>
 
+    <!-- Movies -->
     <string name="popular_movies">Popular Movies</string>
     <string name="top_rated_movies">Top Rated Movies</string>
-
     <string name="upcoming_movies">Upcoming Movies</string>
 
+    <!-- Profile -->
     <string name="profile">Profile</string>
     <string name="clear_cache">Clear Cache</string>
     <string name="logout_success">Logged out successfully</string>
 
+    <!-- Theme -->
     <string name="theme_dark">Dark Mode</string>
     <string name="theme_light">Light Mode</string>
 
+    <!-- Cache -->
     <string name="cache_cleared">Cleared %1$s MB cache</string>
     <string name="cache_error">Error clearing cache</string>
+
+    <!-- App -->
     <string name="logout">Logout</string>
     <string name="app_version">App Version 1.0</string>
 
+    <!-- Search -->
     <string name="search_result">Search result for: %1$s</string>
-    <string name="search_no_result">No result found for: %1$s</string>
+    <string name="search_no_result">No result for: %1$s</string>
+    <string name="search_anime">Search anime...</string>
 
+    <!-- Favorites -->
     <string name="favorite_add">Add to favorites</string>
     <string name="favorite_remove">Remove from favorites</string>
+    <string name="favorite_anime">Favorite Anime</string>
 
+    <!-- Trailer -->
     <string name="play_trailer">▶ Play Trailer</string>
 
+    <!-- Series -->
     <string name="popular_series">Popular Series</string>
-    <string name="search_anime">Search anime...</string>
-    <string name="watch_history">Watch History</string>
-
-    <string name="favorite_anime">Favorite Anime</string>
     <string name="top_rated_series">Top Rated Series</string>
     <string name="releasing_series">Releasing Series</string>
+
+    <!-- History -->
+    <string name="watch_history">Watch History</string>
+
+    <!-- Adult / Ecchi -->
+    <string name="ecchi_series">Ecchi Series</string>
+    <string name="adult_series">Adult Series</string>
+    <string name="ecchi_movies">Ecchi Movies</string>
+    <string name="adult_movies">Adult Movies</string>
+
+    <!-- See All -->
+    <string name="see_all">See All ›</string>
+
+    <!-- Tabs -->
+    <string name="tab_movies">Movies</string>
+    <string name="tab_series">TV</string>
+    <string name="tab_top_tv">Top Rated</string>
+    <string name="tab_releasing">Releasing</string>
+    <string name="tab_upcoming">Upcoming</string>
+    <string name="tab_ecchi">Ecchi</string>
+    <string name="tab_adult">Adult</string>
+
+    <!-- Title -->
+    <string name="title_anime">Anime</string>
+
+    <string name="season_winter">Winter</string>
+    <string name="season_spring">Spring</string>
+    <string name="season_summer">Summer</string>
+    <string name="season_fall">Fall</string>
+
+    <string name="season_title">Season</string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_new">New Anime</string>
+    <string name="menu_random">Random Anime</string>
+    <string name="menu_history">Watch History</string>
+    <string name="menu_type">Anime Type</string>
+    <string name="menu_top">Top Anime</string>
+    <string name="menu_genre">Genres</string>
+    <string name="menu_season">Season</string>
+    <string name="menu_library">Library</string>
+    <string name="menu_schedule">Schedule</string>
 </resources>

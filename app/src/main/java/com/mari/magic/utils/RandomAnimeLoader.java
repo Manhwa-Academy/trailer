@@ -6,8 +6,8 @@ import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.mari.magic.home.Anime;
-import com.mari.magic.home.AnimeDetailActivity;
+import com.mari.magic.model.Anime;
+import com.mari.magic.ui.detail.AnimeDetailActivity;
 import com.mari.magic.network.VolleySingleton;
 
 import org.json.JSONArray;

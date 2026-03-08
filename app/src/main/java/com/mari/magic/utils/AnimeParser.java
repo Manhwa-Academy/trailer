@@ -2,7 +2,7 @@ package com.mari.magic.utils;
 
 import android.content.Context;
 
-import com.mari.magic.home.Anime;
+import com.mari.magic.model.Anime;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

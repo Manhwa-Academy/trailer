@@ -1,6 +1,6 @@
 package com.mari.magic.api;
 
-import com.mari.magic.home.Anime;
+import com.mari.magic.model.Anime;
 import java.util.List;
 
 public class AnimeResponse {

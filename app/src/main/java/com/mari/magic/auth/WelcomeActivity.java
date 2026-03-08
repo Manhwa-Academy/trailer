@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.mari.magic.R;
-import com.mari.magic.home.MainActivity;
+import com.mari.magic.MainActivity;
 
 public class WelcomeActivity extends AppCompatActivity {
 

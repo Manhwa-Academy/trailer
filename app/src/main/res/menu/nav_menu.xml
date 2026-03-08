@@ -4,42 +4,42 @@
 
     <item
         android:id="@+id/nav_home"
-        android:title="TRANG CHỦ"/>
+        android:title="@string/menu_home"/>
 
     <item
         android:id="@+id/nav_new"
-        android:title="ANIME MỚI"/>
+        android:title="@string/menu_new"/>
 
     <item
         android:id="@+id/nav_random"
-        android:title="XEM ANIME NGẪU NHIÊN"/>
+        android:title="@string/menu_random"/>
 
     <item
         android:id="@+id/nav_history"
-        android:title="LỊCH SỬ XEM"/>
+        android:title="@string/menu_history"/>
 
     <item
         android:id="@+id/nav_type"
-        android:title="DẠNG ANIME"/>
+        android:title="@string/menu_type"/>
 
     <item
         android:id="@+id/nav_top"
-        android:title="TOP ANIME"/>
+        android:title="@string/menu_top"/>
 
     <item
         android:id="@+id/nav_genre"
-        android:title="THỂ LOẠI"/>
+        android:title="@string/menu_genre"/>
 
     <item
         android:id="@+id/nav_season"
-        android:title="SEASON"/>
+        android:title="@string/menu_season"/>
 
     <item
         android:id="@+id/nav_library"
-        android:title="THƯ VIỆN"/>
+        android:title="@string/menu_library"/>
 
     <item
         android:id="@+id/nav_schedule"
-        android:title="LỊCH CHIẾU"/>
+        android:title="@string/menu_schedule"/>
 
 </menu>

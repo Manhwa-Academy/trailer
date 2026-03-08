@@ -21,9 +21,25 @@
 
         android:paddingBottom="10dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/genreAnimeRecycler"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/genreAnimeRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:id="@+id/txtNoResult"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Không tìm thấy anime"
+            android:textSize="16sp"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+
+    </FrameLayout>
 
 </LinearLayout>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+
+    android:background="?attr/colorSurface">
+
+    <!-- TITLE -->
+
+    <TextView
+        android:id="@+id/txtTitle"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:text="Anime"
+        android:textSize="20sp"
+        android:textStyle="bold"
+
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="12dp"
+
+        android:textColor="?attr/colorOnSurface"/>
+
+
+    <!-- TAB BAR -->
+
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:background="?attr/colorSurface"
+        android:elevation="4dp"
+
+        app:tabMode="scrollable"
+        app:tabGravity="start"
+
+        app:tabIndicatorHeight="3dp"
+        app:tabIndicatorFullWidth="false"
+        app:tabIndicatorColor="?attr/colorPrimary"
+
+        app:tabRippleColor="?attr/colorPrimary"
+
+        app:tabTextColor="?attr/colorOnSurface"
+        app:tabSelectedTextColor="?attr/colorPrimary"/>
+
+
+    <!-- CONTENT -->
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+
+        android:layout_weight="1"/>
+
+</LinearLayout>

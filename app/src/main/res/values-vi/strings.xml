@@ -9,12 +9,10 @@
 
     <string name="popular_movies">Phim nổi bật</string>
     <string name="top_rated_movies">Phim đánh giá cao</string>
-
     <string name="upcoming_movies">Phim sắp chiếu</string>
 
     <string name="watch_history">Lịch sử xem</string>
     <string name="favorite_anime">Anime yêu thích</string>
-
 
     <string name="profile">Hồ sơ</string>
     <string name="clear_cache">Xóa bộ nhớ đệm</string>
@@ -33,13 +31,52 @@
     <string name="search_result">Kết quả tìm kiếm: %1$s</string>
     <string name="search_no_result">Không tìm thấy kết quả cho: %1$s</string>
 
-    <string name="favorite_add">Lưu vào danh sách yêu thích</string>
-    <string name="favorite_remove">Xóa khỏi danh sách yêu thích</string>
+    <string name="favorite_add">Thêm vào yêu thích</string>
+    <string name="favorite_remove">Xóa khỏi yêu thích</string>
 
-    <string name="play_trailer">▶ Xem Trailer</string>
+    <string name="play_trailer">▶ Xem trailer</string>
 
-    <string name="top_rated_series">Anime TV được đánh giá cao</string>
+    <string name="top_rated_series">Anime TV đánh giá cao</string>
     <string name="popular_series">Anime TV phổ biến</string>
-    <string name="releasing_series">Anime TV đang phát hành</string>
+    <string name="releasing_series">Anime TV đang phát sóng</string>
+
     <string name="search_anime">Tìm kiếm anime...</string>
+
+    <string name="ecchi_series">Anime Ecchi</string>
+    <string name="adult_series">Anime 18+</string>
+
+    <string name="ecchi_movies">Phim Ecchi</string>
+    <string name="adult_movies">Phim 18+</string>
+
+    <!-- See All -->
+    <string name="see_all">Xem tất cả  ›</string>
+
+    <!-- Tabs -->
+    <string name="tab_movies">Phim lẻ</string>
+    <string name="tab_series">Phim bộ</string>
+    <string name="tab_top_tv">Top đánh giá</string>
+    <string name="tab_releasing">Đang chiếu</string>
+    <string name="tab_upcoming">Sắp chiếu</string>
+    <string name="tab_ecchi">Ecchi</string>
+    <string name="tab_adult">18+</string>
+
+    <string name="title_anime">Anime</string>
+
+    <string name="season_winter">Đông</string>
+    <string name="season_spring">Xuân</string>
+    <string name="season_summer">Hạ</string>
+    <string name="season_fall">Thu</string>
+
+    <string name="season_title">Mùa Anime</string>
+
+    <string name="menu_home">Trang chủ</string>
+    <string name="menu_new">Anime mới</string>
+    <string name="menu_random">Xem anime ngẫu nhiên</string>
+    <string name="menu_history">Lịch sử xem</string>
+    <string name="menu_type">Dạng anime</string>
+    <string name="menu_top">Top anime</string>
+    <string name="menu_genre">Thể loại</string>
+    <string name="menu_season">Mùa anime</string>
+    <string name="menu_library">Thư viện</string>
+    <string name="menu_schedule">Lịch chiếu</string>
 </resources>
