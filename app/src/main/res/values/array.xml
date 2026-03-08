@@ -1,0 +1,11 @@
+<resources>
+
+    <string-array name="content_filter">
+
+        <item>An toàn</item>
+        <item>Khơi gợi</item>
+        <item>Nguy hiểm</item>
+
+    </string-array>
+
+</resources>

@@ -120,7 +120,7 @@
 
         <Button
             android:id="@+id/btnTrailer"
-            android:text="▶ Play Trailer"
+            android:text="@string/play_trailer"
             android:textColor="?attr/colorOnPrimary"
             android:backgroundTint="?attr/colorPrimary"
             android:layout_margin="16dp"
@@ -150,7 +150,7 @@
                 android:id="@+id/txtFavorite"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Lưu vào danh sách yêu thích"
+                android:text="@string/favorite_add"
                 android:textSize="14sp"
                 android:textColor="?attr/colorOnSurface"
                 android:layout_marginStart="8dp"/>

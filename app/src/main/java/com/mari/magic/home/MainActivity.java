@@ -1,11 +1,14 @@
 package com.mari.magic.home;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
+import android.content.Intent;
+import android.widget.RadioGroup;
+import com.mari.magic.utils.LocaleManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
@@ -14,11 +17,16 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.GridLayoutManager;
-import android.content.Intent;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+
 import com.mari.magic.R;
 import com.mari.magic.utils.ThemeManager;
+import com.mari.magic.utils.RandomAnimeLoader;
+import com.mari.magic.utils.AppSettings;
 import com.mari.magic.network.VolleySingleton;
 
 import com.android.volley.Request;
@@ -44,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
+        LocaleManager.setLocale(this, AppSettings.getLanguage(this));
         ThemeManager.applyTheme(this);
 
         Log.d(TAG,"Theme applied before onCreate");
@@ -59,9 +67,19 @@ public class MainActivity extends AppCompatActivity {
 
         setSupportActionBar(toolbar);
 
+        // Popup lần đầu
+        if(!AppSettings.isSetupDone(this)){
+
+            new Handler().postDelayed(() -> {
+                openContentSettings();
+            },500);
+
+        }
+
         if(savedInstanceState == null){
             loadFragment(new HomeFragment());
         }
+
         getOnBackPressedDispatcher().addCallback(this,
                 new androidx.activity.OnBackPressedCallback(true) {
 
@@ -70,17 +88,16 @@ public class MainActivity extends AppCompatActivity {
 
                         new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this)
                                 .setTitle("Thoát ứng dụng")
-                                .setMessage("Bạn có muốn thoát khỏi app không?").setPositiveButton("Thoát", (dialog, which) -> {
-
+                                .setMessage("Bạn có muốn thoát khỏi app không?")
+                                .setPositiveButton("Thoát",(d,w)->{
                                     finishAffinity();
-
-                                    System.exit(0); // kill app hoàn toàn
-
+                                    System.exit(0);
                                 })
-                                .setNegativeButton("Hủy", null)
+                                .setNegativeButton("Hủy",null)
                                 .show();
                     }
                 });
+
         bottomNavigation.setOnItemSelectedListener(item -> {
 
             Fragment fragment;
@@ -110,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
         setupDrawerMenu();
     }
 
+    // Drawer menu
     private void setupDrawerMenu(){
 
         menuRecycler.setLayoutManager(new LinearLayoutManager(this));
@@ -140,8 +158,15 @@ public class MainActivity extends AppCompatActivity {
                     loadFragment(new MoviesFragment());
                     break;
 
+                case "XEM ANIME NGẪU NHIÊN":
+                    RandomAnimeLoader.load(this);
+                    break;
+
                 case "LỊCH SỬ XEM":
+
+                    bottomNavigation.setSelectedItemId(R.id.nav_settings);
                     loadFragment(new HistoryFragment());
+
                     break;
 
                 case "THỂ LOẠI":
@@ -161,6 +186,93 @@ public class MainActivity extends AppCompatActivity {
                 .commit();
     }
 
+    // Popup filter
+    private void openContentSettings(){
+
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+
+        View view = getLayoutInflater()
+                .inflate(R.layout.dialog_content_filter,null);
+
+        // LANGUAGE SWITCH
+        MaterialSwitch switchLang =
+                view.findViewById(R.id.switchLanguage);
+
+        // FILTER DROPDOWN
+        AutoCompleteTextView dropdown =
+                view.findViewById(R.id.filterDropdown);
+
+        // LOAD SAVED SETTINGS
+        String lang = AppSettings.getLanguage(this);
+        String filter = AppSettings.getContentFilter(this);
+
+        if(lang.equals("vi")){
+            switchLang.setChecked(true);
+        }else{
+            switchLang.setChecked(false);
+        }
+
+        // DROPDOWN ITEMS
+        String[] items = {
+                "An toàn",
+                "Khơi gợi",
+                "Nguy hiểm"
+        };
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_list_item_1,
+                        items
+                );
+
+        dropdown.setAdapter(adapter);
+
+        // SET CURRENT FILTER
+        if(filter.equals("16")){
+            dropdown.setText("Khơi gợi",false);
+        }
+        else if(filter.equals("18")){
+            dropdown.setText("Nguy hiểm",false);
+        }
+        else{
+            dropdown.setText("An toàn",false);
+        }
+
+        // SAVE SETTINGS
+        view.findViewById(R.id.btnSaveSettings)
+                .setOnClickListener(v -> {
+
+                    // LANGUAGE
+                    if(switchLang.isChecked()){
+                        AppSettings.setLanguage(this,"vi");
+                    }else{
+                        AppSettings.setLanguage(this,"en");
+                    }
+
+                    // FILTER
+                    String selected = dropdown.getText().toString();
+
+                    if(selected.equals("Khơi gợi")){
+                        AppSettings.setContentFilter(this,"16");
+                    }
+                    else if(selected.equals("Nguy hiểm")){
+                        AppSettings.setContentFilter(this,"18");
+                    }
+                    else{
+                        AppSettings.setContentFilter(this,"all");
+                    }
+
+                    AppSettings.setSetupDone(this);
+
+                    dialog.dismiss();
+                    recreate();
+                });
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
+    // Toolbar menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.top_menu,menu);
@@ -171,14 +283,19 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
 
         if(item.getItemId() == R.id.menu_nav){
-
             drawerLayout.openDrawer(GravityCompat.END);
+            return true;
+        }
+
+        if(item.getItemId() == R.id.menu_filter){
+            openContentSettings();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    // Load genres
     private void loadGenres(){
 
         String url = "https://graphql.anilist.co";
@@ -239,10 +356,7 @@ public class MainActivity extends AppCompatActivity {
 
         recycler.setAdapter(genreAdapter);
 
-        // CLICK GENRE
         genreAdapter.setOnGenreClickListener(genre -> {
-
-            Log.d("GENRE","Clicked: " + genre);
 
             dialog.dismiss();
 
@@ -255,5 +369,4 @@ public class MainActivity extends AppCompatActivity {
         dialog.setContentView(view);
         dialog.show();
     }
-
 }

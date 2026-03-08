@@ -13,7 +13,7 @@ import com.mari.magic.utils.TextUtils;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.mari.magic.utils.GridSpacingItemDecoration;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -29,6 +29,7 @@ import com.mari.magic.utils.AnimeParser;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.content.Intent;
+
 public class SearchActivity extends AppCompatActivity {
 
     private static final String TAG = "SEARCH_DEBUG";
@@ -93,7 +94,7 @@ public class SearchActivity extends AppCompatActivity {
             String keyword = edtSearch.getText().toString().trim();
 
             if(!keyword.isEmpty()){
-                txtTitle.setText("Search result for: " + keyword);
+                txtTitle.setText(getString(R.string.search_result, keyword));
                 searchAnime(keyword);
             }
         });
@@ -163,8 +164,11 @@ public class SearchActivity extends AppCompatActivity {
 
                                         JSONObject obj = media.getJSONObject(i);
 
-                                        Anime anime = AnimeParser.parse(obj);
+                                        Anime anime = AnimeParser.parse(obj, this);
 
+                                        if(anime == null){
+                                            continue;
+                                        }
                                         String romaji = anime.getRomajiTitle() != null ? anime.getRomajiTitle() : "";
                                         String english = anime.getEnglishTitle() != null ? anime.getEnglishTitle() : "";
                                         String nativeTitle = anime.getNativeTitle() != null ? anime.getNativeTitle() : "";
@@ -178,7 +182,7 @@ public class SearchActivity extends AppCompatActivity {
                                     }
 
                                     if(searchList.isEmpty()){
-                                        txtTitle.setText("No result found for: " + keyword);
+                                        txtTitle.setText(getString(R.string.search_no_result, keyword));
                                     }
 
                                     searchAdapter.notifyDataSetChanged();
@@ -196,51 +200,6 @@ public class SearchActivity extends AppCompatActivity {
 
         }catch(Exception e){
             e.printStackTrace();
-        }
-    }
-
-    // ===== GRID SPACING =====
-
-    public class GridSpacingItemDecoration extends RecyclerView.ItemDecoration {
-
-        private int spanCount;
-        private int spacing;
-        private boolean includeEdge;
-
-        public GridSpacingItemDecoration(int spanCount, int spacing, boolean includeEdge) {
-            this.spanCount = spanCount;
-            this.spacing = spacing;
-            this.includeEdge = includeEdge;
-        }
-
-        @Override
-        public void getItemOffsets(Rect outRect, View view,
-                                   RecyclerView parent,
-                                   RecyclerView.State state) {
-
-            int position = parent.getChildAdapterPosition(view);
-            int column = position % spanCount;
-
-            if (includeEdge) {
-
-                outRect.left = spacing - column * spacing / spanCount;
-                outRect.right = (column + 1) * spacing / spanCount;
-
-                if (position < spanCount) {
-                    outRect.top = spacing;
-                }
-
-                outRect.bottom = spacing;
-
-            } else {
-
-                outRect.left = column * spacing / spanCount;
-                outRect.right = spacing - (column + 1) * spacing / spanCount;
-
-                if (position >= spanCount) {
-                    outRect.top = spacing;
-                }
-            }
         }
     }
 }

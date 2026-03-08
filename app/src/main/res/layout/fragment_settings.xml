@@ -40,7 +40,7 @@
                     android:layout_height="24dp"/>
 
                 <TextView
-                    android:text="Profile"
+                    android:text="@string/profile"
                     android:textSize="18sp"
                     android:textColor="?attr/colorOnSurface"
                     android:layout_marginStart="12dp"
@@ -83,7 +83,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:text="Favorite Anime"
+                    android:text="@string/favorite_anime"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp" />
 
@@ -120,7 +120,7 @@
                     android:layout_height="24dp"/>
 
                 <TextView
-                    android:text="Watch History"
+                    android:text="@string/watch_history"
                     android:textSize="18sp"
                     android:textColor="?attr/colorOnSurface"
                     android:layout_marginStart="12dp"
@@ -161,7 +161,7 @@
                     android:layout_height="24dp"/>
 
                 <TextView
-                    android:text="Clear Cache"
+                    android:text="@string/clear_cache"
                     android:textSize="18sp"
                     android:textColor="?attr/colorOnSurface"
                     android:layout_marginStart="12dp"
@@ -204,7 +204,7 @@
 
                 <TextView
                     android:id="@+id/txtTheme"
-                    android:text="Light Mode"
+                    android:text="@string/theme_light"
                     android:textSize="18sp"
                     android:textColor="?attr/colorOnSurface"
                     android:layout_marginStart="12dp"
@@ -219,7 +219,7 @@
         <!-- VERSION -->
 
         <TextView
-            android:text="App Version 1.0"
+            android:text="@string/app_version"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
             android:layout_marginTop="20dp"
@@ -256,7 +256,7 @@
                     android:layout_height="24dp"/>
 
                 <TextView
-                    android:text="Logout"
+                    android:text="@string/logout"
                     android:textColor="#FF5252"
                     android:textSize="18sp"
                     android:layout_marginStart="12dp"

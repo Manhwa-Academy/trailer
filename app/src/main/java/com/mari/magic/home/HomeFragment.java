@@ -8,20 +8,22 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
-import com.mari.magic.network.VolleySingleton;
+import android.widget.TextView;
 import android.content.Intent;
-import com.mari.magic.utils.TextUtils;
+import android.widget.LinearLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-import com.mari.magic.utils.AnimeParser;
+
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+
 import com.mari.magic.R;
+import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.utils.AnimeParser;
+import com.mari.magic.utils.AppSettings;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,24 +36,28 @@ import java.util.Map;
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "HOME_DEBUG";
-
     ViewPager2 bannerSlider;
-
+    LinearLayout dotsLayout;
     EditText edtSearch;
     ImageView btnSearch;
     ImageView btnClearSearch;
-
+    BannerManager bannerManager;
     RecyclerView recyclerPopularMovies;
     RecyclerView recyclerPopularSeries;
+    RecyclerView recyclerAdult;
 
-    List<Banner> bannerList;
-
+    TextView txtAdult;
     List<Anime> movieList = new ArrayList<>();
     List<Anime> seriesList = new ArrayList<>();
+    List<Anime> adultList = new ArrayList<>();
+    RecyclerView recyclerEcchi;
+    TextView txtEcchi;
 
+    List<Anime> ecchiList = new ArrayList<>();
+    AnimeAdapter ecchiAdapter;
     AnimeAdapter movieAdapter;
     AnimeAdapter seriesAdapter;
-
+    AnimeAdapter adultAdapter;
 
     Handler handler = new Handler();
     Runnable runnable;
@@ -67,23 +73,40 @@ public class HomeFragment extends Fragment {
         edtSearch = view.findViewById(R.id.edtSearch);
         btnSearch = view.findViewById(R.id.btnSearch);
         btnClearSearch = view.findViewById(R.id.btnClearSearch);
-
+        dotsLayout = view.findViewById(R.id.dotsLayout);
         bannerSlider = view.findViewById(R.id.bannerSlider);
 
         recyclerPopularMovies = view.findViewById(R.id.recyclerPopularMovies);
         recyclerPopularSeries = view.findViewById(R.id.recyclerPopularSeries);
 
+        recyclerAdult = view.findViewById(R.id.recyclerAdult);
+        txtAdult = view.findViewById(R.id.txtAdult);
+        recyclerEcchi = view.findViewById(R.id.recyclerEcchi);
+        txtEcchi = view.findViewById(R.id.txtEcchi);
+        bannerManager = new BannerManager(bannerSlider,dotsLayout);
+        bannerManager.setup(getContext());
+        recyclerEcchi.setLayoutManager(
+                new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL,false)
+        );
+
+        ecchiAdapter = new AnimeAdapter(getContext(), ecchiList, R.layout.item_anime);
+        recyclerEcchi.setAdapter(ecchiAdapter);
         recyclerPopularMovies.setLayoutManager(
                 new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL,false));
 
         recyclerPopularSeries.setLayoutManager(
                 new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL,false));
 
+        recyclerAdult.setLayoutManager(
+                new LinearLayoutManager(getContext(), RecyclerView.HORIZONTAL,false));
+
         movieAdapter = new AnimeAdapter(getContext(), movieList, R.layout.item_anime);
         seriesAdapter = new AnimeAdapter(getContext(), seriesList, R.layout.item_anime);
+        adultAdapter = new AnimeAdapter(getContext(), adultList, R.layout.item_anime);
 
         recyclerPopularMovies.setAdapter(movieAdapter);
         recyclerPopularSeries.setAdapter(seriesAdapter);
+        recyclerAdult.setAdapter(adultAdapter);
 
         btnSearch.setOnClickListener(v -> {
 
@@ -102,14 +125,50 @@ public class HomeFragment extends Fragment {
 
         btnClearSearch.setOnClickListener(v -> edtSearch.setText(""));
 
-        setupBanner();
+
+        checkFilterUI();
 
         loadHomeAnime();
 
         return view;
     }
 
-    // ================= GRAPHQL API =================
+    // ================= FILTER UI =================
+
+    private void checkFilterUI(){
+
+        String filter = AppSettings.getContentFilter(getContext());
+
+        if(filter.equals("18")){
+
+            recyclerPopularMovies.setVisibility(View.GONE);
+            recyclerPopularSeries.setVisibility(View.GONE);
+
+            txtAdult.setVisibility(View.VISIBLE);
+            recyclerAdult.setVisibility(View.VISIBLE);
+
+        }else{
+
+            recyclerPopularMovies.setVisibility(View.VISIBLE);
+            recyclerPopularSeries.setVisibility(View.VISIBLE);
+
+            txtAdult.setVisibility(View.GONE);
+            recyclerAdult.setVisibility(View.GONE);
+        }
+
+        if(filter.equals("16")){
+
+            txtEcchi.setVisibility(View.VISIBLE);
+            recyclerEcchi.setVisibility(View.VISIBLE);
+
+        }else{
+
+            txtEcchi.setVisibility(View.GONE);
+            recyclerEcchi.setVisibility(View.GONE);
+        }
+    }
+
+    // ================= GRAPHQL =================
 
     private void loadHomeAnime(){
 
@@ -117,50 +176,94 @@ public class HomeFragment extends Fragment {
 
         String query =
                 "query {" +
+
                         " movies: Page(page:1, perPage:20) {" +
                         "  media(type:ANIME, format:MOVIE, sort:POPULARITY_DESC) {" +
-                        "   id " +
-                        "   title { romaji english native }" +
-                        "   format" +
-                        "   season" +
-                        "   seasonYear" +
-                        "   duration" +
-                        "   averageScore" +
-                        "   description" +
-                        "   genres" +
-                        "   isAdult" +   // ⭐ THÊM DÒNG NÀY
+                        "   id title { romaji english native }" +
+                        "   format season seasonYear duration" +
+                        "   averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
-                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
+
+                        // ⭐ THÊM STAFF
+                        "   staff(perPage:5) {" +
+                        "     nodes {" +
+                        "       name { full }" +
+                        "       primaryOccupations" +
+                        "     }" +
+                        "   }" +
+
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
 
                         " series: Page(page:1, perPage:20) {" +
                         "  media(type:ANIME, format:TV, sort:POPULARITY_DESC) {" +
-                        "   id " +
-                        "   title { romaji english native }" +
-                        "   format" +
-                        "   season" +
-                        "   seasonYear" +
-                        "   duration" +
-                        "   averageScore" +
-                        "   description" +
-                        "   genres" +
-                        "   isAdult" +   // ⭐ THÊM DÒNG NÀY
+                        "   id title { romaji english native }" +
+                        "   format season seasonYear duration" +
+                        "   averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
-                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
+
+                        // ⭐ THÊM STAFF
+                        "   staff(perPage:5) {" +
+                        "     nodes {" +
+                        "       name { full }" +
+                        "       primaryOccupations" +
+                        "     }" +
+                        "   }" +
+
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
+
+                        // ⭐ ECCHI (16+)
+                        " ecchi: Page(page:1, perPage:20) {" +
+                        "  media(type:ANIME, genre_in:[\"Ecchi\"], sort:POPULARITY_DESC) {" +
+                        "   id title { romaji english native }" +
+                        "   format season seasonYear duration" +
+                        "   averageScore description genres isAdult" +
+                        "   coverImage { large }" +
+                        "   studios { nodes { name } }" +
+
+                        // ⭐ THÊM STAFF
+                        "   staff(perPage:5) {" +
+                        "     nodes {" +
+                        "       name { full }" +
+                        "       primaryOccupations" +
+                        "     }" +
+                        "   }" +
+
+                        "   trailer { id site }" +
+                        "  }" +
+                        " }" +
+
+                        // ⭐ ADULT (18+)
+                        " adult: Page(page:1, perPage:20) {" +
+                        "  media(type:ANIME, isAdult:true, sort:POPULARITY_DESC) {" +
+                        "   id title { romaji english native }" +
+                        "   format season seasonYear duration" +
+                        "   averageScore description genres isAdult" +
+                        "   coverImage { large }" +
+                        "   studios { nodes { name } }" +
+
+                        // ⭐ THÊM STAFF
+                        "   staff(perPage:5) {" +
+                        "     nodes {" +
+                        "       name { full }" +
+                        "       primaryOccupations" +
+                        "     }" +
+                        "   }" +
+
+                        "   trailer { id site }" +
+                        "  }" +
+                        " }" +
+
                         "}";
         try{
 
             JSONObject body = new JSONObject();
             body.put("query",query);
-
-            Log.d(TAG,"QUERY: "+query);
 
             JsonObjectRequest request =
                     new JsonObjectRequest(Request.Method.POST,url,body,
@@ -171,48 +274,49 @@ public class HomeFragment extends Fragment {
 
                                     JSONObject data = response.getJSONObject("data");
 
-                                    parseAnime(data.getJSONObject("movies")
+                                    parseAnime(
+                                            data.getJSONObject("movies")
                                                     .getJSONArray("media"),
                                             movieList,
-                                            movieAdapter);
+                                            movieAdapter
+                                    );
 
-                                    parseAnime(data.getJSONObject("series")
+                                    parseAnime(
+                                            data.getJSONObject("series")
                                                     .getJSONArray("media"),
                                             seriesList,
-                                            seriesAdapter);
+                                            seriesAdapter
+                                    );
+
+                                    String filter = AppSettings.getContentFilter(getContext());
+
+                                    if(filter.equals("16")){
+
+                                        parseAnime(
+                                                data.getJSONObject("ecchi").getJSONArray("media"),
+                                                ecchiList,
+                                                ecchiAdapter
+                                        );
+
+                                    }
+                                    if(filter.equals("18")){
+
+                                        parseAnime(
+                                                data.getJSONObject("adult")
+                                                        .getJSONArray("media"),
+                                                adultList,
+                                                adultAdapter
+                                        );
+                                    }
 
                                 }catch(Exception e){
-                                    Log.e(TAG,"JSON PARSE ERROR",e);
+                                    Log.e(TAG,"JSON ERROR",e);
                                 }
 
                             },
 
-                            error -> {
+                            error -> Log.e(TAG,"API ERROR "+error)
 
-                                if(error.networkResponse != null){
-
-                                    int status = error.networkResponse.statusCode;
-
-                                    String responseBody =
-                                            new String(error.networkResponse.data);
-
-                                    Log.e(TAG,"STATUS: "+status);
-                                    Log.e(TAG,"BODY: "+responseBody);
-
-                                    // Retry if rate limit
-                                    if(status == 429){
-
-                                        Log.e(TAG,"Retry after 3s");
-
-                                        new Handler().postDelayed(
-                                                this::loadHomeAnime,
-                                                3000
-                                        );
-                                    }
-                                }
-
-                                Log.e(TAG,"API ERROR", error);
-                            }
                     ){
 
                         @Override
@@ -232,7 +336,6 @@ public class HomeFragment extends Fragment {
                     10000,
                     0,
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-            request.setShouldCache(true);
 
             VolleySingleton
                     .getInstance(requireContext())
@@ -255,9 +358,12 @@ public class HomeFragment extends Fragment {
 
                 JSONObject obj = media.getJSONObject(i);
 
-                Anime anime = AnimeParser.parse(obj);
+                Anime anime = AnimeParser.parse(obj, getContext());
 
-                list.add(anime);
+                if(anime != null){
+                    list.add(anime);
+                }
+
             }
 
             adapter.notifyDataSetChanged();
@@ -266,56 +372,12 @@ public class HomeFragment extends Fragment {
             Log.e(TAG,"PARSE ERROR",e);
         }
     }
-
-    // ================= BANNER =================
-
-    private void setupBanner(){
-
-        bannerList = new ArrayList<>();
-
-        bannerList.add(new Banner(
-                "https://cdn.myanimelist.net/images/anime/10/47347.jpg",
-                "Attack on Titan",
-                "https://youtu.be/MGRm4IzK1SQ"));
-
-        bannerList.add(new Banner(
-                "https://cdn.myanimelist.net/images/anime/1286/99889.jpg",
-                "Demon Slayer",
-                "https://youtu.be/VQGCKyvzIM4"));
-
-        bannerList.add(new Banner(
-                "https://cdn.myanimelist.net/images/anime/1171/109222.jpg",
-                "Jujutsu Kaisen",
-                "https://youtu.be/pkKu9hLT-t8"));
-
-        BannerAdapter adapter = new BannerAdapter(getContext(),bannerList);
-        bannerSlider.setAdapter(adapter);
-
-        autoSlideBanner();
-    }
-
-    private void autoSlideBanner(){
-
-        runnable = () -> {
-
-            int current = bannerSlider.getCurrentItem();
-
-            if(current == bannerList.size()-1)
-                bannerSlider.setCurrentItem(0);
-            else
-                bannerSlider.setCurrentItem(current+1);
-
-            handler.postDelayed(runnable,4000);
-        };
-
-        handler.postDelayed(runnable,4000);
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
 
-        if(handler!=null && runnable!=null)
-            handler.removeCallbacks(runnable);
+        if(bannerManager != null){
+            bannerManager.stop();
+        }
     }
 }

@@ -109,10 +109,11 @@ public class GenreAnimeActivity extends AppCompatActivity {
                             for(int i=0;i<array.length();i++){
 
                                 JSONObject obj = array.getJSONObject(i);
+                                Anime anime = AnimeParser.parse(obj, this);
 
-                                Anime anime = AnimeParser.parse(obj);
-
-                                list.add(anime);
+                                if(anime != null){
+                                    list.add(anime);
+                                }
                             }
 
                             adapter.notifyDataSetChanged();

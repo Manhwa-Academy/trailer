@@ -1,0 +1,45 @@
+<resources>
+
+    <string name="app_name">Magic</string>
+
+    <string name="nav_home">Trang chủ</string>
+    <string name="nav_movies">Phim</string>
+    <string name="nav_tv">Series</string>
+    <string name="nav_settings">Cài đặt</string>
+
+    <string name="popular_movies">Phim nổi bật</string>
+    <string name="top_rated_movies">Phim đánh giá cao</string>
+
+    <string name="upcoming_movies">Phim sắp chiếu</string>
+
+    <string name="watch_history">Lịch sử xem</string>
+    <string name="favorite_anime">Anime yêu thích</string>
+
+
+    <string name="profile">Hồ sơ</string>
+    <string name="clear_cache">Xóa bộ nhớ đệm</string>
+
+    <string name="logout_success">Đăng xuất thành công</string>
+
+    <string name="theme_dark">Chế độ tối</string>
+    <string name="theme_light">Chế độ sáng</string>
+
+    <string name="cache_cleared">Đã xóa %1$s MB bộ nhớ đệm</string>
+    <string name="cache_error">Lỗi khi xóa bộ nhớ đệm</string>
+
+    <string name="logout">Đăng xuất</string>
+    <string name="app_version">Phiên bản ứng dụng 1.0</string>
+
+    <string name="search_result">Kết quả tìm kiếm: %1$s</string>
+    <string name="search_no_result">Không tìm thấy kết quả cho: %1$s</string>
+
+    <string name="favorite_add">Lưu vào danh sách yêu thích</string>
+    <string name="favorite_remove">Xóa khỏi danh sách yêu thích</string>
+
+    <string name="play_trailer">▶ Xem Trailer</string>
+
+    <string name="top_rated_series">Anime TV được đánh giá cao</string>
+    <string name="popular_series">Anime TV phổ biến</string>
+    <string name="releasing_series">Anime TV đang phát hành</string>
+    <string name="search_anime">Tìm kiếm anime...</string>
+</resources>

@@ -1,5 +1,7 @@
 package com.mari.magic.utils;
 
+import android.content.Context;
+
 import com.mari.magic.home.Anime;
 
 import org.json.JSONArray;
@@ -7,17 +9,55 @@ import org.json.JSONObject;
 
 public class AnimeParser {
 
-    public static Anime parse(JSONObject obj){
-
-        Anime anime = new Anime();
+    public static Anime parse(JSONObject obj, Context ctx){
 
         try{
 
-            // ===== ID =====
-            anime.setId(obj.optInt("id"));
+            boolean isAdult = obj.optBoolean("isAdult", false);
+            JSONArray genresArray = obj.optJSONArray("genres");
 
-            // ===== ADULT =====
-            anime.setAdult(obj.optBoolean("isAdult", false));
+            boolean hasEcchi = false;
+
+            if(genresArray != null){
+
+                for(int i=0;i<genresArray.length();i++){
+
+                    String g = genresArray.optString(i);
+
+                    if(g.equalsIgnoreCase("Ecchi"))
+                        hasEcchi = true;
+                }
+            }
+
+            String filter = AppSettings.getContentFilter(ctx);
+
+            // ===== FILTER LOGIC =====
+
+            if(filter.equals("all")){
+
+                // chỉ anime bình thường
+                if(isAdult) return null;
+
+            }
+
+            else if(filter.equals("16")){
+
+                // cho Ecchi nhưng không cho 18+
+                if(isAdult) return null;
+
+            }
+
+            else if(filter.equals("18")){
+
+                // cho tất cả
+            }
+
+            // ===== CREATE OBJECT =====
+
+            Anime anime = new Anime();
+
+            anime.setId(obj.optInt("id"));
+            anime.setAdult(isAdult);
 
             // ===== TITLE =====
             JSONObject titleObj = obj.optJSONObject("title");
@@ -32,10 +72,9 @@ public class AnimeParser {
                 anime.setEnglishTitle(english);
                 anime.setNativeTitle(nativeTitle);
 
-                String bestTitle =
-                        TextUtils.bestTitle(english, romaji, nativeTitle);
-
-                anime.setTitle(bestTitle);
+                anime.setTitle(
+                        TextUtils.bestTitle(english, romaji, nativeTitle)
+                );
             }
 
             // ===== POSTER =====
@@ -45,17 +84,14 @@ public class AnimeParser {
                 anime.setPoster(cover.optString("large",""));
 
             // ===== RATING =====
-            double score = obj.optDouble("averageScore",0);
-            anime.setRating(score);
+            anime.setRating(obj.optDouble("averageScore",0));
 
             // ===== DESCRIPTION =====
             String desc = obj.optString("description","");
-            desc = desc.replaceAll("<[^>]*>", ""); // remove HTML
+            desc = desc.replaceAll("<[^>]*>", "");
             anime.setDescription(desc);
 
             // ===== GENRES =====
-            JSONArray genresArray = obj.optJSONArray("genres");
-
             StringBuilder genres = new StringBuilder();
 
             if(genresArray != null){
@@ -94,11 +130,8 @@ public class AnimeParser {
 
                 JSONObject trailer = obj.getJSONObject("trailer");
 
-                String site = trailer.optString("site","");
-                String id = trailer.optString("id","");
-
-                if(site.equalsIgnoreCase("youtube"))
-                    anime.setTrailer(id);
+                if(trailer.optString("site").equalsIgnoreCase("youtube"))
+                    anime.setTrailer(trailer.optString("id"));
             }
 
             // ===== STUDIO =====
@@ -116,7 +149,6 @@ public class AnimeParser {
                     );
                 }
             }
-
             // ===== DIRECTOR =====
             JSONObject staff = obj.optJSONObject("staff");
 
@@ -126,9 +158,9 @@ public class AnimeParser {
 
                 if(nodes != null){
 
-                    for(int s=0;s<nodes.length();s++){
+                    for(int i=0;i<nodes.length();i++){
 
-                        JSONObject person = nodes.getJSONObject(s);
+                        JSONObject person = nodes.getJSONObject(i);
 
                         JSONArray jobs = person.optJSONArray("primaryOccupations");
 
@@ -136,12 +168,11 @@ public class AnimeParser {
 
                             for(int j=0;j<jobs.length();j++){
 
-                                if(jobs.getString(j)
-                                        .equalsIgnoreCase("Director")){
+                                if(jobs.getString(j).equalsIgnoreCase("Director")){
 
                                     anime.setDirector(
                                             person.getJSONObject("name")
-                                                    .optString("full","")
+                                                    .optString("full","Unknown")
                                     );
 
                                     break;
@@ -151,11 +182,12 @@ public class AnimeParser {
                     }
                 }
             }
+            return anime;
 
         }catch(Exception e){
             e.printStackTrace();
         }
 
-        return anime;
+        return null;
     }
 }

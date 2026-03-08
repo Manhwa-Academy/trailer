@@ -19,7 +19,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="12dp"
             app:cardCornerRadius="25dp"
             app:cardElevation="4dp"
             app:cardBackgroundColor="?attr/colorSurfaceVariant">
@@ -38,9 +38,6 @@
                     android:layout_height="48dp"
                     android:padding="10dp"
                     android:src="@android:drawable/ic_menu_search"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:contentDescription="Search"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     app:tint="?attr/colorOnSurface"/>
 
@@ -49,7 +46,7 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:hint="Search anime..."
+                    android:hint="@string/search_anime"
                     android:textColor="?attr/colorOnSurface"
                     android:textColorHint="?attr/colorOnSurfaceVariant"
                     android:background="@android:color/transparent"/>
@@ -60,10 +57,10 @@
                     android:layout_height="48dp"
                     android:padding="10dp"
                     android:src="@android:drawable/ic_menu_close_clear_cancel"
-                    android:contentDescription="Clear search"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     app:tint="?attr/colorOnSurface"
                     android:visibility="gone"/>
+
             </LinearLayout>
 
         </androidx.cardview.widget.CardView>
@@ -71,31 +68,35 @@
 
         <!-- BANNER -->
 
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/bannerSlider"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginBottom="10dp"/>
+            android:layout_height="190dp"
+            android:layout_marginBottom="16dp">
 
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/bannerSlider"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
-        <!-- DOT INDICATOR -->
+            <LinearLayout
+                android:id="@+id/dotsLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|center_horizontal"
+                android:layout_marginBottom="12dp"
+                android:orientation="horizontal"/>
 
-        <LinearLayout
-            android:id="@+id/dotsLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:orientation="horizontal"
-            android:layout_marginBottom="20dp"/>
+        </FrameLayout>
 
 
         <!-- TOP RATED -->
 
         <TextView
-            android:text="Top Rated Movies"
+            android:text="@string/top_rated_movies"
             android:textColor="?attr/colorOnSurface"
             android:textSize="20sp"
             android:textStyle="bold"
+            android:layout_marginBottom="6dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -110,11 +111,12 @@
         <!-- POPULAR -->
 
         <TextView
-            android:text="Popular Movies"
+            android:text="@string/popular_movies"
             android:textColor="?attr/colorOnSurface"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -129,11 +131,12 @@
         <!-- UPCOMING -->
 
         <TextView
-            android:text="Upcoming Movies"
+            android:text="@string/upcoming_movies"
             android:textColor="?attr/colorOnSurface"
             android:textSize="20sp"
             android:textStyle="bold"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginBottom="6dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 
@@ -142,6 +145,50 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nestedScrollingEnabled="false"
+            android:overScrollMode="never"/>
+
+
+        <!-- ADULT MOVIES -->
+
+        <TextView
+            android:id="@+id/txtAdultMovies"
+            android:text="Adult Movies"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="18dp"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerAdultMovies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone"
+            android:overScrollMode="never"/>
+
+
+        <!-- ECCHI MOVIES -->
+
+        <TextView
+            android:id="@+id/txtEcchiMovies"
+            android:text="Ecchi Movies"
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="18dp"
+            android:visibility="gone"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerEcchiMovies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:visibility="gone"
             android:overScrollMode="never"/>
 
     </LinearLayout>

@@ -229,13 +229,12 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
                         isFavorite = true;
                         btnFavorite.setImageResource(R.drawable.ic_favorite);
-                        txtFavorite.setText("Xóa khỏi danh sách yêu thích");
-
+                        txtFavorite.setText(getString(R.string.favorite_remove));
                     }else{
 
                         isFavorite = false;
                         btnFavorite.setImageResource(R.drawable.ic_favorite_border);
-                        txtFavorite.setText("Lưu vào danh sách yêu thích");
+                        txtFavorite.setText(getString(R.string.favorite_add));
                     }
                 });
     }

@@ -155,12 +155,12 @@ public class SettingsFragment extends Fragment {
 
         if(mode == AppCompatDelegate.MODE_NIGHT_YES){
 
-            txtTheme.setText("Light Mode");
+            txtTheme.setText(getString(R.string.theme_light));
             iconTheme.setImageResource(R.drawable.ic_lightmode);
 
         }else{
 
-            txtTheme.setText("Dark Mode");
+            txtTheme.setText(getString(R.string.theme_dark));
             iconTheme.setImageResource(R.drawable.ic_darkmode);
         }
     }
@@ -178,7 +178,7 @@ public class SettingsFragment extends Fragment {
             FirebaseAuth.getInstance().signOut();
 
             Toast.makeText(getContext(),
-                    "Logged out successfully",
+                    getString(R.string.logout_success),
                     Toast.LENGTH_SHORT).show();
 
             Intent intent = new Intent(getActivity(),
@@ -214,14 +214,16 @@ public class SettingsFragment extends Fragment {
 
                 double mb = size / (1024.0 * 1024.0);
 
+                String sizeText = String.format("%.2f", mb);
+
                 Toast.makeText(getContext(),
-                        "Cleared "+String.format("%.2f",mb)+" MB cache",
+                        getString(R.string.cache_cleared, sizeText),
                         Toast.LENGTH_LONG).show();
 
             }catch(Exception e){
 
                 Toast.makeText(getContext(),
-                        "Error clearing cache",
+                        getString(R.string.cache_error),
                         Toast.LENGTH_SHORT).show();
             }
 
@@ -271,4 +273,5 @@ public class SettingsFragment extends Fragment {
 
         return dir!=null && dir.delete();
     }
+
 }
