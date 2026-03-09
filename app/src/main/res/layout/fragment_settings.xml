@@ -2,50 +2,50 @@
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="?attr/colorSurface"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurface">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:padding="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
 
         <!-- PROFILE -->
 
         <androidx.cardview.widget.CardView
-            android:tag="profile_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
             app:cardCornerRadius="12dp"
             app:cardElevation="3dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            android:layout_marginBottom="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardBackgroundColor="?attr/colorSurface">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
 
                 <ImageView
-                    android:src="@drawable/ic_profile"
-                    app:tint="?attr/colorOnSurface"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_profile"
+                    app:tint="?attr/colorOnSurface"/>
 
                 <TextView
-                    android:text="@string/profile"
-                    android:textSize="18sp"
-                    android:textColor="?attr/colorOnSurface"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_weight="1"
+                    android:text="@string/profile"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="18sp"/>
 
             </LinearLayout>
 
@@ -56,36 +56,37 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/btnFavorites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
             app:cardCornerRadius="12dp"
             app:cardElevation="3dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            android:layout_marginBottom="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardBackgroundColor="?attr/colorSurface">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
 
                 <ImageView
-                    android:src="@drawable/ic_favorite"
-                    app:tint="?attr/colorOnSurface"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_favorite"
+                    app:tint="?attr/colorOnSurface"/>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
+                    android:layout_weight="1"
                     android:text="@string/favorite_anime"
                     android:textColor="?attr/colorOnSurface"
-                    android:textSize="18sp" />
+                    android:textSize="18sp"/>
 
             </LinearLayout>
 
@@ -96,36 +97,37 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/btnHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
             app:cardCornerRadius="12dp"
             app:cardElevation="3dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            android:layout_marginBottom="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardBackgroundColor="?attr/colorSurface">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
 
                 <ImageView
-                    android:src="@drawable/ic_history"
-                    app:tint="?attr/colorOnSurface"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_history"
+                    app:tint="?attr/colorOnSurface"/>
 
                 <TextView
-                    android:text="@string/watch_history"
-                    android:textSize="18sp"
-                    android:textColor="?attr/colorOnSurface"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_weight="1"
+                    android:text="@string/watch_history"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="18sp"/>
 
             </LinearLayout>
 
@@ -136,35 +138,81 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/btnClearCache"
-            android:tag="cache_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
             app:cardCornerRadius="12dp"
             app:cardElevation="3dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            android:layout_marginBottom="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardBackgroundColor="?attr/colorSurface">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
 
                 <ImageView
-                    android:src="@drawable/ic_clear"
-                    app:tint="?attr/colorOnSurface"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_clear"
+                    app:tint="?attr/colorOnSurface"/>
 
                 <TextView
-                    android:text="@string/clear_cache"
-                    android:textSize="18sp"
-                    android:textColor="?attr/colorOnSurface"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:text="@string/clear_cache"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="18sp"/>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+
+        <!-- SEARCH HISTORY -->
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/btnSearchHistory"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?attr/selectableItemBackground"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="3dp"
+            app:cardBackgroundColor="?attr/colorSurface">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_history"
+                    app:tint="?attr/colorOnSurface"/>
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:text="@string/search_history"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="18sp"/>
+
+                <com.google.android.material.switchmaterial.SwitchMaterial
+                    android:id="@+id/switchSearchHistory"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
@@ -177,39 +225,39 @@
 
         <androidx.cardview.widget.CardView
             android:id="@+id/btnTheme"
-            android:tag="theme_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
             app:cardCornerRadius="12dp"
             app:cardElevation="3dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            android:layout_marginBottom="12dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardBackgroundColor="?attr/colorSurface">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
 
                 <ImageView
                     android:id="@+id/iconTheme"
-                    android:src="@drawable/ic_lightmode"
-                    app:tint="?attr/colorOnSurface"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_lightmode"
+                    app:tint="?attr/colorOnSurface"/>
 
                 <TextView
                     android:id="@+id/txtTheme"
-                    android:text="@string/theme_light"
-                    android:textSize="18sp"
-                    android:textColor="?attr/colorOnSurface"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:layout_weight="1"
+                    android:text="@string/theme_light"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="18sp"/>
 
             </LinearLayout>
 
@@ -219,49 +267,49 @@
         <!-- VERSION -->
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@string/app_version"
             android:textColor="?attr/colorOnSurface"
             android:textSize="14sp"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="8dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_marginBottom="8dp"/>
 
 
         <!-- LOGOUT -->
 
         <androidx.cardview.widget.CardView
             android:id="@+id/btnLogout"
-            android:tag="logout_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
             android:foreground="?attr/selectableItemBackground"
             app:cardCornerRadius="12dp"
             app:cardElevation="3dp"
-            app:cardBackgroundColor="?attr/colorSurface"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            app:cardBackgroundColor="?attr/colorSurface">
 
             <LinearLayout
-                android:orientation="horizontal"
-                android:padding="16dp"
-                android:gravity="center_vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="16dp">
 
                 <ImageView
-                    android:src="@drawable/ic_logout"
-                    app:tint="#FF5252"
                     android:layout_width="24dp"
-                    android:layout_height="24dp"/>
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_logout"
+                    app:tint="#FF5252"/>
 
                 <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
                     android:text="@string/logout"
                     android:textColor="#FF5252"
-                    android:textSize="18sp"
-                    android:layout_marginStart="12dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="18sp"/>
 
             </LinearLayout>
 

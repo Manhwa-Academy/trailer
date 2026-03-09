@@ -87,8 +87,12 @@ public class SeasonAnimeActivity extends AppCompatActivity {
                             " genres " +
                             " format " +
                             " season " +
+                            " updatedAt " +
                             " seasonYear " +
                             " duration " +
+                            " episodes " +
+                            "nextAiringEpisode { episode airingAt } " +
+                            "status " +
                             " trailer { id site } " +
                             " studios(isMain:true){ nodes{ name } } " +
                             " staff(perPage:20){ nodes{ name{full} primaryOccupations } } " +

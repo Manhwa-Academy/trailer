@@ -53,7 +53,9 @@ public class HomeFragment extends Fragment {
 
         recyclerHome = view.findViewById(R.id.recyclerHome);
 
-        recyclerHome.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerHome.setLayoutManager(
+                new LinearLayoutManager(getContext())
+        );
 
         setupSections();
 
@@ -72,112 +74,124 @@ public class HomeFragment extends Fragment {
         sectionList.clear();
 
         sectionList.add(new Section(Section.TYPE_BANNER));
+        sectionList.add(new Section(Section.TYPE_SEARCH));
 
-        sectionList.add(new Section(Section.TYPE_SEARCH)); // ⭐ THÊM DÒNG NÀY
-
-        sectionList.add(new Section(Section.CAT_MOVIES,
+        sectionList.add(new Section(
+                Section.CAT_MOVIES,
                 getString(R.string.popular_movies),
-                movieList));
+                movieList
+        ));
 
-        sectionList.add(new Section(Section.CAT_SERIES,
+        sectionList.add(new Section(
+                Section.CAT_SERIES,
                 getString(R.string.popular_series),
-                seriesList));
+                seriesList
+        ));
 
         String filter = AppSettings.getContentFilter(getContext());
 
-        if(filter.equals("16")){
-            sectionList.add(new Section(Section.CAT_ECCHI,
+        if("16".equals(filter)){
+            sectionList.add(new Section(
+                    Section.CAT_ECCHI,
                     getString(R.string.ecchi_series),
-                    ecchiList));
+                    ecchiList
+            ));
         }
 
-        if(filter.equals("18")){
-            sectionList.add(new Section(Section.CAT_ADULT,
+        if("18".equals(filter)){
+            sectionList.add(new Section(
+                    Section.CAT_ADULT,
                     getString(R.string.adult_series),
-                    adultList));
+                    adultList
+            ));
         }
     }
+
     // ================= API =================
 
     private void loadHomeAnime(){
 
-        String url = "https://graphql.anilist.co";
+        if(!isAdded()) return;
 
+        String url = "https://graphql.anilist.co";
         String query =
                 "query {" +
 
-                        " movies: Page(page:1, perPage:20) {" +
+                        "movies: Page(page:1, perPage:20) {" +
                         "  media(type:ANIME, format:MOVIE, sort:POPULARITY_DESC) {" +
                         "   id title { romaji english native }" +
-                        "   format season seasonYear duration" +
+                        "   format season seasonYear duration episodes" +
+                        "   status " +
                         "   averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
-
+                        "   updatedAt " +
                         "   staff(perPage:5) {" +
                         "     nodes {" +
                         "       name { full }" +
                         "       primaryOccupations" +
                         "     }" +
                         "   }" +
-
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
 
-                        " series: Page(page:1, perPage:20) {" +
+                        "series: Page(page:1, perPage:20) {" +
                         "  media(type:ANIME, format:TV, sort:POPULARITY_DESC) {" +
                         "   id title { romaji english native }" +
-                        "   format season seasonYear duration" +
+                        "   format season seasonYear duration episodes" +
+                        "   nextAiringEpisode { episode airingAt }" +
+                        "   status " +
                         "   averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
-
+                        "   updatedAt " +
                         "   staff(perPage:5) {" +
                         "     nodes {" +
                         "       name { full }" +
                         "       primaryOccupations" +
                         "     }" +
                         "   }" +
-
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
 
-                        " ecchi: Page(page:1, perPage:20) {" +
+                        "ecchi: Page(page:1, perPage:20) {" +
                         "  media(type:ANIME, genre_in:[\"Ecchi\"], sort:POPULARITY_DESC) {" +
                         "   id title { romaji english native }" +
-                        "   format season seasonYear duration" +
+                        "   format season seasonYear duration episodes" +
+                        "   nextAiringEpisode { episode airingAt }" +
+                        "   status " +
                         "   averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
-
+                        "   updatedAt " +
                         "   staff(perPage:5) {" +
                         "     nodes {" +
                         "       name { full }" +
                         "       primaryOccupations" +
                         "     }" +
                         "   }" +
-
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
 
-                        " adult: Page(page:1, perPage:20) {" +
+                        "adult: Page(page:1, perPage:20) {" +
                         "  media(type:ANIME, isAdult:true, sort:POPULARITY_DESC) {" +
                         "   id title { romaji english native }" +
-                        "   format season seasonYear duration" +
+                        "   format season seasonYear duration episodes" +
+                        "   nextAiringEpisode { episode airingAt }" +
+                        "   status " +
                         "   averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
-
+                        "   updatedAt " +
                         "   staff(perPage:5) {" +
                         "     nodes {" +
                         "       name { full }" +
                         "       primaryOccupations" +
                         "     }" +
                         "   }" +
-
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
@@ -190,9 +204,14 @@ public class HomeFragment extends Fragment {
             body.put("query",query);
 
             JsonObjectRequest request =
-                    new JsonObjectRequest(Request.Method.POST,url,body,
+                    new JsonObjectRequest(
+                            Request.Method.POST,
+                            url,
+                            body,
 
                             response -> {
+
+                                if(!isAdded()) return;
 
                                 try{
 
@@ -210,9 +229,10 @@ public class HomeFragment extends Fragment {
                                             seriesList
                                     );
 
-                                    String filter = AppSettings.getContentFilter(getContext());
+                                    String filter =
+                                            AppSettings.getContentFilter(getContext());
 
-                                    if(filter.equals("16")){
+                                    if("16".equals(filter)){
 
                                         parseAnime(
                                                 data.getJSONObject("ecchi")
@@ -221,7 +241,7 @@ public class HomeFragment extends Fragment {
                                         );
                                     }
 
-                                    if(filter.equals("18")){
+                                    if("18".equals(filter)){
 
                                         parseAnime(
                                                 data.getJSONObject("adult")
@@ -230,7 +250,9 @@ public class HomeFragment extends Fragment {
                                         );
                                     }
 
-                                    adapter.notifyDataSetChanged();
+                                    if(adapter != null){
+                                        adapter.notifyDataSetChanged();
+                                    }
 
                                 }catch(Exception e){
                                     Log.e(TAG,"JSON ERROR",e);
@@ -239,7 +261,6 @@ public class HomeFragment extends Fragment {
                             },
 
                             error -> Log.e(TAG,"API ERROR "+error)
-
                     ){
 
                         @Override
@@ -255,13 +276,16 @@ public class HomeFragment extends Fragment {
                         }
                     };
 
+            request.setTag(TAG);
+
             request.setRetryPolicy(new DefaultRetryPolicy(
                     10000,
                     0,
-                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
 
             VolleySingleton
-                    .getInstance(requireContext())
+                    .getInstance(getContext())
                     .addToRequestQueue(request);
 
         }catch(Exception e){
@@ -273,6 +297,8 @@ public class HomeFragment extends Fragment {
 
     private void parseAnime(JSONArray media, List<Anime> list){
 
+        if(!isAdded()) return;
+
         list.clear();
 
         try{
@@ -281,7 +307,7 @@ public class HomeFragment extends Fragment {
 
                 JSONObject obj = media.getJSONObject(i);
 
-                Anime anime = AnimeParser.parse(obj, getContext());
+                Anime anime = AnimeParser.parse(obj,getContext());
 
                 if(anime != null){
                     list.add(anime);
@@ -290,6 +316,20 @@ public class HomeFragment extends Fragment {
 
         }catch(Exception e){
             Log.e(TAG,"PARSE ERROR",e);
+        }
+    }
+
+    // ================= CANCEL REQUEST =================
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if(getContext()!=null){
+            VolleySingleton
+                    .getInstance(getContext())
+                    .getRequestQueue()
+                    .cancelAll(TAG);
         }
     }
 }

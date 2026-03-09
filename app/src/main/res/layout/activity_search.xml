@@ -25,8 +25,6 @@
             android:paddingStart="8dp"
             android:paddingEnd="8dp">
 
-            <!-- SEARCH BUTTON -->
-
             <ImageView
                 android:id="@+id/btnSearch"
                 android:layout_width="48dp"
@@ -36,10 +34,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:clickable="true"
                 android:focusable="true"
-                android:contentDescription="Search"
                 app:tint="?attr/colorOnSurface"/>
-
-            <!-- SEARCH INPUT -->
 
             <EditText
                 android:id="@+id/edtSearch"
@@ -56,8 +51,6 @@
                 android:singleLine="true"
                 android:imeOptions="actionSearch"/>
 
-            <!-- CLEAR BUTTON -->
-
             <ImageView
                 android:id="@+id/btnClearSearch"
                 android:layout_width="48dp"
@@ -65,7 +58,6 @@
                 android:padding="12dp"
                 android:src="@android:drawable/ic_menu_close_clear_cancel"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Clear search"
                 android:clickable="true"
                 android:focusable="true"
                 android:visibility="gone"
@@ -90,12 +82,38 @@
         android:paddingBottom="8dp"/>
 
 
+    <!-- RECENT SEARCH TITLE -->
+
+    <TextView
+        android:id="@+id/txtRecent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/recent_searches"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp"
+        android:paddingStart="16dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"/>
+
+
+    <!-- RECENT SEARCH HISTORY -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"/>
+
+
     <!-- RESULT GRID -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerSearch"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:paddingStart="10dp"
         android:paddingEnd="10dp"
         android:clipToPadding="false"/>

@@ -16,40 +16,15 @@ public class AnimeParser {
             boolean isAdult = obj.optBoolean("isAdult", false);
             JSONArray genresArray = obj.optJSONArray("genres");
 
-            boolean hasEcchi = false;
-
-            if(genresArray != null){
-
-                for(int i=0;i<genresArray.length();i++){
-
-                    String g = genresArray.optString(i);
-
-                    if(g.equalsIgnoreCase("Ecchi"))
-                        hasEcchi = true;
-                }
-            }
-
             String filter = AppSettings.getContentFilter(ctx);
 
             // ===== FILTER LOGIC =====
 
             if(filter.equals("all")){
-
-                // chỉ anime bình thường
                 if(isAdult) return null;
-
             }
-
             else if(filter.equals("16")){
-
-                // cho Ecchi nhưng không cho 18+
                 if(isAdult) return null;
-
-            }
-
-            else if(filter.equals("18")){
-
-                // cho tất cả
             }
 
             // ===== CREATE OBJECT =====
@@ -60,6 +35,7 @@ public class AnimeParser {
             anime.setAdult(isAdult);
 
             // ===== TITLE =====
+
             JSONObject titleObj = obj.optJSONObject("title");
 
             if(titleObj != null){
@@ -78,20 +54,28 @@ public class AnimeParser {
             }
 
             // ===== POSTER =====
+
             JSONObject cover = obj.optJSONObject("coverImage");
 
             if(cover != null)
                 anime.setPoster(cover.optString("large",""));
 
             // ===== RATING =====
+
             anime.setRating(obj.optDouble("averageScore",0));
 
+            // ===== POPULARITY / VIEWS =====
+
+            anime.setViews(obj.optLong("popularity",0));
+
             // ===== DESCRIPTION =====
+
             String desc = obj.optString("description","");
-            desc = desc.replaceAll("<[^>]*>", "");
+            desc = desc.replaceAll("<[^>]*>","");
             anime.setDescription(desc);
 
             // ===== GENRES =====
+
             StringBuilder genres = new StringBuilder();
 
             if(genresArray != null){
@@ -108,12 +92,15 @@ public class AnimeParser {
             anime.setGenres(genres.toString());
 
             // ===== FORMAT =====
+
             anime.setFormat(obj.optString("format","Unknown"));
 
             // ===== YEAR =====
+
             anime.setYear(obj.optInt("seasonYear",0));
 
             // ===== SEASON =====
+
             String season = obj.optString("season","");
             int year = obj.optInt("seasonYear",0);
 
@@ -123,18 +110,52 @@ public class AnimeParser {
             anime.setSeason(season);
 
             // ===== DURATION =====
+
             anime.setDuration(obj.optInt("duration",0));
+            anime.setStatus(obj.optString("status",""));
+            // ===== EPISODES =====
+            anime.setUpdatedAt(obj.optLong("updatedAt",0));
+            // ===== EPISODES =====
+
+            int episodes = obj.optInt("episodes",0);
+
+            JSONObject next = obj.optJSONObject("nextAiringEpisode");
+
+            if(next != null){
+
+                int nextEpisode = next.optInt("episode",0);
+                long airingAt = next.optLong("airingAt",0);
+
+                anime.setNextEpisode(nextEpisode);
+                anime.setNextAiringAt(airingAt);
+
+                // đảm bảo episodes luôn đúng
+                if(nextEpisode > 1){
+
+                    int airedEpisodes = nextEpisode - 1;
+
+                    if(episodes == 0 || episodes < airedEpisodes){
+                        episodes = airedEpisodes;
+                    }
+
+                }
+            }
+
+            anime.setEpisodes(episodes);
 
             // ===== TRAILER =====
+
             if(obj.has("trailer") && !obj.isNull("trailer")){
 
                 JSONObject trailer = obj.getJSONObject("trailer");
 
-                if(trailer.optString("site").equalsIgnoreCase("youtube"))
+                if(trailer.optString("site").equalsIgnoreCase("youtube")){
                     anime.setTrailer(trailer.optString("id"));
+                }
             }
 
             // ===== STUDIO =====
+
             JSONObject studios = obj.optJSONObject("studios");
 
             if(studios != null){
@@ -145,11 +166,13 @@ public class AnimeParser {
 
                     anime.setStudio(
                             nodes.getJSONObject(0)
-                                    .optString("name","")
+                                    .optString("name","Unknown")
                     );
                 }
             }
+
             // ===== DIRECTOR =====
+
             JSONObject staff = obj.optJSONObject("staff");
 
             if(staff != null){
@@ -182,6 +205,7 @@ public class AnimeParser {
                     }
                 }
             }
+
             return anime;
 
         }catch(Exception e){

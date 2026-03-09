@@ -79,4 +79,13 @@
     <string name="menu_season">Mùa anime</string>
     <string name="menu_library">Thư viện</string>
     <string name="menu_schedule">Lịch chiếu</string>
+
+    <string name="search_history">Lịch sử tìm kiếm</string>
+    <string name="recent_searches">Tìm kiếm gần đây</string>
+
+    <string name="no_favorite">Chưa có anime yêu thích ❤️</string>
+
+    <string name="history_title">Lịch sử xem</string>
+    <string name="clear_history">🗑 Xóa lịch sử</string>
+    <string name="history_empty">Chưa có anime nào được xem 🎬</string>
 </resources>

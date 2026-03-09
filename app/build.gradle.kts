@@ -8,13 +8,15 @@ android {
     compileSdk {
         version = release(36)
     }
-
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
     defaultConfig {
         applicationId = "com.mari.magic"
         minSdk = 24
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 9999
+        versionName = "Mari Idol"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

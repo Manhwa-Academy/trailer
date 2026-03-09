@@ -33,11 +33,13 @@ public class SeeAllActivity extends AppCompatActivity {
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
 
-        title.setText("Anime");
+        title.setText(getString(R.string.app_name));
 
         String filter = AppSettings.getContentFilter(this);
-
+        boolean safeMode = filter.equals("all");
         // ===== TAB LIST =====
+
+        sections.add(Section.CAT_NEW);        // ⭐ Anime mới
         sections.add(Section.CAT_MOVIES);
         sections.add(Section.CAT_SERIES);
         sections.add(Section.CAT_TOP_TV);
@@ -55,43 +57,46 @@ public class SeeAllActivity extends AppCompatActivity {
         SeeAllPagerAdapter adapter = new SeeAllPagerAdapter(this, sections);
         viewPager.setAdapter(adapter);
 
-        new TabLayoutMediator(tabLayout, viewPager,
-                (tab, position) -> {
+        new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
 
-                    String section = sections.get(position);
+            String section = sections.get(position);
 
-                    switch(section){
+            switch(section){
 
-                        case Section.CAT_MOVIES:
-                            tab.setText(getString(R.string.tab_movies));
-                            break;
+                case Section.CAT_NEW:
+                    tab.setText(getString(R.string.menu_new));
+                    break;
 
-                        case Section.CAT_SERIES:
-                            tab.setText(getString(R.string.tab_series));
-                            break;
+                case Section.CAT_MOVIES:
+                    tab.setText(getString(R.string.tab_movies));
+                    break;
 
-                        case Section.CAT_TOP_TV:
-                            tab.setText(getString(R.string.tab_top_tv));
-                            break;
+                case Section.CAT_SERIES:
+                    tab.setText(getString(R.string.tab_series));
+                    break;
 
-                        case Section.CAT_RELEASING:
-                            tab.setText(getString(R.string.tab_releasing));
-                            break;
+                case Section.CAT_TOP_TV:
+                    tab.setText(getString(R.string.tab_top_tv));
+                    break;
 
-                        case Section.CAT_UPCOMING:
-                            tab.setText(getString(R.string.tab_upcoming));
-                            break;
+                case Section.CAT_RELEASING:
+                    tab.setText(getString(R.string.tab_releasing));
+                    break;
 
-                        case Section.CAT_ECCHI:
-                            tab.setText(getString(R.string.tab_ecchi));
-                            break;
+                case Section.CAT_UPCOMING:
+                    tab.setText(getString(R.string.tab_upcoming));
+                    break;
 
-                        case Section.CAT_ADULT:
-                            tab.setText(getString(R.string.tab_adult));
-                            break;
-                    }
+                case Section.CAT_ECCHI:
+                    tab.setText(getString(R.string.tab_ecchi));
+                    break;
 
-                }).attach();
+                case Section.CAT_ADULT:
+                    tab.setText(getString(R.string.tab_adult));
+                    break;
+            }
+
+        }).attach();
 
         // ===== mở đúng tab =====
 
@@ -100,12 +105,16 @@ public class SeeAllActivity extends AppCompatActivity {
         int startTab = 0;
 
         if(openSection != null){
-            for(int i=0;i<sections.size();i++){
+
+            for(int i = 0; i < sections.size(); i++){
+
                 if(sections.get(i).equals(openSection)){
                     startTab = i;
                     break;
                 }
+
             }
+
         }
 
         viewPager.setCurrentItem(startTab,false);

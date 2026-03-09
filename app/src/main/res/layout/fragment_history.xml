@@ -8,43 +8,43 @@
     android:background="?attr/colorSurface"
     android:padding="16dp">
 
-    <!-- TITLE -->
+    <!-- TIÊU ĐỀ -->
 
     <TextView
         android:id="@+id/txtHistoryTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Watch History"
+        android:text="@string/history_title"
         android:textSize="22sp"
         android:textStyle="bold"
         android:textColor="?attr/colorOnSurface"/>
 
-    <!-- CLEAR HISTORY BUTTON -->
+    <!-- NÚT XÓA LỊCH SỬ -->
 
     <TextView
         android:id="@+id/btnClearHistory"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="🗑 Clear History"
+        android:text="@string/clear_history"
         android:textColor="?attr/colorPrimary"
         android:textSize="14sp"
         android:layout_marginTop="6dp"
         android:layout_marginBottom="10dp"/>
 
-    <!-- EMPTY MESSAGE -->
+    <!-- THÔNG BÁO TRỐNG -->
 
     <TextView
         android:id="@+id/txtHistoryEmpty"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No anime watched yet 🎬"
+        android:text="@string/history_empty"
         android:textSize="16sp"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:gravity="center"
         android:visibility="gone"
         android:layout_marginTop="40dp"/>
 
-    <!-- LIST -->
+    <!-- DANH SÁCH LỊCH SỬ -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerHistory"

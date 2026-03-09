@@ -55,12 +55,12 @@ public class TvSeriesFragment extends Fragment {
         recyclerTv = view.findViewById(R.id.recyclerTv);
 
         recyclerTv.setLayoutManager(
-                new LinearLayoutManager(getContext())
+                new LinearLayoutManager(requireContext())
         );
 
         setupSections();
 
-        adapter = new HomeSectionAdapter(getContext(), sectionList);
+        adapter = new HomeSectionAdapter(requireContext(), sectionList);
         recyclerTv.setAdapter(adapter);
 
         loadAllSeries();
@@ -95,9 +95,9 @@ public class TvSeriesFragment extends Fragment {
                 releasingList
         ));
 
-        String filter = AppSettings.getContentFilter(getContext());
+        String filter = AppSettings.getContentFilter(requireContext());
 
-        if(filter.equals("16")){
+        if("16".equals(filter)){
             sectionList.add(new Section(
                     Section.CAT_ECCHI,
                     getString(R.string.ecchi_series),
@@ -105,7 +105,7 @@ public class TvSeriesFragment extends Fragment {
             ));
         }
 
-        if(filter.equals("18")){
+        if("18".equals(filter)){
             sectionList.add(new Section(
                     Section.CAT_ADULT,
                     getString(R.string.adult_series),
@@ -113,96 +113,22 @@ public class TvSeriesFragment extends Fragment {
             ));
         }
     }
+
     // ================= API =================
 
     private void loadAllSeries(){
 
+        if(!isAdded()) return;
+
         String url = "https://graphql.anilist.co";
 
-        String query =
-                "query {" +
-
-                        "topRated: Page(page:1,perPage:10){" +
-                        "media(type:ANIME,format:TV,sort:SCORE_DESC){" +
-                        "id title{romaji english native}" +
-                        "format season seasonYear duration " +
-                        "averageScore description genres isAdult " +
-                        "coverImage{large}" +
-                        "studios{nodes{name}}" +
-
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
-                        "}" +
-
-                        "trailer{id site}" +
-                        "}" +
-                        "}" +
-
-                        "popular: Page(page:1,perPage:10){" +
-                        "media(type:ANIME,format:TV,sort:POPULARITY_DESC){" +
-                        "id title{romaji english native}" +
-                        "format season seasonYear duration " +
-                        "averageScore description genres isAdult " +
-                        "coverImage{large}" +
-                        "studios{nodes{name}}" +
-
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
-                        "}" +
-
-                        "trailer{id site}" +
-                        "}" +
-                        "}" +
-
-                        "releasing: Page(page:1,perPage:10){" +
-                        "media(type:ANIME,format:TV,status:RELEASING,sort:POPULARITY_DESC){" +
-                        "id title{romaji english native}" +
-                        "format season seasonYear duration " +
-                        "averageScore description genres isAdult " +
-                        "coverImage{large}" +
-                        "studios{nodes{name}}" +
-
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
-                        "}" +
-
-                        "trailer{id site}" +
-                        "}" +
-                        "}" +
-
-                        "ecchi: Page(page:1,perPage:10){" +
-                        "media(type:ANIME,format:TV,genre_in:[\"Ecchi\"],sort:POPULARITY_DESC){" +
-                        "id title{romaji english native}" +
-                        "format season seasonYear duration " +
-                        "averageScore description genres isAdult " +
-                        "coverImage{large}" +
-                        "studios{nodes{name}}" +
-
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
-                        "}" +
-
-                        "trailer{id site}" +
-                        "}" +
-                        "}" +
-
-                        "adult: Page(page:1,perPage:10){" +
-                        "media(type:ANIME,format:TV,isAdult:true,sort:POPULARITY_DESC){" +
-                        "id title{romaji english native}" +
-                        "format season seasonYear duration " +
-                        "averageScore description genres isAdult " +
-                        "coverImage{large}" +
-                        "studios{nodes{name}}" +
-
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
-                        "}" +
-
-                        "trailer{id site}" +
-                        "}" +
-                        "}" +
-
-                        "}";
+        String query = "query {" +
+                "topRated: Page(page:1,perPage:10){ media(type:ANIME,format:TV,sort:SCORE_DESC){ id title{romaji english native} format season seasonYear duration episodes nextAiringEpisode{episode airingAt} status averageScore description genres isAdult coverImage{large} studios{nodes{name}} updatedAt staff(perPage:5){nodes{name{full} primaryOccupations}} trailer{id site} } }" +
+                "popular: Page(page:1,perPage:10){ media(type:ANIME,format:TV,sort:POPULARITY_DESC){ id title{romaji english native} format season seasonYear duration episodes nextAiringEpisode{episode airingAt} status averageScore description genres isAdult coverImage{large} studios{nodes{name}} updatedAt staff(perPage:5){nodes{name{full} primaryOccupations}} trailer{id site} } }" +
+                "releasing: Page(page:1,perPage:10){ media(type:ANIME,format:TV,status:RELEASING,sort:POPULARITY_DESC){ id title{romaji english native} format season seasonYear duration episodes nextAiringEpisode{episode airingAt} status averageScore description genres isAdult coverImage{large} studios{nodes{name}} updatedAt staff(perPage:5){nodes{name{full} primaryOccupations}} trailer{id site} } }" +
+                "ecchi: Page(page:1,perPage:10){ media(type:ANIME,format:TV,genre_in:[\"Ecchi\"],sort:POPULARITY_DESC){ id title{romaji english native} format season seasonYear duration episodes nextAiringEpisode{episode airingAt} status averageScore description genres isAdult coverImage{large} studios{nodes{name}} updatedAt staff(perPage:5){nodes{name{full} primaryOccupations}} trailer{id site} } }" +
+                "adult: Page(page:1,perPage:10){ media(type:ANIME,format:TV,isAdult:true,sort:POPULARITY_DESC){ id title{romaji english native} format season seasonYear duration episodes nextAiringEpisode{episode airingAt} status averageScore description genres isAdult coverImage{large} studios{nodes{name}} updatedAt staff(perPage:5){nodes{name{full} primaryOccupations}} trailer{id site} } }" +
+                "}";
 
         try{
 
@@ -217,44 +143,29 @@ public class TvSeriesFragment extends Fragment {
 
                             response -> {
 
+                                if(!isAdded()) return;
+
                                 try{
 
                                     JSONObject data = response.getJSONObject("data");
 
-                                    parseAnime(
-                                            data.getJSONObject("topRated").getJSONArray("media"),
-                                            topRatedList
-                                    );
+                                    parseAnime(data.getJSONObject("topRated").getJSONArray("media"), topRatedList);
+                                    parseAnime(data.getJSONObject("popular").getJSONArray("media"), popularList);
+                                    parseAnime(data.getJSONObject("releasing").getJSONArray("media"), releasingList);
 
-                                    parseAnime(
-                                            data.getJSONObject("popular").getJSONArray("media"),
-                                            popularList
-                                    );
+                                    String filter = AppSettings.getContentFilter(requireContext());
 
-                                    parseAnime(
-                                            data.getJSONObject("releasing").getJSONArray("media"),
-                                            releasingList
-                                    );
-
-                                    String filter = AppSettings.getContentFilter(getContext());
-
-                                    if(filter.equals("16")){
-
-                                        parseAnime(
-                                                data.getJSONObject("ecchi").getJSONArray("media"),
-                                                ecchiList
-                                        );
+                                    if("16".equals(filter)){
+                                        parseAnime(data.getJSONObject("ecchi").getJSONArray("media"), ecchiList);
                                     }
 
-                                    if(filter.equals("18")){
-
-                                        parseAnime(
-                                                data.getJSONObject("adult").getJSONArray("media"),
-                                                adultList
-                                        );
+                                    if("18".equals(filter)){
+                                        parseAnime(data.getJSONObject("adult").getJSONArray("media"), adultList);
                                     }
 
-                                    adapter.notifyDataSetChanged();
+                                    if(adapter != null){
+                                        adapter.notifyDataSetChanged();
+                                    }
 
                                 }catch(Exception e){
                                     Log.e(TAG,"JSON ERROR",e);
@@ -278,6 +189,8 @@ public class TvSeriesFragment extends Fragment {
                         }
                     };
 
+            request.setTag(TAG);
+
             request.setRetryPolicy(new DefaultRetryPolicy(
                     10000,
                     0,
@@ -297,17 +210,34 @@ public class TvSeriesFragment extends Fragment {
 
     private void parseAnime(JSONArray media, List<Anime> list) throws Exception{
 
+        if(!isAdded()) return;
+
         list.clear();
 
         for(int i=0;i<media.length();i++){
 
             JSONObject obj = media.getJSONObject(i);
 
-            Anime anime = AnimeParser.parse(obj,getContext());
+            Anime anime = AnimeParser.parse(obj, requireContext());
 
             if(anime != null){
                 list.add(anime);
             }
         }
     }
+
+    // ================= CANCEL REQUEST =================
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if(getContext()!=null){
+            VolleySingleton
+                    .getInstance(getContext())
+                    .getRequestQueue()
+                    .cancelAll(TAG);
+        }
+    }
 }
+

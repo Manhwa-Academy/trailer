@@ -55,12 +55,12 @@ public class MoviesFragment extends Fragment {
         recyclerMovies = view.findViewById(R.id.recyclerMovies);
 
         recyclerMovies.setLayoutManager(
-                new LinearLayoutManager(getContext())
+                new LinearLayoutManager(requireContext())
         );
 
         setupSections();
 
-        adapter = new HomeSectionAdapter(getContext(), sectionList);
+        adapter = new HomeSectionAdapter(requireContext(), sectionList);
         recyclerMovies.setAdapter(adapter);
 
         loadMovies();
@@ -95,9 +95,9 @@ public class MoviesFragment extends Fragment {
                 upcomingList
         ));
 
-        String contentFilter = AppSettings.getContentFilter(getContext());
+        String filter = AppSettings.getContentFilter(requireContext());
 
-        if("16".equals(contentFilter)){
+        if("16".equals(filter)){
             sectionList.add(new Section(
                     Section.CAT_ECCHI,
                     getString(R.string.ecchi_movies),
@@ -105,7 +105,7 @@ public class MoviesFragment extends Fragment {
             ));
         }
 
-        if("18".equals(contentFilter)){
+        if("18".equals(filter)){
             sectionList.add(new Section(
                     Section.CAT_ADULT,
                     getString(R.string.adult_movies),
@@ -118,6 +118,8 @@ public class MoviesFragment extends Fragment {
 
     private void loadMovies(){
 
+        if(!isAdded()) return;
+
         String url = "https://graphql.anilist.co";
 
         String query =
@@ -127,15 +129,16 @@ public class MoviesFragment extends Fragment {
                         "media(type:ANIME,format:MOVIE,sort:SCORE_DESC){" +
                         "id title{romaji english native}" +
                         "format season seasonYear duration episodes " +
+                        "nextAiringEpisode { episode airingAt } " +
+                        "status " +
                         "averageScore description genres isAdult " +
                         "coverImage{large}" +
                         "bannerImage " +
                         "studios{nodes{name}}" +
-
+                        "updatedAt " +
                         "staff(perPage:5){" +
                         "nodes{name{full} primaryOccupations}" +
                         "}" +
-
                         "trailer{id site}" +
                         "}}" +
 
@@ -143,15 +146,16 @@ public class MoviesFragment extends Fragment {
                         "media(type:ANIME,format:MOVIE,sort:POPULARITY_DESC){" +
                         "id title{romaji english native}" +
                         "format season seasonYear duration episodes " +
+                        "nextAiringEpisode { episode airingAt } " +
+                        "status " +
                         "averageScore description genres isAdult " +
                         "coverImage{large}" +
                         "bannerImage " +
                         "studios{nodes{name}}" +
-
+                        "updatedAt " +
                         "staff(perPage:5){" +
                         "nodes{name{full} primaryOccupations}" +
                         "}" +
-
                         "trailer{id site}" +
                         "}}" +
 
@@ -159,15 +163,16 @@ public class MoviesFragment extends Fragment {
                         "media(type:ANIME,format:MOVIE,status:NOT_YET_RELEASED,sort:POPULARITY_DESC){" +
                         "id title{romaji english native}" +
                         "format season seasonYear duration episodes " +
+                        "nextAiringEpisode { episode airingAt } " +
+                        "status " +
                         "averageScore description genres isAdult " +
                         "coverImage{large}" +
                         "bannerImage " +
                         "studios{nodes{name}}" +
-
+                        "updatedAt " +
                         "staff(perPage:5){" +
                         "nodes{name{full} primaryOccupations}" +
                         "}" +
-
                         "trailer{id site}" +
                         "}}" +
 
@@ -175,15 +180,16 @@ public class MoviesFragment extends Fragment {
                         "media(type:ANIME,format:MOVIE,genre_in:[\"Ecchi\"],sort:POPULARITY_DESC){" +
                         "id title{romaji english native}" +
                         "format season seasonYear duration episodes " +
+                        "nextAiringEpisode { episode airingAt } " +
+                        "status " +
                         "averageScore description genres isAdult " +
                         "coverImage{large}" +
                         "bannerImage " +
                         "studios{nodes{name}}" +
-
+                        "updatedAt " +
                         "staff(perPage:5){" +
                         "nodes{name{full} primaryOccupations}" +
                         "}" +
-
                         "trailer{id site}" +
                         "}}" +
 
@@ -191,15 +197,16 @@ public class MoviesFragment extends Fragment {
                         "media(type:ANIME,format:MOVIE,isAdult:true,sort:POPULARITY_DESC){" +
                         "id title{romaji english native}" +
                         "format season seasonYear duration episodes " +
+                        "nextAiringEpisode { episode airingAt } " +
+                        "status " +
                         "averageScore description genres isAdult " +
                         "coverImage{large}" +
                         "bannerImage " +
                         "studios{nodes{name}}" +
-
+                        "updatedAt " +
                         "staff(perPage:5){" +
                         "nodes{name{full} primaryOccupations}" +
                         "}" +
-
                         "trailer{id site}" +
                         "}}" +
 
@@ -218,6 +225,8 @@ public class MoviesFragment extends Fragment {
 
                             response -> {
 
+                                if(!isAdded()) return;
+
                                 try{
 
                                     JSONObject data = response.getJSONObject("data");
@@ -226,17 +235,19 @@ public class MoviesFragment extends Fragment {
                                     parseAnime(data.getJSONObject("popular").getJSONArray("media"), popularList);
                                     parseAnime(data.getJSONObject("upcoming").getJSONArray("media"), upcomingList);
 
-                                    String contentFilter = AppSettings.getContentFilter(getContext());
+                                    String filter = AppSettings.getContentFilter(requireContext());
 
-                                    if("16".equals(contentFilter)){
+                                    if("16".equals(filter)){
                                         parseAnime(data.getJSONObject("ecchi").getJSONArray("media"), ecchiList);
                                     }
 
-                                    if("18".equals(contentFilter)){
+                                    if("18".equals(filter)){
                                         parseAnime(data.getJSONObject("adult").getJSONArray("media"), adultList);
                                     }
 
-                                    adapter.notifyDataSetChanged();
+                                    if(adapter != null){
+                                        adapter.notifyDataSetChanged();
+                                    }
 
                                 }catch(Exception e){
                                     Log.e(TAG,"JSON ERROR",e);
@@ -254,10 +265,13 @@ public class MoviesFragment extends Fragment {
 
                             headers.put("Content-Type","application/json");
                             headers.put("Accept","application/json");
+                            headers.put("User-Agent","MagicAnimeApp");
 
                             return headers;
                         }
                     };
+
+            request.setTag(TAG);
 
             request.setRetryPolicy(new DefaultRetryPolicy(
                     10000,
@@ -278,17 +292,34 @@ public class MoviesFragment extends Fragment {
 
     private void parseAnime(JSONArray media, List<Anime> list) throws Exception{
 
+        if(!isAdded()) return;
+
         list.clear();
 
         for(int i=0;i<media.length();i++){
 
             JSONObject obj = media.getJSONObject(i);
 
-            Anime anime = AnimeParser.parse(obj,getContext());
+            Anime anime = AnimeParser.parse(obj, requireContext());
 
             if(anime != null){
                 list.add(anime);
             }
         }
     }
+
+    // ================= CANCEL REQUEST =================
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        if(getContext()!=null){
+            VolleySingleton
+                    .getInstance(getContext())
+                    .getRequestQueue()
+                    .cancelAll(TAG);
+        }
+    }
 }
+

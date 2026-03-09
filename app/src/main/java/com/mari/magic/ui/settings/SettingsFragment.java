@@ -1,7 +1,6 @@
 package com.mari.magic.ui.settings;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
 
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.firebase.auth.FirebaseAuth;
 import com.bumptech.glide.Glide;
 
@@ -23,6 +23,7 @@ import com.mari.magic.network.VolleySingleton;
 import com.mari.magic.ui.favorite.FavoriteFragment;
 import com.mari.magic.ui.history.HistoryFragment;
 import com.mari.magic.utils.ThemeManager;
+import com.mari.magic.utils.AppSettings;
 
 import java.io.File;
 
@@ -36,10 +37,10 @@ public class SettingsFragment extends Fragment {
     private CardView btnClearCache;
     private CardView btnTheme;
 
+    private SwitchMaterial switchSearchHistory;
+
     private TextView txtTheme;
     private ImageView iconTheme;
-
-    private SharedPreferences pref;
 
     public SettingsFragment(){}
 
@@ -60,10 +61,11 @@ public class SettingsFragment extends Fragment {
             txtTheme = view.findViewById(R.id.txtTheme);
             iconTheme = view.findViewById(R.id.iconTheme);
 
-            pref = requireContext().getSharedPreferences("settings",0);
+            switchSearchHistory = view.findViewById(R.id.switchSearchHistory);
 
             updateThemeUI();
 
+            setupSearchHistoryToggle();
             setupThemeToggle();
             setupLogout();
             setupClearCache();
@@ -115,6 +117,41 @@ public class SettingsFragment extends Fragment {
                     .replace(R.id.fragmentContainer, new HistoryFragment())
                     .addToBackStack(null)
                     .commit();
+        });
+    }
+
+    // =============================
+    // SEARCH HISTORY
+    // =============================
+
+    private void setupSearchHistoryToggle(){
+
+        if(switchSearchHistory == null) return;
+
+        boolean enabled = AppSettings.isSearchHistoryEnabled(requireContext());
+
+        switchSearchHistory.setChecked(enabled);
+
+        switchSearchHistory.setOnCheckedChangeListener((buttonView, isChecked) -> {
+
+            AppSettings.setSearchHistoryEnabled(requireContext(), isChecked);
+
+            if(isChecked){
+
+                Toast.makeText(
+                        getContext(),
+                        "Search history enabled",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+            }else{
+
+                Toast.makeText(
+                        getContext(),
+                        "Search history disabled",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
         });
     }
 
@@ -218,15 +255,12 @@ public class SettingsFragment extends Fragment {
 
                 double mb = size / (1024.0 * 1024.0);
 
-                // Glide disk cache
                 new Thread(() -> {
                     Glide.get(requireContext()).clearDiskCache();
                 }).start();
 
-                // Glide memory
                 Glide.get(requireContext()).clearMemory();
 
-                // Volley cache
                 VolleySingleton.getInstance(requireContext())
                         .getRequestQueue()
                         .getCache()

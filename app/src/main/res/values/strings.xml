@@ -91,4 +91,13 @@
     <string name="menu_season">Season</string>
     <string name="menu_library">Library</string>
     <string name="menu_schedule">Schedule</string>
+
+    <string name="search_history">Search History</string>
+    <string name="recent_searches">Recent Searches</string>
+
+    <string name="no_favorite">No favorite anime yet ❤️</string>
+
+    <string name="history_title">Watch History</string>
+    <string name="clear_history">🗑 Clear History</string>
+    <string name="history_empty">No anime watched yet 🎬</string>
 </resources>

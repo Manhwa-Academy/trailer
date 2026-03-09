@@ -77,9 +77,13 @@ public class GenreAnimeActivity extends AppCompatActivity {
                             " description(asHtml:false) " +
                             " genres " +
                             " format " +
+                            "   updatedAt " +
                             " season " +
                             " seasonYear " +
                             " duration " +
+                            "   episodes" +
+                            "   nextAiringEpisode { episode  airingAt} " +
+                            "status " +
                             " isAdult " +   // ⭐ thêm dòng này
                             " studios { nodes { name } } " +
                             " staff(perPage:5) { nodes { name { full } primaryOccupations } } " +

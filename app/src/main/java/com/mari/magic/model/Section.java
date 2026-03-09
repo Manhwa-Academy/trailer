@@ -10,6 +10,8 @@ public class Section {
     public static final int TYPE_SECTION = 2;
 
     // ===== SECTION CATEGORIES =====
+    public static final String CAT_NEW = "new";              // ⭐ Anime mới
+
     public static final String CAT_MOVIES = "movies";
     public static final String CAT_TOP_MOVIES = "top_movies";
 
@@ -41,7 +43,6 @@ public class Section {
     }
 
     // ===== Getters =====
-
     public int getType(){
         return type;
     }

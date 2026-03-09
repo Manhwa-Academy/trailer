@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="?attr/colorSurface"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
     <LinearLayout
         android:orientation="vertical"
@@ -61,7 +62,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- ================= INFO SECTION ================= -->
+        <!-- ================= INFO ================= -->
 
         <LinearLayout
             android:orientation="vertical"
@@ -82,6 +83,7 @@
                 android:id="@+id/txtSeason"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp"
+                android:layout_marginTop="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
@@ -89,6 +91,7 @@
                 android:id="@+id/txtDuration"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp"
+                android:layout_marginTop="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
@@ -96,6 +99,7 @@
                 android:id="@+id/txtStudio"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp"
+                android:layout_marginTop="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
@@ -103,8 +107,28 @@
                 android:id="@+id/txtDirector"
                 android:textColor="?attr/colorOnSurface"
                 android:textSize="14sp"
+                android:layout_marginTop="2dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+
+            <!-- Episode -->
+
+            <TextView
+                android:id="@+id/txtEpisodes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Episodes: 0"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"/>
+
+            <TextView
+                android:id="@+id/txtNextEpisode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="?attr/colorPrimary"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp"/>
+            <!-- Views -->
 
             <TextView
                 android:id="@+id/txtViews"
@@ -114,6 +138,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
 
+            <!-- Trailer release time -->
+
+            <TextView
+                android:id="@+id/txtUpdated"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+            <TextView
+                android:id="@+id/txtTrailerDate"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
         </LinearLayout>
 
         <!-- ================= TRAILER ================= -->
@@ -199,7 +239,7 @@
 
         </LinearLayout>
 
-        <!-- Description text -->
+        <!-- Description -->
 
         <TextView
             android:id="@+id/txtDesc"

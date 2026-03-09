@@ -47,6 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 import com.mari.magic.adapter.SeasonAdapter;
 import com.mari.magic.ui.season.SeasonAnimeActivity;
+import com.mari.magic.model.Section;
+import com.mari.magic.ui.home.SeeAllActivity;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -164,8 +166,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case 1:
-                    loadFragment(new MoviesFragment());
-                    break;
+
+                    Intent intent = new Intent(this, SeeAllActivity.class);
+                    intent.putExtra("section", Section.CAT_NEW);
+                    startActivity(intent);
+
+                    return;
 
                 case 2:
                     RandomAnimeLoader.load(this);
@@ -244,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
         String[] items = {
                 "An toàn",
                 "Khơi gợi",
-                "Nguy hiểm"
+                "Mèo đen"
         };
 
         ArrayAdapter<String> adapter =
@@ -261,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
             dropdown.setText("Khơi gợi",false);
         }
         else if(filter.equals("18")){
-            dropdown.setText("Nguy hiểm",false);
+            dropdown.setText("Mèo đen",false);
         }
         else{
             dropdown.setText("An toàn",false);
@@ -284,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
                     if(selected.equals("Khơi gợi")){
                         AppSettings.setContentFilter(this,"16");
                     }
-                    else if(selected.equals("Nguy hiểm")){
+                    else if(selected.equals("Mèo đen")){
                         AppSettings.setContentFilter(this,"18");
                     }
                     else{

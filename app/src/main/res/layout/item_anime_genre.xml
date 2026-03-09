@@ -24,7 +24,7 @@
             android:layout_height="match_parent"
             android:scaleType="centerCrop"/>
 
-        <!-- RATING -->
+        <!-- ⭐ RATING -->
 
         <TextView
             android:id="@+id/txtRating"
@@ -45,6 +45,31 @@
             android:layout_margin="6dp"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"/>
+
+        <!-- 📺 EPISODE BADGE -->
+
+        <TextView
+            android:id="@+id/txtEpisode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text=""
+            android:textColor="#FFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold"
+
+            android:background="@android:color/holo_red_dark"
+
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+
+            android:layout_margin="6dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+
+            android:visibility="gone"/>
 
         <!-- TITLE OVERLAY -->
 

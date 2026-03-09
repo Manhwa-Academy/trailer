@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="110dp"
+
+    android:padding="8dp"
+    android:layout_marginBottom="8dp"
+
+    android:background="?attr/colorSurface">
+
+    <!-- POSTER -->
+
+    <ImageView
+        android:id="@+id/imgPoster"
+        android:layout_width="70dp"
+        android:layout_height="100dp"
+
+        android:scaleType="centerCrop"
+
+        android:src="@drawable/placeholder"/>
+
+
+    <!-- TITLE -->
+
+    <TextView
+        android:id="@+id/txtTitle"
+
+        android:layout_toEndOf="@id/imgPoster"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="12dp"
+
+        android:text="Anime Title"
+        android:textSize="16sp"
+        android:textStyle="bold"
+
+        android:textColor="?attr/colorOnSurface"/>
+
+
+    <!-- RATING -->
+
+    <TextView
+        android:id="@+id/txtRating"
+
+        android:layout_below="@id/txtTitle"
+        android:layout_toEndOf="@id/imgPoster"
+
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="6dp"
+
+        android:text=""
+        android:textSize="14sp"
+
+        android:textColor="?attr/colorOnSurface"/>
+
+
+    <ImageView
+        android:id="@+id/btnDelete"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/ic_close"
+        android:tint="?attr/colorOnSurface"
+        android:padding="4dp"
+        android:visibility="gone" /> <!-- Ẩn đi -->
+
+</RelativeLayout>

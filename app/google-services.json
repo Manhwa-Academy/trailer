@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "435201888855-pj5d0ch3avk1h8k3hqh5ee4cv0797ukr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mari.magic",
+            "certificate_hash": "6a38dcce183074408faf9fd141d3b2735fd81cd9"
+          }
+        },
+        {
           "client_id": "435201888855-psv5bfustuu7qjuo1qqug9dql3gqoc37.apps.googleusercontent.com",
           "client_type": 3
         }

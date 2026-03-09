@@ -11,18 +11,15 @@
     android:padding="16dp">
 
     <!-- TITLE -->
-
     <TextView
         android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        android:text="Favorite Anime"
+        android:text="@string/favorite_anime"
         android:textSize="22sp"
         android:textStyle="bold"
-
         android:textColor="?attr/colorOnSurface"
-
         android:layout_marginBottom="12dp"/>
 
     <!-- EMPTY TEXT -->
@@ -32,12 +29,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
-        android:text="No favorite anime yet ❤️"
+        android:text="@string/no_favorite"
         android:textSize="16sp"
         android:textColor="?attr/colorOnSurface"
-
         android:gravity="center"
-
         android:visibility="gone"
         android:layout_marginTop="40dp"/>
 

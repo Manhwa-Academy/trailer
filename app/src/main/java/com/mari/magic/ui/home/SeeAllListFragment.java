@@ -11,14 +11,16 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.mari.magic.utils.AppSettings;
+
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.mari.magic.R;
 import com.mari.magic.adapter.AnimeAdapter;
 import com.mari.magic.model.Anime;
+import com.mari.magic.model.Section;
 import com.mari.magic.network.VolleySingleton;
 import com.mari.magic.utils.AnimeParser;
+import com.mari.magic.utils.AppSettings;
 import com.mari.magic.utils.GridSpacingItemDecoration;
 
 import org.json.JSONArray;
@@ -26,7 +28,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.mari.magic.model.Section;
+
 public class SeeAllListFragment extends Fragment {
 
     private static final String TAG = "SEE_ALL_FRAGMENT";
@@ -40,7 +42,6 @@ public class SeeAllListFragment extends Fragment {
 
     public SeeAllListFragment(){}
 
-    // ===== tạo fragment mới =====
     public static SeeAllListFragment newInstance(String section){
 
         SeeAllListFragment fragment = new SeeAllListFragment();
@@ -71,7 +72,7 @@ public class SeeAllListFragment extends Fragment {
         recycler.setAdapter(adapter);
 
         if(getArguments() != null){
-            section = getArguments().getString("section","movies");
+            section = getArguments().getString("section", Section.CAT_MOVIES);
         }
 
         loadAnime();
@@ -79,10 +80,12 @@ public class SeeAllListFragment extends Fragment {
         return view;
     }
 
-    // ===== load anime từ API =====
     private void loadAnime(){
+
         String contentFilter = AppSettings.getContentFilter(getContext());
         String url = "https://graphql.anilist.co";
+
+        boolean safeMode = contentFilter.equals("all");
 
         try{
 
@@ -90,48 +93,92 @@ public class SeeAllListFragment extends Fragment {
 
             switch(section){
 
+                case Section.CAT_NEW:
+
+                    if(safeMode){
+                        filter = "status:RELEASING, episodes_greater:0, isAdult:false, genre_not_in:[\"Ecchi\",\"Hentai\"], sort:UPDATED_AT_DESC";
+                    }else{
+                        filter = "status:RELEASING, episodes_greater:0, sort:UPDATED_AT_DESC";
+                    }
+
+                    break;
+
                 case Section.CAT_MOVIES:
-                    filter = "format:MOVIE, sort:POPULARITY_DESC";
+
+                    if(safeMode){
+                        filter = "format:MOVIE, isAdult:false, genre_not_in:[\"Ecchi\",\"Hentai\"], sort:POPULARITY_DESC";
+                    }else{
+                        filter = "format:MOVIE, sort:POPULARITY_DESC";
+                    }
+
                     break;
 
                 case Section.CAT_TOP_MOVIES:
-                    filter = "format:MOVIE, sort:SCORE_DESC";
+
+                    if(safeMode){
+                        filter = "format:MOVIE, isAdult:false, genre_not_in:[\"Ecchi\",\"Hentai\"], sort:SCORE_DESC";
+                    }else{
+                        filter = "format:MOVIE, sort:SCORE_DESC";
+                    }
+
                     break;
 
                 case Section.CAT_SERIES:
-                    filter = "format:TV, sort:POPULARITY_DESC";
+
+                    if(safeMode){
+                        filter = "format:TV, isAdult:false, genre_not_in:[\"Ecchi\",\"Hentai\"], sort:POPULARITY_DESC";
+                    }else{
+                        filter = "format:TV, sort:POPULARITY_DESC";
+                    }
+
                     break;
 
                 case Section.CAT_TOP_TV:
-                    filter = "format:TV, sort:SCORE_DESC";
+
+                    if(safeMode){
+                        filter = "format:TV, isAdult:false, genre_not_in:[\"Ecchi\",\"Hentai\"], sort:SCORE_DESC";
+                    }else{
+                        filter = "format:TV, sort:SCORE_DESC";
+                    }
+
                     break;
 
                 case Section.CAT_RELEASING:
-                    filter = "format:TV, status:RELEASING, sort:POPULARITY_DESC";
+
+                    if(safeMode){
+                        filter = "format:TV, status:RELEASING, isAdult:false, genre_not_in:[\"Ecchi\",\"Hentai\"], sort:POPULARITY_DESC";
+                    }else{
+                        filter = "format:TV, status:RELEASING, sort:POPULARITY_DESC";
+                    }
+
                     break;
 
                 case Section.CAT_UPCOMING:
-                    filter = "status:NOT_YET_RELEASED, sort:POPULARITY_DESC";
+
+                    if(safeMode){
+                        filter = "status:NOT_YET_RELEASED, isAdult:false, genre_not_in:[\"Ecchi\",\"Hentai\"], sort:POPULARITY_DESC";
+                    }else{
+                        filter = "status:NOT_YET_RELEASED, sort:POPULARITY_DESC";
+                    }
+
                     break;
 
                 case Section.CAT_ECCHI:
 
-                    if("all".equals(contentFilter) || "16".equals(contentFilter)){
+                    if(!contentFilter.equals("all")){
                         filter = "genre_in:[\"Ecchi\"], sort:POPULARITY_DESC";
-                    }
-                    else{
-                        filter = "id:-1"; // không load
+                    }else{
+                        filter = "id:-1";
                     }
 
                     break;
 
                 case Section.CAT_ADULT:
 
-                    if("18".equals(contentFilter)){
+                    if(contentFilter.equals("18")){
                         filter = "isAdult:true, sort:POPULARITY_DESC";
-                    }
-                    else{
-                        filter = "id:-1"; // không load
+                    }else{
+                        filter = "id:-1";
                     }
 
                     break;
@@ -139,28 +186,26 @@ public class SeeAllListFragment extends Fragment {
 
             String query =
                     "query {" +
-                            " Page(page:1, perPage:40) {" +
+                            " Page(page:1, perPage:30) {" +
                             "  media(type:ANIME,"+filter+") {" +
 
                             "   id " +
                             "   title { romaji english native } " +
-
-                            "   format type season seasonYear " +
-                            "   episodes duration " +
-
-                            "   status averageScore " +
                             "   description(asHtml:false) " +
-
+                            "   format " +
+                            "   season " +
+                            "   seasonYear " +
+                            "   duration " +
+                            "   updatedAt " +
+                            "   episodes " +
+                            "   nextAiringEpisode { episode  airingAt} " +
+                            "   status " +
+                            "   averageScore " +
                             "   genres " +
-
                             "   coverImage { large extraLarge } " +
-                            "   bannerImage " +
-
-                            "   studios(isMain:true){ nodes{ name } } " +
-
-                            "   staff(perPage:10){ nodes{ name{full} primaryOccupations } } " +
-
                             "   trailer { id site thumbnail } " +
+                            "   studios(isMain:true){ nodes{ name } } " +
+                            "   staff(perPage:10){ nodes{ name{full} primaryOccupations } } " +
 
                             "  }" +
                             " }" +
@@ -189,12 +234,20 @@ public class SeeAllListFragment extends Fragment {
                                     for(int i=0;i<media.length();i++){
 
                                         JSONObject obj = media.getJSONObject(i);
-
                                         Anime anime = AnimeParser.parse(obj,getContext());
 
-                                        if(anime != null){
+                                        if(anime == null) continue;
+
+                                        // chỉ tab "Anime mới" mới lọc episode
+                                        if(section.equals(Section.CAT_NEW)){
+                                            if(anime.getNextEpisode() > 0){
+                                                list.add(anime);
+                                            }
+                                        }else{
                                             list.add(anime);
                                         }
+
+
                                     }
 
                                     adapter.notifyDataSetChanged();
@@ -215,5 +268,6 @@ public class SeeAllListFragment extends Fragment {
         }catch(Exception e){
             e.printStackTrace();
         }
+
     }
 }
