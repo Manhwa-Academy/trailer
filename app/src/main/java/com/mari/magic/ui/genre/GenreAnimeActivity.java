@@ -38,8 +38,7 @@ public class GenreAnimeActivity extends AppCompatActivity {
         TextView title = findViewById(R.id.txtGenreTitle);
 
         String genre = getIntent().getStringExtra("genre");
-
-        title.setText("Thể loại: " + genre);
+        title.setText(getString(R.string.genre_title_format, genre));
         // FIX 1: AnimeAdapter cần layoutId
         adapter = new AnimeAdapter(
                 this,
@@ -124,6 +123,7 @@ public class GenreAnimeActivity extends AppCompatActivity {
                             adapter.notifyDataSetChanged();
                             // ⭐ kiểm tra sau khi load dữ liệu
                             if(list.isEmpty()){
+                                txtNoResult.setText(R.string.genre_empty);
                                 txtNoResult.setVisibility(View.VISIBLE);
                             }else{
                                 txtNoResult.setVisibility(View.GONE);

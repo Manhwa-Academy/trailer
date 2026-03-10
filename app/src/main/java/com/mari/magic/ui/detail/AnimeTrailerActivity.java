@@ -1,6 +1,8 @@
 package com.mari.magic.ui.detail;
 
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.mari.magic.R;
@@ -11,25 +13,40 @@ import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTube
 
 public class AnimeTrailerActivity extends AppCompatActivity {
 
+    private YouTubePlayerView playerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trailer);
 
-        YouTubePlayerView playerView = findViewById(R.id.youtubePlayerView);
+        playerView = findViewById(R.id.youtubePlayerView);
 
+        // lifecycle observer
         getLifecycle().addObserver(playerView);
 
         String trailerId = getIntent().getStringExtra("trailer");
 
-        playerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
-            @Override
-            public void onReady(YouTubePlayer youTubePlayer) {
+        if(trailerId == null || trailerId.isEmpty()){
+            finish();
+            return;
+        }
 
-                if(trailerId != null && !trailerId.isEmpty()){
-                    youTubePlayer.loadVideo(trailerId, 0);
-                }
+        playerView.addYouTubePlayerListener(new AbstractYouTubePlayerListener() {
+
+            @Override
+            public void onReady(@NonNull YouTubePlayer youTubePlayer) {
+                youTubePlayer.loadVideo(trailerId, 0);
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if(playerView != null){
+            playerView.release();
+        }
     }
 }

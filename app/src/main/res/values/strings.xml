@@ -100,4 +100,19 @@
     <string name="history_title">Watch History</string>
     <string name="clear_history">🗑 Clear History</string>
     <string name="history_empty">No anime watched yet 🎬</string>
+
+    <string name="genre_title">Genre</string>
+    <string name="genre_title_format">Genre: %1$s</string>
+    <string name="genre_empty">No anime found</string>
+
+    <string name="anime_type">Anime Type</string>
+    <string name="tv_anime">Anime TV</string>
+    <string name="movie_anime">Anime Movie</string>
+    <string name="ova_anime">Anime OVA</string>
+    <string name="ona_anime">Anime ONA</string>
+    <string name="special_anime">Anime Special</string>
+    <string name="tv_short_anime">Anime TV Short</string>
+    <string name="manga">Manga</string>
+    <string name="novel">Novel</string>
+    <string name="one_shot">One Shot</string>
 </resources>

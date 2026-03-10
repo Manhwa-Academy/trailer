@@ -18,16 +18,25 @@ public class AnimeParser {
 
             String filter = AppSettings.getContentFilter(ctx);
 
-            // ===== FILTER LOGIC =====
+            String genresText = "";
 
+            if(genresArray != null){
+                for(int i=0;i<genresArray.length();i++){
+                    genresText += genresArray.optString(i) + ",";
+                }
+            }
+
+            // SAFE
             if(filter.equals("all")){
-                if(isAdult) return null;
-            }
-            else if(filter.equals("16")){
-                if(isAdult) return null;
+                if(isAdult || genresText.contains("Ecchi"))
+                    return null;
             }
 
-            // ===== CREATE OBJECT =====
+            // 16+
+            else if(filter.equals("16")){
+                if(isAdult)
+                    return null;
+            }
 
             Anime anime = new Anime();
 
@@ -64,7 +73,7 @@ public class AnimeParser {
 
             anime.setRating(obj.optDouble("averageScore",0));
 
-            // ===== POPULARITY / VIEWS =====
+            // ===== POPULARITY =====
 
             anime.setViews(obj.optLong("popularity",0));
 
@@ -95,26 +104,28 @@ public class AnimeParser {
 
             anime.setFormat(obj.optString("format","Unknown"));
 
-            // ===== YEAR =====
+            // ===== YEAR + SEASON =====
 
-            anime.setYear(obj.optInt("seasonYear",0));
-
-            // ===== SEASON =====
-
-            String season = obj.optString("season","");
             int year = obj.optInt("seasonYear",0);
+            String season = obj.optString("season","");
+
+            anime.setYear(year);
 
             if(!season.isEmpty())
-                season = season + " " + year;
-
-            anime.setSeason(season);
+                anime.setSeason(season + " " + year);
 
             // ===== DURATION =====
 
             anime.setDuration(obj.optInt("duration",0));
+
+            // ===== STATUS =====
+
             anime.setStatus(obj.optString("status",""));
-            // ===== EPISODES =====
+
+            // ===== UPDATED =====
+
             anime.setUpdatedAt(obj.optLong("updatedAt",0));
+
             // ===== EPISODES =====
 
             int episodes = obj.optInt("episodes",0);
@@ -129,7 +140,6 @@ public class AnimeParser {
                 anime.setNextEpisode(nextEpisode);
                 anime.setNextAiringAt(airingAt);
 
-                // đảm bảo episodes luôn đúng
                 if(nextEpisode > 1){
 
                     int airedEpisodes = nextEpisode - 1;
@@ -137,11 +147,15 @@ public class AnimeParser {
                     if(episodes == 0 || episodes < airedEpisodes){
                         episodes = airedEpisodes;
                     }
-
                 }
             }
 
             anime.setEpisodes(episodes);
+
+            // ===== MANGA DATA =====
+
+            anime.setChapters(obj.optInt("chapters",0));
+            anime.setVolumes(obj.optInt("volumes",0));
 
             // ===== TRAILER =====
 
@@ -154,7 +168,7 @@ public class AnimeParser {
                 }
             }
 
-            // ===== STUDIO =====
+            // ===== STUDIOS =====
 
             JSONObject studios = obj.optJSONObject("studios");
 
@@ -171,7 +185,7 @@ public class AnimeParser {
                 }
             }
 
-            // ===== DIRECTOR =====
+            // ===== STAFF (AUTHOR + DIRECTOR) =====
 
             JSONObject staff = obj.optJSONObject("staff");
 
@@ -184,29 +198,65 @@ public class AnimeParser {
                     for(int i=0;i<nodes.length();i++){
 
                         JSONObject person = nodes.getJSONObject(i);
-
                         JSONArray jobs = person.optJSONArray("primaryOccupations");
 
-                        if(jobs != null){
+                        if(jobs == null) continue;
 
-                            for(int j=0;j<jobs.length();j++){
+                        for(int j=0;j<jobs.length();j++){
 
-                                if(jobs.getString(j).equalsIgnoreCase("Director")){
+                            String job = jobs.getString(j).toLowerCase();
 
-                                    anime.setDirector(
-                                            person.getJSONObject("name")
-                                                    .optString("full","Unknown")
-                                    );
+                            if(job.contains("director")){
 
-                                    break;
-                                }
+                                anime.setDirector(
+                                        person.getJSONObject("name")
+                                                .optString("full","Unknown")
+                                );
+                            }
+
+                            if(job.contains("author") ||
+                                    job.contains("story") ||
+                                    job.contains("writer")){
+
+                                anime.setAuthor(
+                                        person.getJSONObject("name")
+                                                .optString("full","Unknown")
+                                );
                             }
                         }
                     }
                 }
             }
+            JSONArray links = obj.optJSONArray("externalLinks");
 
+            if(links != null && links.length() > 0){
+
+                for(int i = 0; i < links.length(); i++){
+
+                    JSONObject link = links.optJSONObject(i);
+
+                    if(link == null) continue;
+
+                    String site = link.optString("site","");
+                    String url = link.optString("url","");
+
+                    if(site.equalsIgnoreCase("MangaDex")){
+                        anime.setMangaDexUrl(url);
+                    }
+
+                    if(site.equalsIgnoreCase("MyAnimeList")){
+                        anime.setMalUrl(url);
+                    }
+
+                    // ⭐ fallback link
+                    if(anime.getMangaDexUrl() == null && anime.getMalUrl() == null){
+                        anime.setMalUrl(url);
+                    }
+                }
+            }
             return anime;
+// ===== EXTERNAL LINKS (MangaDex / MAL) =====
+
 
         }catch(Exception e){
             e.printStackTrace();
@@ -214,4 +264,5 @@ public class AnimeParser {
 
         return null;
     }
+
 }

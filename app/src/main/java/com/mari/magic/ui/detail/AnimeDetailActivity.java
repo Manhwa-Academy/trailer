@@ -8,7 +8,8 @@ import android.util.Log;
 import android.widget.*;
 import com.mari.magic.model.Anime;
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.view.View;
+import android.widget.Button;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -27,7 +28,12 @@ import com.mari.magic.utils.TrailerHelper;
 public class AnimeDetailActivity extends AppCompatActivity {
 
     ImageView imgBanner, btnFavorite;
-
+    TextView txtChapters;
+    int chapters, volumes;
+    Button btnRead;
+    String author;
+    TextView txtVolumes;
+    TextView txtAuthor;
     TextView txtTitle, txtRating, txtDesc, txtGenres, txtFavorite;
     TextView txtNextEpisode;
     TextView txtStudio, txtDirector, txtSeason, txtDuration, txtFormat, txtViews, txtEpisodes;
@@ -38,7 +44,6 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
     FirebaseAuth auth;
     FirebaseFirestore db;
-
     Translator translator;
 
     String title, englishTitle, romajiTitle, nativeTitle;
@@ -74,7 +79,9 @@ public class AnimeDetailActivity extends AppCompatActivity {
         txtDesc = findViewById(R.id.txtDesc);
         txtGenres = findViewById(R.id.txtGenres);
         txtFavorite = findViewById(R.id.txtFavorite);
-
+        txtChapters = findViewById(R.id.txtChapters);
+        txtVolumes = findViewById(R.id.txtVolumes);
+        txtAuthor = findViewById(R.id.txtAuthor);
         txtStudio = findViewById(R.id.txtStudio);
         txtDirector = findViewById(R.id.txtDirector);
         txtSeason = findViewById(R.id.txtSeason);
@@ -86,6 +93,7 @@ public class AnimeDetailActivity extends AppCompatActivity {
         txtUpdated = findViewById(R.id.txtUpdated);
         txtTrailerDate = findViewById(R.id.txtTrailerDate);
 
+        btnRead = findViewById(R.id.btnRead);
         btnTrailer = findViewById(R.id.btnTrailer);
 
         btnEnglish = findViewById(R.id.btnEnglish);
@@ -115,9 +123,82 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         duration = getIntent().getIntExtra("duration", 0);
         episodes = getIntent().getIntExtra("episodes", 0);
-
+        chapters = getIntent().getIntExtra("chapters",0);
+        volumes = getIntent().getIntExtra("volumes",0);
+        author = getIntent().getStringExtra("author");
         format = getIntent().getStringExtra("format");
+        String mangaDex = getIntent().getStringExtra("mangadex");
+        String mal = getIntent().getStringExtra("mal");
 
+        Log.d("READ_DEBUG","MangaDex=" + mangaDex);
+        Log.d("READ_DEBUG","MAL=" + mal);
+        if(format != null &&
+                (format.equalsIgnoreCase("MANGA")
+                        || format.equalsIgnoreCase("NOVEL")
+                        || format.equalsIgnoreCase("ONE_SHOT"))){
+
+            if(btnTrailer != null)
+                btnTrailer.setVisibility(View.GONE);
+
+            if(btnRead != null)
+                btnRead.setVisibility(View.VISIBLE);
+
+        }else{
+
+            if(btnRead != null)
+                btnRead.setVisibility(View.GONE);
+        }
+        btnRead.setOnClickListener(v -> {
+
+            if(mangaDex != null && !mangaDex.isEmpty()){
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mangaDex)));
+            }
+            else if(mal != null && !mal.isEmpty()){
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mal)));
+            }
+        });
+        if(format != null){
+
+            if(format.equalsIgnoreCase("MANGA") ||
+                    format.equalsIgnoreCase("NOVEL") ||
+                    format.equalsIgnoreCase("ONE_SHOT")){
+
+                // ===== MANGA MODE =====
+
+                txtSeason.setVisibility(View.GONE);
+                txtDuration.setVisibility(View.GONE);
+                txtStudio.setVisibility(View.GONE);
+                txtDirector.setVisibility(View.GONE);
+                txtEpisodes.setVisibility(View.GONE);
+                txtNextEpisode.setVisibility(View.GONE);
+                txtViews.setVisibility(View.GONE);
+                btnTrailer.setVisibility(View.GONE);
+
+                // show manga info
+                txtChapters.setVisibility(TextView.VISIBLE);
+                txtVolumes.setVisibility(TextView.VISIBLE);
+                txtAuthor.setVisibility(TextView.VISIBLE);
+
+            }
+            else{
+
+                // ===== ANIME MODE =====
+
+                txtSeason.setVisibility(TextView.VISIBLE);
+                txtDuration.setVisibility(TextView.VISIBLE);
+                txtStudio.setVisibility(TextView.VISIBLE);
+                txtDirector.setVisibility(TextView.VISIBLE);
+                txtEpisodes.setVisibility(TextView.VISIBLE);
+                txtNextEpisode.setVisibility(TextView.VISIBLE);
+                txtViews.setVisibility(TextView.VISIBLE);
+                btnTrailer.setVisibility(Button.VISIBLE);
+
+                // hide manga info
+                txtChapters.setVisibility(TextView.GONE);
+                txtVolumes.setVisibility(TextView.GONE);
+                txtAuthor.setVisibility(TextView.GONE);
+            }
+        }
         views = getIntent().getLongExtra("views", 0);
         updatedAt = getIntent().getLongExtra("updatedAt", 0);
 
@@ -165,7 +246,20 @@ public class AnimeDetailActivity extends AppCompatActivity {
         txtDirector.setText("Director: " + director);
         txtSeason.setText("Season: " + season);
         txtDuration.setText("Duration: " + duration + " min");
+        if(chapters > 0)
+            txtChapters.setText("Chapters: " + chapters);
+        else
+            txtChapters.setText("Chapters: ?");
 
+        if(volumes > 0)
+            txtVolumes.setText("Volumes: " + volumes);
+        else
+            txtVolumes.setText("Volumes: ?");
+
+        if(author != null && !author.isEmpty())
+            txtAuthor.setText("Author: " + author);
+        else
+            txtAuthor.setText("Author: Unknown");
         if (episodes > 0) {
             txtEpisodes.setText("Episodes: " + episodes);
         } else {
@@ -175,7 +269,6 @@ public class AnimeDetailActivity extends AppCompatActivity {
         int nextEpisode = getIntent().getIntExtra("nextEpisode",0);
         long nextAiring = getIntent().getLongExtra("nextAiringAt",0);
         String status = getIntent().getStringExtra("status");
-
         if("FINISHED".equalsIgnoreCase(status)){
 
             txtNextEpisode.setText("EP " + episodes + " ✓ Completed");
@@ -269,12 +362,23 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         // ================= YOUTUBE =================
 
-        YoutubeService.loadTrailerInfo(
-                this,
-                trailer,
-                txtViews,
-                txtTrailerDate
-        );
+        if(format != null &&
+                !format.equalsIgnoreCase("MANGA") &&
+                !format.equalsIgnoreCase("NOVEL") &&
+                !format.equalsIgnoreCase("ONE_SHOT")){
+
+            YoutubeService.loadTrailerInfo(
+                    this,
+                    trailer,
+                    txtViews,
+                    txtTrailerDate
+            );
+
+        }else{
+
+            txtTrailerDate.setVisibility(TextView.GONE);
+            btnTrailer.setVisibility(Button.GONE);
+        }
 
         // ================= FAVORITE =================
 // Tạo favoriteId cố định dựa trên API ID hoặc title + romaji

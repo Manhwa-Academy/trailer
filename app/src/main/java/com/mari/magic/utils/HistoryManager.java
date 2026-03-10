@@ -136,7 +136,80 @@ public class HistoryManager {
                 .document(animeId)
                 .set(data);
     }
+    public static void saveBannerHistory(
+            Context context,
+            String animeId,
+            String title,
+            String poster,
+            String trailer,
+            String studio,
+            String director,
+            String season,
+            int duration,
+            String format,
+            int episodes,
+            String status,
+            long updatedAt,
+            double rating,
+            String description,
+            String genres,
+            int nextEpisode,
+            long nextAiringAt,
+            String romajiTitle,
+            String nativeTitle
+    ){
 
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        if(auth.getCurrentUser() == null) return;
+
+        String uid = auth.getCurrentUser().getUid();
+
+        // tránh null id
+        if(animeId == null || animeId.isEmpty()){
+            animeId = String.valueOf(System.currentTimeMillis());
+        }
+
+        Map<String,Object> data = new HashMap<>();
+
+        data.put("animeId", animeId);
+        data.put("title", title != null ? title : "Unknown");
+        data.put("poster", poster);
+        data.put("trailer", trailer);
+        data.put("romajiTitle", romajiTitle);
+        data.put("nativeTitle", nativeTitle);
+        data.put("studio", studio);
+        data.put("director", director);
+        data.put("season", season);
+        data.put("duration", duration);
+        data.put("format", format);
+        data.put("episodes", episodes);
+        data.put("status", status);
+        data.put("updatedAt", updatedAt);
+
+        data.put("rating", rating);
+        data.put("description", description);
+        data.put("genres", genres);
+
+        data.put("nextEpisode", nextEpisode);
+        data.put("nextAiringAt", nextAiringAt);
+
+        data.put("time", System.currentTimeMillis());
+
+        db.collection("users")
+                .document(uid)
+                .collection("history")
+                .document(animeId)
+                .set(data)
+                .addOnSuccessListener(unused -> {
+                    android.util.Log.d("HISTORY","Banner history saved");
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e("HISTORY","Save failed",e);
+                });
+
+    }
     // ================= CLEAR HISTORY =================
     public static void clearWatchHistory(Context context) {
         FirebaseAuth auth = FirebaseAuth.getInstance();

@@ -1,4 +1,4 @@
- package com.mari.magic.adapter;
+package com.mari.magic.adapter;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+
 import com.mari.magic.R;
 import com.mari.magic.model.Anime;
 import com.mari.magic.ui.detail.AnimeDetailActivity;
@@ -78,21 +80,24 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder>{
             }
         }
 
-        // 🖼 Load poster (safe Glide)
-        // loading gif
+        // 🖼 loading GIF
         Glide.with(holder.poster)
                 .asGif()
                 .load(R.drawable.no_money)
                 .into(holder.poster);
 
-// load poster sau 500ms
+        // load poster sau 500ms
         holder.poster.postDelayed(() -> {
+
+            // tránh crash khi view recycle
+            if(!holder.poster.isAttachedToWindow()) return;
 
             Glide.with(holder.poster)
                     .load(anime.getPoster())
+                    .override(300,450)
                     .centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .transition(com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade())
+                    .transition(DrawableTransitionOptions.withCrossFade())
                     .into(holder.poster);
 
         },500);
@@ -114,7 +119,8 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder>{
         intent.putExtra("poster", anime.getPoster());
         intent.putExtra("rating", anime.getRating());
         intent.putExtra("trailer", anime.getTrailer());
-
+        intent.putExtra("mangadex", anime.getMangaDexUrl());
+        intent.putExtra("mal", anime.getMalUrl());
         intent.putExtra("description",
                 anime.getDescription() != null ? anime.getDescription() : "");
 
@@ -126,7 +132,9 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder>{
 
         intent.putExtra("director",
                 anime.getDirector() != null ? anime.getDirector() : "Unknown");
-
+        intent.putExtra("chapters", anime.getChapters());
+        intent.putExtra("volumes", anime.getVolumes());
+        intent.putExtra("author", anime.getAuthor());
         intent.putExtra("season",
                 anime.getSeason() != null ? anime.getSeason() : "Unknown");
 
@@ -150,6 +158,13 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder>{
     @Override
     public int getItemCount(){
         return list != null ? list.size() : 0;
+    }
+
+    // tránh crash Glide khi item recycle
+    @Override
+    public void onViewRecycled(@NonNull ViewHolder holder) {
+        super.onViewRecycled(holder);
+        Glide.with(holder.poster).clear(holder.poster);
     }
 
     private String getBestTitle(Anime anime){
@@ -186,4 +201,3 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder>{
         }
     }
 }
-

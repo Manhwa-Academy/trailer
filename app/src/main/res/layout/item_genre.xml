@@ -9,7 +9,7 @@
     android:layout_margin="6dp"
     android:padding="12dp"
 
-    android:text="Action"
+    android:text=""
     android:textSize="14sp"
     android:textStyle="bold"
 

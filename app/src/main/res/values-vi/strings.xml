@@ -88,4 +88,19 @@
     <string name="history_title">Lịch sử xem</string>
     <string name="clear_history">🗑 Xóa lịch sử</string>
     <string name="history_empty">Chưa có anime nào được xem 🎬</string>
+
+    <string name="genre_title">Thể loại</string>
+    <string name="genre_title_format">Thể loại: %1$s</string>
+    <string name="genre_empty">Không có anime trong thể loại này</string>
+
+    <string name="anime_type">Thể loại Anime</string>
+    <string name="tv_anime">Anime TV</string>
+    <string name="movie_anime">Anime Movie</string>
+    <string name="ova_anime">Anime OVA</string>
+    <string name="ona_anime">Anime ONA</string>
+    <string name="special_anime">Anime Special</string>
+    <string name="tv_short_anime">Anime TV Ngắn</string>
+    <string name="manga">Manga</string>
+    <string name="novel">Tiểu thuyết</string>
+    <string name="one_shot">One Shot</string>
 </resources>

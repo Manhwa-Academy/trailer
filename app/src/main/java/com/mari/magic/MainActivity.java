@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
             switch (position){
 
                 case 0:
-                    loadFragment(new HomeFragment());
+                    bottomNavigation.setSelectedItemId(R.id.nav_home);
                     break;
 
                 case 1:
@@ -183,8 +183,8 @@ public class MainActivity extends AppCompatActivity {
                     break;
 
                 case 4:
-                    // Anime Type
-                    break;
+                    loadAnimeTypes();
+                    return;
 
                 case 5:
                     // Top Anime
@@ -219,7 +219,81 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragmentContainer,fragment)
                 .commit();
     }
+    private void loadAnimeTypes(){
 
+        String url = "https://graphql.anilist.co";
+
+        try{
+
+            JSONObject body = new JSONObject();
+            body.put("query",
+                    "query { __type(name:\"MediaFormat\") { enumValues { name } } }"
+            );
+
+            JsonObjectRequest request = new JsonObjectRequest(
+                    Request.Method.POST,
+                    url,
+                    body,
+
+                    response -> {
+
+                        try{
+
+                            JSONArray array = response
+                                    .getJSONObject("data")
+                                    .getJSONObject("__type")
+                                    .getJSONArray("enumValues");
+
+                            List<String> types = new ArrayList<>();
+
+                            for(int i=0;i<array.length();i++){
+                                types.add(array.getJSONObject(i).getString("name"));
+                            }
+
+                            openAnimeTypeMenu(types);
+
+                        }catch(Exception e){
+                            e.printStackTrace();
+                        }
+
+                    },
+
+                    error -> Log.e("API","Type error "+error)
+            );
+
+            VolleySingleton.getInstance(this).addToRequestQueue(request);
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void openAnimeTypeMenu(List<String> types){
+
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+
+        View view = getLayoutInflater().inflate(R.layout.bottom_type,null);
+
+        RecyclerView recycler = view.findViewById(R.id.typeRecycler);
+
+        recycler.setLayoutManager(new GridLayoutManager(this,2));
+
+        GenreAdapter adapter = new GenreAdapter(types);
+
+        recycler.setAdapter(adapter);
+
+        adapter.setOnGenreClickListener(type -> {
+
+            dialog.dismiss();
+
+            Intent intent = new Intent(this, com.mari.magic.ui.type.AnimeTypeActivity.class);
+            intent.putExtra("format",type);
+            startActivity(intent);
+
+        });
+
+        dialog.setContentView(view);
+        dialog.show();
+    }
     // Popup filter
     private void openContentSettings(){
 
@@ -371,13 +445,15 @@ public class MainActivity extends AppCompatActivity {
                 year = Integer.parseInt(seasonText.substring(seasonText.length() - 4));
 
                 // xác định season
-                if(seasonText.contains("Đông")){
+                String text = seasonText.toLowerCase();
+
+                if(text.contains("winter") || text.contains("đông")){
                     season = "WINTER";
                 }
-                else if(seasonText.contains("Xuân")){
+                else if(text.contains("spring") || text.contains("xuân")){
                     season = "SPRING";
                 }
-                else if(seasonText.contains("Hạ")){
+                else if(text.contains("summer") || text.contains("hạ")){
                     season = "SUMMER";
                 }
                 else{

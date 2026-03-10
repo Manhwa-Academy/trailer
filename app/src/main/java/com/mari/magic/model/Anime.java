@@ -36,11 +36,15 @@ public class Anime {
     private String status;   // ⭐ thêm
     private long views;
     private long updatedAt;
-
+    // ===== MANGA INFO =====
+    private int chapters;
+    private int volumes;
+    private String author;
     // ===== NEXT AIRING =====
     private int nextEpisode;
     private long nextAiringAt;
-
+    private String mangaDexUrl;
+    private String malUrl;
     // ===== FLAGS =====
     private boolean favorite;
     private boolean isAdult;
@@ -73,11 +77,35 @@ public class Anime {
     public String getEnglishTitle(){
         return englishTitle != null ? englishTitle : "";
     }
+    public int getChapters(){
+        return chapters;
+    }
 
+    public int getVolumes(){
+        return volumes;
+    }
+
+    public String getAuthor(){
+        return author != null ? author : "Unknown";
+    }
     public String getRomajiTitle(){
         return romajiTitle != null ? romajiTitle : "";
     }
+    public String getMangaDexUrl() {
+        return mangaDexUrl;
+    }
 
+    public void setMangaDexUrl(String mangaDexUrl) {
+        this.mangaDexUrl = mangaDexUrl;
+    }
+
+    public String getMalUrl() {
+        return malUrl;
+    }
+
+    public void setMalUrl(String malUrl) {
+        this.malUrl = malUrl;
+    }
     public String getNativeTitle(){
         return nativeTitle != null ? nativeTitle : "";
     }
@@ -177,7 +205,17 @@ public class Anime {
     }
 
     // ================= SETTER =================
+    public void setChapters(int chapters){
+        this.chapters = chapters;
+    }
 
+    public void setVolumes(int volumes){
+        this.volumes = volumes;
+    }
+
+    public void setAuthor(String author){
+        this.author = author;
+    }
     public void setId(int id){
         this.id = id;
     }

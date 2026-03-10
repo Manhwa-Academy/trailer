@@ -41,11 +41,17 @@ public class RandomAnimeLoader {
                     "query ($page: Int) {" +
                             " Page(page:$page, perPage:1) {" +
                             "  media(type:ANIME, sort:POPULARITY_DESC) {" +
-                            "   id title { romaji english native } " +
+                            "   id " +
+                            "   title { romaji english native } " +
                             "   coverImage { large } " +
                             "   averageScore description genres " +
                             "   format season seasonYear duration " +
-                            "   popularity trailer { id site } " +
+                            "   episodes " +
+                            "   status " +
+                            "   updatedAt " +
+                            "   nextAiringEpisode { episode airingAt } " +
+                            "   popularity " +
+                            "   trailer { id site } " +
                             "   studios { nodes { name } } " +
                             "   staff(perPage:5) { nodes { name { full } primaryOccupations } } " +
                             "   isAdult " +
@@ -104,7 +110,9 @@ public class RandomAnimeLoader {
                             intent.putExtra("romajiTitle", anime.getRomajiTitle());
                             intent.putExtra("englishTitle", anime.getEnglishTitle());
                             intent.putExtra("nativeTitle", anime.getNativeTitle());
-
+                            intent.putExtra("episodes", anime.getEpisodes());
+                            intent.putExtra("status", anime.getStatus());
+                            intent.putExtra("updatedAt", anime.getUpdatedAt());
                             context.startActivity(intent);
 
                         }catch(Exception e){

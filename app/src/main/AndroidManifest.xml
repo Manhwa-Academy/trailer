@@ -37,7 +37,7 @@
         <activity
             android:name=".ui.search.SearchActivity"
             android:exported="false" />
-
+        <activity android:name=".ui.type.AnimeTypeActivity"/>
         <!-- GENRE -->
         <activity
             android:name=".ui.genre.GenreAnimeActivity"

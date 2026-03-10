@@ -10,12 +10,12 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.mari.magic.R;
 import com.mari.magic.model.Anime;
 import com.mari.magic.ui.detail.AnimeDetailActivity;
 import com.mari.magic.utils.AnimeFirestoreParser;
 import com.mari.magic.utils.FavoriteManager;
-import com.bumptech.glide.Glide;
 
 import java.util.List;
 import java.util.Locale;
@@ -45,123 +45,177 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         Map<String,Object> map = list.get(position);
         Anime anime = AnimeFirestoreParser.parse(map);
 
-        // ---------------- Title, Poster, Rating ----------------
+        // ---------- TITLE + POSTER + RATING ----------
         holder.txtTitle.setText(anime.getTitle());
         holder.txtRating.setText("⭐ " + String.format("%.1f", anime.getRating()));
+
         Glide.with(holder.imgPoster)
                 .load(anime.getPoster())
                 .centerCrop()
                 .placeholder(R.drawable.placeholder)
                 .into(holder.imgPoster);
 
-        // ---------------- Episodes ----------------
-        Object epObj = map.get("episodes");
+        // ---------- EPISODES ----------
         int episodes = 0;
+        Object epObj = map.get("episodes");
+
         if(epObj instanceof Long) episodes = ((Long) epObj).intValue();
         else if(epObj instanceof Integer) episodes = (Integer) epObj;
 
-        // ---------------- Status ----------------
+        // ---------- NEXT EPISODE ----------
+        int nextEpisode = 0;
+        Object nextObj = map.get("nextEpisode");
+
+        if(nextObj instanceof Long) nextEpisode = ((Long) nextObj).intValue();
+        else if(nextObj instanceof Integer) nextEpisode = (Integer) nextObj;
+
+        // ---------- NEXT AIRING ----------
+        long nextAiringAt = 0;
+        Object airingObj = map.get("nextAiringAt");
+
+        if(airingObj instanceof Long) nextAiringAt = (Long) airingObj;
+        else if(airingObj instanceof Integer) nextAiringAt = ((Integer) airingObj).longValue();
+
+        // ---------- STATUS ----------
         String status = map.get("status") != null ? (String) map.get("status") : "";
 
-        String episodeText = "Episodes: " + (episodes > 0 ? episodes : "?");
-        if("FINISHED".equalsIgnoreCase(status) && episodes > 0){
-            episodeText += " ✓ Completed";
-        }
-        if(holder.txtEpisodes != null) holder.txtEpisodes.setText(episodeText);
+        // ---------- EPISODE TEXT ----------
+        int currentEpisode;
 
-        // ---------------- Next Episode ----------------
-        int nextEpisode = 0;
-        Object nextEpObj = map.get("nextAiringEpisode");
-        if(nextEpObj instanceof Map){
-            Map<String,Object> nextMap = (Map<String,Object>) nextEpObj;
-            Object ep = nextMap.get("episode");
-            if(ep instanceof Long) nextEpisode = ((Long) ep).intValue();
-            else if(ep instanceof Integer) nextEpisode = (Integer) ep;
+        if(nextEpisode > 0){
+            currentEpisode = nextEpisode - 1;
+        }else{
+            currentEpisode = episodes;
         }
 
+        String episodeText = "EP " + currentEpisode;
+
+        holder.txtEpisodes.setText(
+                "EP " + currentEpisode + " • Next EP " + nextEpisode
+        );
+
+        // ---------- NEXT EP TEXT ----------
         if(holder.txtNextEpisode != null){
-            String nextEpText;
+
+            String nextText;
+
             if("FINISHED".equalsIgnoreCase(status) && episodes > 0){
-                nextEpText = "EP " + episodes + " ✓ Completed";
-            } else {
-                nextEpText = "EP " + (nextEpisode > 0 ? nextEpisode - 1 : "?");
-                if(nextEpisode > 0){
-                    nextEpText += " • Next EP " + nextEpisode;
-                }
+
+                nextText = "EP " + episodes + " ✓ Completed";
+
             }
-            holder.txtNextEpisode.setText(nextEpText);
+            else if(nextEpisode > 0){
+
+                int currentEp = nextEpisode - 1;
+
+                // luôn hiển thị next ep
+                nextText = "EP " + currentEp + " • Next EP " + nextEpisode;
+
+            }
+            else if(episodes > 0){
+
+                nextText = "EP " + episodes;
+
+            }
+            else{
+
+                nextText = "EP ?";
+
+            }
+
+            holder.txtNextEpisode.setText(nextText);
         }
 
-        // ---------------- UpdatedAt ----------------
-        Object updObj = map.get("updatedAt");
+        // ---------- UPDATED ----------
         long updatedAt = 0;
+        Object updObj = map.get("updatedAt");
+
         if(updObj instanceof Long) updatedAt = (Long) updObj;
         else if(updObj instanceof Integer) updatedAt = ((Integer) updObj).longValue();
 
         if(holder.txtUpdated != null){
+
             if(updatedAt > 0){
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault());
-                holder.txtUpdated.setText("Updated: " + sdf.format(new java.util.Date(updatedAt*1000)));
+
+                java.text.SimpleDateFormat sdf =
+                        new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault());
+
+                holder.txtUpdated.setText(
+                        "Updated: " + sdf.format(new java.util.Date(updatedAt * 1000))
+                );
+
             } else {
+
                 holder.txtUpdated.setText("Updated: Unknown");
+
             }
         }
 
-        // ⚡ Final copies để lambda
-        final int finalEpisodes = episodes;
-        final int finalNextEpisode = nextEpisode;
-        final String finalStatus = status;
-        final long finalUpdatedAt = updatedAt;
-
-        // ---------------- DELETE FAVORITE ----------------
+        // ---------- DELETE FAVORITE ----------
         holder.btnDelete.setOnClickListener(v -> {
+
             String animeId = (String) map.get("animeId");
+
             FavoriteManager.removeFavorite(animeId);
+
             int pos = holder.getAdapterPosition();
+
             if(pos != RecyclerView.NO_POSITION){
+
                 list.remove(pos);
                 notifyItemRemoved(pos);
                 notifyItemRangeChanged(pos, list.size());
+
             }
         });
-
-        // ---------------- OPEN DETAIL ----------------
+        final int finalEpisodes = episodes;
+        final int finalNextEpisode = nextEpisode;
+        final long finalNextAiringAt = nextAiringAt;
+        final String finalStatus = status;
+        final long finalUpdatedAt = updatedAt;
+        // ---------- OPEN DETAIL ----------
         holder.itemView.setOnClickListener(v -> {
+
             Intent intent = new Intent(context, AnimeDetailActivity.class);
+
             intent.putExtra("animeId", anime.getId());
             intent.putExtra("title", anime.getTitle());
             intent.putExtra("englishTitle", anime.getEnglishTitle());
             intent.putExtra("romajiTitle", anime.getRomajiTitle());
             intent.putExtra("nativeTitle", anime.getNativeTitle());
+
             intent.putExtra("poster", anime.getPoster());
             intent.putExtra("rating", anime.getRating());
             intent.putExtra("trailer", anime.getTrailer());
-            intent.putExtra("description", anime.getDescription() != null ? anime.getDescription() : "");
-            intent.putExtra("genres", anime.getGenres() != null ? anime.getGenres() : "");
-            intent.putExtra("studio", anime.getStudio() != null ? anime.getStudio() : "Unknown");
-            intent.putExtra("director", anime.getDirector() != null ? anime.getDirector() : "Unknown");
-            intent.putExtra("season", anime.getSeason() != null ? anime.getSeason() : "Unknown");
+
+            intent.putExtra("description", anime.getDescription());
+            intent.putExtra("genres", anime.getGenres());
+
+            intent.putExtra("studio", anime.getStudio());
+            intent.putExtra("director", anime.getDirector());
+            intent.putExtra("season", anime.getSeason());
+            intent.putExtra("format", anime.getFormat());
+
             intent.putExtra("duration", anime.getDuration());
-            intent.putExtra("format", anime.getFormat() != null ? anime.getFormat() : "Unknown");
             intent.putExtra("views", anime.getViews());
 
-            // ⚡ dùng final variables
             intent.putExtra("episodes", finalEpisodes);
             intent.putExtra("nextEpisode", finalNextEpisode);
-            intent.putExtra("status", finalStatus);
+            intent.putExtra("nextAiringAt", finalNextAiringAt);
+            intent.putExtra("status", status);
             intent.putExtra("updatedAt", finalUpdatedAt);
-
-            intent.putExtra("nextAiringAt", anime.getNextAiringAt());
             intent.putExtra("isAdult", anime.isAdult());
 
             context.startActivity(intent);
         });
 
-        // ---------------- LOG API ----------------
-        Log.d("API_DEBUG", "episodes=" + map.get("episodes")
-                + ", nextEpisode=" + map.get("nextAiringEpisode")
-                + ", status=" + map.get("status")
-                + ", updatedAt=" + map.get("updatedAt"));
+        // ---------- DEBUG ----------
+        Log.d("FAV_DEBUG",
+                "episodes=" + episodes +
+                        ", nextEpisode=" + nextEpisode +
+                        ", nextAiringAt=" + nextAiringAt +
+                        ", status=" + status
+        );
     }
 
     @Override
@@ -180,9 +234,12 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         TextView txtNextEpisode;
 
         public ViewHolder(@NonNull View itemView) {
+
             super(itemView);
+
             imgPoster = itemView.findViewById(R.id.imgPoster);
             btnDelete = itemView.findViewById(R.id.btnDelete);
+
             txtTitle = itemView.findViewById(R.id.txtTitle);
             txtRating = itemView.findViewById(R.id.txtRating);
             txtEpisodes = itemView.findViewById(R.id.txtEpisodes);
