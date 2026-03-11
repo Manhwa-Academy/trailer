@@ -45,7 +45,12 @@ public class SeeAllActivity extends AppCompatActivity {
         sections.add(Section.CAT_TOP_TV);
         sections.add(Section.CAT_RELEASING);
         sections.add(Section.CAT_UPCOMING);
-
+        sections.add(Section.CAT_TOP_MANGA);
+        sections.add(Section.CAT_TRENDING_MANGA);
+        // ⭐ Novel
+        sections.add(Section.CAT_NEW_NOVEL);
+        sections.add(Section.CAT_TOP_NOVEL);
+        sections.add(Section.CAT_TRENDING_NOVEL);
         if("16".equals(filter) || "18".equals(filter)){
             sections.add(Section.CAT_ECCHI);
         }
@@ -86,7 +91,24 @@ public class SeeAllActivity extends AppCompatActivity {
                 case Section.CAT_UPCOMING:
                     tab.setText(getString(R.string.tab_upcoming));
                     break;
+                case Section.CAT_TOP_MANGA:
+                    tab.setText("Top Manga");
+                    break;
 
+                case Section.CAT_TRENDING_MANGA:
+                    tab.setText("Trending Manga");
+                    break;
+                case Section.CAT_NEW_NOVEL:
+                    tab.setText("New Novel");
+                    break;
+
+                case Section.CAT_TOP_NOVEL:
+                    tab.setText("Top Novel");
+                    break;
+
+                case Section.CAT_TRENDING_NOVEL:
+                    tab.setText("Trending Novel");
+                    break;
                 case Section.CAT_ECCHI:
                     tab.setText(getString(R.string.tab_ecchi));
                     break;

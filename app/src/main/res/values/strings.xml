@@ -115,4 +115,62 @@
     <string name="manga">Manga</string>
     <string name="novel">Novel</string>
     <string name="one_shot">One Shot</string>
+
+    <string name="read_online">📖 Read Online</string>
+
+    <!-- Novel Sections -->
+    <string name="trending_novel_title">🔥 Trending Novel</string>
+    <string name="top_novel_title">⭐ Top Rated Novel</string>
+    <string name="new_novel_title">🆕 New Novel</string>
+
+    <string name="top_manga_title">⭐ Top Rated Manga</string>
+    <string name="trending_manga_title">🔥 Trending Manga</string>
+
+    <string name="updated_anime">Anime New Updated</string>
+
+    <string name="stats_title">Activity Stats</string>
+    <string name="streak">Consecutive Days</string>
+    <string name="watched">Watched</string>
+    <string name="read">Read</string>
+    <string name="account_created">Account Created: </string>
+
+    <string name="tab_overview">Overview</string>
+    <string name="tab_edit">Edit</string>
+    <string name="tab_security">Security</string>
+    <string name="username_placeholder">\@username</string>
+
+    <string name="profile_title">Edit Profile</string>
+    <string name="profile_subtitle">Update your personal information</string>
+    <string name="email_label">Email</string>
+    <string name="email_hint">Email</string>
+    <string name="username_label">Username</string>
+    <string name="username_hint">Enter new username</string>
+    <string name="displayname_label">Display Name</string>
+    <string name="displayname_hint">Display Name</string>
+    <string name="bio_label">Bio</string>
+    <string name="bio_hint">Write a few lines about yourself...</string>
+    <string name="save_button">Save Changes</string>
+
+    <string name="username_info">You can change your username after %1$d days</string>
+    <string name="error_displayname_empty">Display name cannot be empty</string>
+    <string name="profile_save_success">Profile saved successfully</string>
+    <string name="profile_save_fail">Failed to save profile</string>
+
+    <string name="security_title">Change Password</string>
+    <string name="security_subtitle">Update your password to protect your account</string>
+    <string name="current_password_hint">Enter current password</string>
+    <string name="new_password_hint">Enter new password</string>
+    <string name="confirm_password_hint">Confirm new password</string>
+    <string name="change_password_button">Change Password</string>
+
+    <!-- Toasts / Alerts -->
+    <string name="google_user_cant_change">Google account cannot change password in app.</string>
+    <string name="enter_all_fields">Please enter all required fields</string>
+    <string name="password_not_match">Password confirmation does not match</string>
+    <string name="change_password_success">Password changed successfully!</string>
+    <string name="change_password_failed">Failed to change password: %1$s</string>
+
+    <string name="change_avatar">Change Avatar</string>
+    <string name="choose_avatar_instruction">Select an available avatar</string>
+    <string name="select_avatar_button">Select this avatar</string>
 </resources>

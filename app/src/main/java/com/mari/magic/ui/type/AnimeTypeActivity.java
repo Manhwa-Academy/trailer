@@ -14,6 +14,7 @@ import com.mari.magic.R;
 import com.mari.magic.adapter.AnimeAdapter;
 import com.mari.magic.model.Anime;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.ui.component.PaginationView;
 import com.mari.magic.utils.AnimeParser;
 import com.mari.magic.utils.AppSettings;
 
@@ -31,16 +32,23 @@ public class AnimeTypeActivity extends AppCompatActivity {
     AnimeAdapter adapter;
     List<Anime> animeList = new ArrayList<>();
 
+    PaginationView paginationView;
+
     String format;
     TextView typeTitle;
 
+    int currentPage = 1;
+    int totalPages = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anime_type);
 
         recycler = findViewById(R.id.typeAnimeRecycler);
         typeTitle = findViewById(R.id.typeTitle);
+        paginationView = findViewById(R.id.paginationBottom);
 
         recycler.setLayoutManager(new GridLayoutManager(this,3));
 
@@ -52,27 +60,31 @@ public class AnimeTypeActivity extends AppCompatActivity {
 
         recycler.setAdapter(adapter);
 
-        // nhận format
         format = getIntent().getStringExtra("format");
 
         if(format == null || format.isEmpty()){
             format = "TV";
         }
 
-        // title
         typeTitle.setText(getString(R.string.anime_type) + " • " + format);
         setTitle(format + " Anime");
 
-        loadAnime();
+        paginationView.setOnPageChangeListener(page -> {
+
+            currentPage = page;
+            loadAnime(currentPage);
+
+        });
+
+        loadAnime(currentPage);
     }
 
-    private void loadAnime(){
+    private void loadAnime(int page){
 
         String url = "https://graphql.anilist.co";
 
         try{
 
-            // xác định media type
             String mediaType = "ANIME";
 
             if(format.equals("MANGA") ||
@@ -84,13 +96,17 @@ public class AnimeTypeActivity extends AppCompatActivity {
             JSONObject variables = new JSONObject();
             variables.put("format", format);
             variables.put("type", mediaType);
+            variables.put("page", page);
 
             JSONObject body = new JSONObject();
 
             body.put("query",
-                    "query ($format: MediaFormat,$type: MediaType) {" +
-                            " Page(page:1,perPage:30) {" +
-                            " media(type:$type,format:$format) {" +
+                    "query ($format: MediaFormat,$type: MediaType,$page:Int) {" +
+                            " Page(page:$page,perPage:30) {" +
+
+                            " pageInfo { currentPage lastPage total } " +
+
+                            " media(type:$type,format:$format, sort:TRENDING_DESC) {" +
 
                             " id " +
                             " title { romaji english native } " +
@@ -115,11 +131,10 @@ public class AnimeTypeActivity extends AppCompatActivity {
                             " staff(perPage:20){ nodes{ name{full} primaryOccupations } } " +
 
                             " nextAiringEpisode { episode airingAt } " +
-
-                            " externalLinks { site url } " +   // ⭐ MangaDex / MAL ở đây
+                            " siteUrl " +
+                            " externalLinks { site url } " +
 
                             "}}}");
-
 
             body.put("variables", variables);
 
@@ -131,6 +146,16 @@ public class AnimeTypeActivity extends AppCompatActivity {
                     response -> {
 
                         try{
+
+                            JSONObject pageInfo = response
+                                    .getJSONObject("data")
+                                    .getJSONObject("Page")
+                                    .getJSONObject("pageInfo");
+
+                            currentPage = pageInfo.getInt("currentPage");
+                            totalPages = pageInfo.getInt("lastPage");
+
+                            paginationView.setPages(currentPage,totalPages);
 
                             JSONArray array = response
                                     .getJSONObject("data")
@@ -144,8 +169,7 @@ public class AnimeTypeActivity extends AppCompatActivity {
                             for(int i = 0; i < array.length(); i++){
 
                                 JSONObject obj = array.getJSONObject(i);
-                                JSONArray links = obj.optJSONArray("externalLinks");
-                                Log.d("API_DEBUG","links=" + links);
+
                                 Anime anime = AnimeParser.parse(obj, this);
 
                                 if(anime == null) continue;
@@ -154,21 +178,18 @@ public class AnimeTypeActivity extends AppCompatActivity {
                                 boolean isEcchi = anime.getGenres() != null &&
                                         anime.getGenres().contains("Ecchi");
 
-                                // SAFE
                                 if(filter.equals("all")){
                                     if(!isAdult && !isEcchi){
                                         animeList.add(anime);
                                     }
                                 }
 
-                                // 16+
                                 else if(filter.equals("16")){
                                     if(!isAdult){
                                         animeList.add(anime);
                                     }
                                 }
 
-                                // 18+
                                 else if(filter.equals("18")){
                                     animeList.add(anime);
                                 }

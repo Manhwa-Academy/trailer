@@ -24,6 +24,14 @@ public class Section {
     public static final String CAT_ECCHI = "ecchi";
     public static final String CAT_ADULT = "adult";
 
+    // ===== MANGA =====
+    public static final String CAT_TOP_MANGA = "top_manga";
+    public static final String CAT_TRENDING_MANGA = "trending_manga";
+
+    // ===== NOVEL =====
+    public static final String CAT_TOP_NOVEL = "top_novel";
+    public static final String CAT_TRENDING_NOVEL = "trending_novel";
+    public static final String CAT_NEW_NOVEL = "new_novel";
     private int type;
     private String title;
     private String category;

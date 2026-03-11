@@ -119,8 +119,16 @@ public class AnimeAdapter extends RecyclerView.Adapter<AnimeAdapter.ViewHolder>{
         intent.putExtra("poster", anime.getPoster());
         intent.putExtra("rating", anime.getRating());
         intent.putExtra("trailer", anime.getTrailer());
-        intent.putExtra("mangadex", anime.getMangaDexUrl());
-        intent.putExtra("mal", anime.getMalUrl());
+        String mangaDex = anime.getMangaDexUrl();
+        String mal = anime.getMalUrl();
+
+// fallback nếu mangadex null
+        if(mangaDex == null || mangaDex.isEmpty()){
+            mangaDex = mal;
+        }
+
+        intent.putExtra("mangadex", mangaDex);
+        intent.putExtra("mal", mal);
         intent.putExtra("description",
                 anime.getDescription() != null ? anime.getDescription() : "");
 

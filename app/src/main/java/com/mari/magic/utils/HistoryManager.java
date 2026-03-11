@@ -12,7 +12,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 public class HistoryManager {
 
     // ================= SEARCH HISTORY =================
@@ -101,10 +102,12 @@ public class HistoryManager {
             long views
     ) {
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
         if (auth.getCurrentUser() == null) return;
 
         String uid = auth.getCurrentUser().getUid();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // 1️⃣ Lưu history chi tiết
         Map<String, Object> data = new HashMap<>();
         data.put("animeId", animeId);
         data.put("title", title);
@@ -129,12 +132,57 @@ public class HistoryManager {
         data.put("views", views);
         data.put("time", System.currentTimeMillis());
 
-        // Avoid duplicates by using animeId as document ID
         db.collection("users")
                 .document(uid)
                 .collection("history")
                 .document(animeId)
                 .set(data);
+
+        // 2️⃣ Cập nhật stats + streak
+        DocumentReference userRef = db.collection("users").document(uid);
+        long now = System.currentTimeMillis();
+        userRef.get().addOnSuccessListener(doc -> {
+            if (doc.exists()) {
+                Map<String,Object> dataUser = doc.getData();
+
+                int moviesWatched = dataUser.get("moviesWatched") != null ? ((Long)dataUser.get("moviesWatched")).intValue() : 0;
+                int mangaRead = dataUser.get("mangaRead") != null ? ((Long)dataUser.get("mangaRead")).intValue() : 0;
+                int streak = dataUser.get("streak") != null ? ((Long)dataUser.get("streak")).intValue() : 0;
+                long lastRead = dataUser.get("lastRead") != null ? ((Long)dataUser.get("lastRead")) : 0;
+                long lastWatch = dataUser.get("lastWatch") != null ? ((Long)dataUser.get("lastWatch")) : 0;
+
+                long startOfToday = getStartOfDayMillis();
+
+                Map<String,Object> updates = new HashMap<>();
+
+                // Manga/Novel tăng mangaRead + streak
+                if(format.equalsIgnoreCase("MANGA") || format.equalsIgnoreCase("NOVEL") || format.equalsIgnoreCase("ONE_SHOT")){
+                    if(lastRead < startOfToday) streak += 1;
+                    updates.put("mangaRead", mangaRead + 1);
+                    updates.put("lastRead", now);
+                }
+                // Anime/Phim tăng moviesWatched + streak
+                else {
+                    if(lastWatch < startOfToday) streak += 1;
+                    updates.put("moviesWatched", moviesWatched + 1);
+                    updates.put("lastWatch", now);
+                }
+
+                updates.put("streak", streak);
+
+                userRef.update(updates);
+            }
+        });
+    }
+
+    // Helper tính đầu ngày hôm nay
+    private static long getStartOfDayMillis(){
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.set(java.util.Calendar.HOUR_OF_DAY,0);
+        cal.set(java.util.Calendar.MINUTE,0);
+        cal.set(java.util.Calendar.SECOND,0);
+        cal.set(java.util.Calendar.MILLISECOND,0);
+        return cal.getTimeInMillis();
     }
     public static void saveBannerHistory(
             Context context,

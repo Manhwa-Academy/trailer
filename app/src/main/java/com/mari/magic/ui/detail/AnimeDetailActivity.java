@@ -14,17 +14,22 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.mlkit.nl.translate.*;
-
+import com.mari.magic.utils.NovelResolver;
 import com.mari.magic.R;
 import com.mari.magic.utils.YoutubeService;
 import com.mari.magic.utils.FavoriteManager;
-
+import com.android.volley.Request;
+import com.android.volley.toolbox.JsonObjectRequest;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import com.mari.magic.utils.HistoryManager;
 import com.mari.magic.utils.TrailerHelper;
+import com.mari.magic.utils.MangaDexResolver;
+import com.mari.magic.network.VolleySingleton;
 public class AnimeDetailActivity extends AppCompatActivity {
 
     ImageView imgBanner, btnFavorite;
@@ -132,38 +137,81 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         Log.d("READ_DEBUG","MangaDex=" + mangaDex);
         Log.d("READ_DEBUG","MAL=" + mal);
-        if(format != null &&
-                (format.equalsIgnoreCase("MANGA")
-                        || format.equalsIgnoreCase("NOVEL")
-                        || format.equalsIgnoreCase("ONE_SHOT"))){
+        boolean isManga =
+                format != null &&
+                        (format.equalsIgnoreCase("MANGA")
+                                || format.equalsIgnoreCase("NOVEL")
+                                || format.equalsIgnoreCase("ONE_SHOT"));
 
-            if(btnTrailer != null)
+        boolean hasTrailer =
+                trailer != null && !trailer.isEmpty();
+
+// ===== HIỂN THỊ BUTTON =====
+
+        if(isManga){
+
+            btnRead.setVisibility(View.VISIBLE);
+
+            if(hasTrailer){
+                btnTrailer.setVisibility(View.VISIBLE);
+            }else{
                 btnTrailer.setVisibility(View.GONE);
-
-            if(btnRead != null)
-                btnRead.setVisibility(View.VISIBLE);
+            }
 
         }else{
 
-            if(btnRead != null)
-                btnRead.setVisibility(View.GONE);
+            btnRead.setVisibility(View.GONE);
+
+            if(hasTrailer){
+                btnTrailer.setVisibility(View.VISIBLE);
+            }else{
+                btnTrailer.setVisibility(View.GONE);
+            }
         }
         btnRead.setOnClickListener(v -> {
+            String searchTitle = title != null ? title : romajiTitle;
+            int nextEpisode = 0;
+            long nextAiring = 0;
+            String status = "";
+            // 🔹 Lưu history + tăng mangaRead/streak
+            HistoryManager.saveHistory(
+                    this,
+                    animeId,
+                    title,
+                    poster,
+                    rating,
+                    trailer,
+                    studio,
+                    director,
+                    season,
+                    duration,
+                    format,
+                    romajiTitle,
+                    nativeTitle,
+                    desc,
+                    genres,
+                    episodes,
+                    nextEpisode,
+                    nextAiring,
+                    status,
+                    isAdult,
+                    updatedAt,
+                    views
+            );
 
-            if(mangaDex != null && !mangaDex.isEmpty()){
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mangaDex)));
-            }
-            else if(mal != null && !mal.isEmpty()){
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(mal)));
+            // Mở truyện
+            if(format.equalsIgnoreCase("MANGA") || format.equalsIgnoreCase("ONE_SHOT")){
+                MangaDexResolver.openMangaDex(this, searchTitle);
+            } else if(format.equalsIgnoreCase("NOVEL")){
+                NovelResolver.openNovel(this, searchTitle);
             }
         });
+
         if(format != null){
 
             if(format.equalsIgnoreCase("MANGA") ||
                     format.equalsIgnoreCase("NOVEL") ||
                     format.equalsIgnoreCase("ONE_SHOT")){
-
-                // ===== MANGA MODE =====
 
                 txtSeason.setVisibility(View.GONE);
                 txtDuration.setVisibility(View.GONE);
@@ -171,8 +219,14 @@ public class AnimeDetailActivity extends AppCompatActivity {
                 txtDirector.setVisibility(View.GONE);
                 txtEpisodes.setVisibility(View.GONE);
                 txtNextEpisode.setVisibility(View.GONE);
-                txtViews.setVisibility(View.GONE);
-                btnTrailer.setVisibility(View.GONE);
+
+                // ✔ chỉ ẩn nếu không có trailer
+                if(trailer != null && !trailer.isEmpty()){
+                    btnTrailer.setVisibility(View.VISIBLE);
+                }else{
+                    btnTrailer.setVisibility(View.GONE);
+                }
+
 
                 // show manga info
                 txtChapters.setVisibility(TextView.VISIBLE);
@@ -362,10 +416,11 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         // ================= YOUTUBE =================
 
-        if(format != null &&
-                !format.equalsIgnoreCase("MANGA") &&
-                !format.equalsIgnoreCase("NOVEL") &&
-                !format.equalsIgnoreCase("ONE_SHOT")){
+        if(trailer != null && !trailer.isEmpty()){
+
+            txtViews.setVisibility(View.VISIBLE);
+            txtTrailerDate.setVisibility(View.VISIBLE);
+            btnTrailer.setVisibility(View.VISIBLE);
 
             YoutubeService.loadTrailerInfo(
                     this,
@@ -376,10 +431,9 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         }else{
 
-            txtTrailerDate.setVisibility(TextView.GONE);
-            btnTrailer.setVisibility(Button.GONE);
+            txtTrailerDate.setVisibility(View.GONE);
+            btnTrailer.setVisibility(View.GONE);
         }
-
         // ================= FAVORITE =================
 // Tạo favoriteId cố định dựa trên API ID hoặc title + romaji
         String favoriteId = title.replace("/", "_") + "_" + (romajiTitle != null ? romajiTitle.replace(" ", "_") : "");
@@ -493,4 +547,5 @@ public class AnimeDetailActivity extends AppCompatActivity {
                                 })
                 );
     }
+
 }

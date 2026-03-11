@@ -185,7 +185,7 @@
             android:id="@+id/btnRead"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Read Online"
+            android:text="@string/read_online"
             android:visibility="gone"/>
         <!-- ================= FAVORITE ================= -->
 

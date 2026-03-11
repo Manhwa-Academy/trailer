@@ -88,42 +88,36 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             currentEpisode = episodes;
         }
 
-        String episodeText = "EP " + currentEpisode;
+        String episodeText;
 
-        holder.txtEpisodes.setText(
-                "EP " + currentEpisode + " • Next EP " + nextEpisode
-        );
+        if("FINISHED".equalsIgnoreCase(status) && episodes > 0){
 
-        // ---------- NEXT EP TEXT ----------
+            episodeText = "EP " + episodes + " ✓ Completed";
+
+        }
+        else if(nextEpisode > 0){
+
+            int currentEp = nextEpisode - 1;
+            episodeText = "EP " + currentEp + " • Next EP " + nextEpisode;
+
+        }
+        else if(episodes > 0){
+
+            episodeText = "EP " + episodes;
+
+        }
+        else{
+
+            episodeText = "EP ?";
+
+        }
+
+        holder.txtEpisodes.setText(episodeText);
+
+// ---------- NEXT EP TEXT ----------
         if(holder.txtNextEpisode != null){
+            holder.txtNextEpisode.setText(episodeText);
 
-            String nextText;
-
-            if("FINISHED".equalsIgnoreCase(status) && episodes > 0){
-
-                nextText = "EP " + episodes + " ✓ Completed";
-
-            }
-            else if(nextEpisode > 0){
-
-                int currentEp = nextEpisode - 1;
-
-                // luôn hiển thị next ep
-                nextText = "EP " + currentEp + " • Next EP " + nextEpisode;
-
-            }
-            else if(episodes > 0){
-
-                nextText = "EP " + episodes;
-
-            }
-            else{
-
-                nextText = "EP ?";
-
-            }
-
-            holder.txtNextEpisode.setText(nextText);
         }
 
         // ---------- UPDATED ----------

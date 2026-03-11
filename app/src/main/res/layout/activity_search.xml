@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
@@ -8,7 +7,6 @@
     android:layout_height="match_parent">
 
     <!-- SEARCH BAR -->
-
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="56dp"
@@ -62,14 +60,19 @@
                 android:focusable="true"
                 android:visibility="gone"
                 app:tint="?attr/colorOnSurface"/>
-
         </LinearLayout>
-
     </androidx.cardview.widget.CardView>
 
+    <!-- MEDIA TYPE SPINNER -->
+    <Spinner
+        android:id="@+id/spinnerType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="8dp"
+        android:spinnerMode="dropdown"/>
 
     <!-- TITLE -->
-
     <TextView
         android:id="@+id/txtTitle"
         android:layout_width="match_parent"
@@ -81,9 +84,7 @@
         android:paddingStart="16dp"
         android:paddingBottom="8dp"/>
 
-
     <!-- RECENT SEARCH TITLE -->
-
     <TextView
         android:id="@+id/txtRecent"
         android:layout_width="match_parent"
@@ -95,9 +96,7 @@
         android:paddingTop="4dp"
         android:paddingBottom="4dp"/>
 
-
     <!-- RECENT SEARCH HISTORY -->
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerHistory"
         android:layout_width="match_parent"
@@ -106,9 +105,7 @@
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"/>
 
-
     <!-- RESULT GRID -->
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerSearch"
         android:layout_width="match_parent"
@@ -118,4 +115,9 @@
         android:paddingEnd="10dp"
         android:clipToPadding="false"/>
 
+    <!-- PAGINATION -->
+    <com.mari.magic.ui.component.PaginationView
+        android:id="@+id/paginationBottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>

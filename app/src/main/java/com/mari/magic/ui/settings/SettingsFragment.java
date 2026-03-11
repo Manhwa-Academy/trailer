@@ -22,6 +22,7 @@ import com.mari.magic.R;
 import com.mari.magic.network.VolleySingleton;
 import com.mari.magic.ui.favorite.FavoriteFragment;
 import com.mari.magic.ui.history.HistoryFragment;
+import com.mari.magic.ui.profile.ProfileFragment;
 import com.mari.magic.utils.ThemeManager;
 import com.mari.magic.utils.AppSettings;
 
@@ -31,6 +32,7 @@ public class SettingsFragment extends Fragment {
 
     private static final String TAG = "SettingsFragment";
 
+    private CardView btnProfile;
     private CardView btnFavorites;
     private CardView btnHistory;
     private CardView btnLogout;
@@ -38,11 +40,10 @@ public class SettingsFragment extends Fragment {
     private CardView btnTheme;
 
     private SwitchMaterial switchSearchHistory;
-
     private TextView txtTheme;
     private ImageView iconTheme;
 
-    public SettingsFragment(){}
+    public SettingsFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,8 +51,9 @@ public class SettingsFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        try{
-
+        try {
+            // =============== INIT BUTTONS =================
+            btnProfile = view.findViewById(R.id.btnProfile);
             btnFavorites = view.findViewById(R.id.btnFavorites);
             btnHistory = view.findViewById(R.id.btnHistory);
             btnLogout = view.findViewById(R.id.btnLogout);
@@ -60,22 +62,21 @@ public class SettingsFragment extends Fragment {
 
             txtTheme = view.findViewById(R.id.txtTheme);
             iconTheme = view.findViewById(R.id.iconTheme);
-
             switchSearchHistory = view.findViewById(R.id.switchSearchHistory);
 
             updateThemeUI();
 
+            // =============== SETUP =================
+            setupProfile();
+            setupFavorites();
+            setupHistory();
             setupSearchHistoryToggle();
             setupThemeToggle();
             setupLogout();
             setupClearCache();
-            setupFavorites();
-            setupHistory();
 
-        }catch (Exception e){
-
-            Log.e(TAG,"Error initializing SettingsFragment",e);
-
+        } catch (Exception e) {
+            Log.e(TAG, "Error initializing SettingsFragment", e);
             Toast.makeText(getContext(),
                     "Settings error: "+e.getMessage(),
                     Toast.LENGTH_LONG).show();
@@ -84,16 +85,28 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
-    // =============================
+    // ==============================
+    // OPEN PROFILE
+    // ==============================
+    private void setupProfile() {
+        if (btnProfile == null) return;
+
+        btnProfile.setOnClickListener(v -> {
+            getParentFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragmentContainer, new ProfileFragment())
+                    .addToBackStack(null)
+                    .commit();
+        });
+    }
+
+    // ==============================
     // FAVORITES
-    // =============================
-
-    private void setupFavorites(){
-
-        if(btnFavorites == null) return;
+    // ==============================
+    private void setupFavorites() {
+        if (btnFavorites == null) return;
 
         btnFavorites.setOnClickListener(v -> {
-
             getParentFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragmentContainer, new FavoriteFragment())
@@ -102,16 +115,13 @@ public class SettingsFragment extends Fragment {
         });
     }
 
-    // =============================
+    // ==============================
     // HISTORY
-    // =============================
-
-    private void setupHistory(){
-
-        if(btnHistory == null) return;
+    // ==============================
+    private void setupHistory() {
+        if (btnHistory == null) return;
 
         btnHistory.setOnClickListener(v -> {
-
             getParentFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragmentContainer, new HistoryFragment())
@@ -120,201 +130,114 @@ public class SettingsFragment extends Fragment {
         });
     }
 
-    // =============================
-    // SEARCH HISTORY
-    // =============================
-
-    private void setupSearchHistoryToggle(){
-
-        if(switchSearchHistory == null) return;
+    // ==============================
+    // SEARCH HISTORY TOGGLE
+    // ==============================
+    private void setupSearchHistoryToggle() {
+        if (switchSearchHistory == null) return;
 
         boolean enabled = AppSettings.isSearchHistoryEnabled(requireContext());
-
         switchSearchHistory.setChecked(enabled);
 
         switchSearchHistory.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
             AppSettings.setSearchHistoryEnabled(requireContext(), isChecked);
-
-            if(isChecked){
-
-                Toast.makeText(
-                        getContext(),
-                        "Search history enabled",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-            }else{
-
-                Toast.makeText(
-                        getContext(),
-                        "Search history disabled",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
+            String msg = isChecked ? "Search history enabled" : "Search history disabled";
+            Toast.makeText(getContext(), msg, Toast.LENGTH_SHORT).show();
         });
     }
 
-    // =============================
-    // THEME
-    // =============================
-
-    private void setupThemeToggle(){
-
-        if(btnTheme == null) return;
+    // ==============================
+    // THEME TOGGLE
+    // ==============================
+    private void setupThemeToggle() {
+        if (btnTheme == null) return;
 
         btnTheme.setOnClickListener(v -> {
-
             int mode = ThemeManager.getTheme(requireContext());
 
-            if(mode == AppCompatDelegate.MODE_NIGHT_YES){
-
-                ThemeManager.saveTheme(
-                        requireContext(),
-                        AppCompatDelegate.MODE_NIGHT_NO
-                );
-
-            }else{
-
-                ThemeManager.saveTheme(
-                        requireContext(),
-                        AppCompatDelegate.MODE_NIGHT_YES
-                );
+            if (mode == AppCompatDelegate.MODE_NIGHT_YES) {
+                ThemeManager.saveTheme(requireContext(), AppCompatDelegate.MODE_NIGHT_NO);
+            } else {
+                ThemeManager.saveTheme(requireContext(), AppCompatDelegate.MODE_NIGHT_YES);
             }
 
             updateThemeUI();
-
-            if(getActivity()!=null){
-                getActivity().recreate();
-            }
+            if (getActivity() != null) getActivity().recreate();
         });
     }
 
-    private void updateThemeUI(){
-
+    private void updateThemeUI() {
         int mode = ThemeManager.getTheme(requireContext());
-
-        if(mode == AppCompatDelegate.MODE_NIGHT_YES){
-
+        if (mode == AppCompatDelegate.MODE_NIGHT_YES) {
             txtTheme.setText(getString(R.string.theme_light));
             iconTheme.setImageResource(R.drawable.ic_lightmode);
-
-        }else{
-
+        } else {
             txtTheme.setText(getString(R.string.theme_dark));
             iconTheme.setImageResource(R.drawable.ic_darkmode);
         }
     }
 
-    // =============================
+    // ==============================
     // LOGOUT
-    // =============================
-
-    private void setupLogout(){
-
-        if(btnLogout == null) return;
+    // ==============================
+    private void setupLogout() {
+        if (btnLogout == null) return;
 
         btnLogout.setOnClickListener(v -> {
-
             FirebaseAuth.getInstance().signOut();
+            Toast.makeText(getContext(), getString(R.string.logout_success), Toast.LENGTH_SHORT).show();
 
-            Toast.makeText(getContext(),
-                    getString(R.string.logout_success),
-                    Toast.LENGTH_SHORT).show();
-
-            Intent intent = new Intent(
-                    getActivity(),
-                    com.mari.magic.auth.WelcomeActivity.class
-            );
-
+            Intent intent = new Intent(getActivity(), com.mari.magic.auth.WelcomeActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-
             startActivity(intent);
 
-            if(getActivity()!=null){
-                getActivity().finish();
-            }
+            if (getActivity() != null) getActivity().finish();
         });
     }
 
-    // =============================
+    // ==============================
     // CLEAR CACHE
-    // =============================
-
-    private void setupClearCache(){
-
-        if(btnClearCache == null) return;
+    // ==============================
+    private void setupClearCache() {
+        if (btnClearCache == null) return;
 
         btnClearCache.setOnClickListener(v -> {
-
-            try{
-
+            try {
                 File cacheDir = requireContext().getCacheDir();
-
                 long size = getDirSize(cacheDir);
-
                 double mb = size / (1024.0 * 1024.0);
 
-                new Thread(() -> {
-                    Glide.get(requireContext()).clearDiskCache();
-                }).start();
-
+                new Thread(() -> Glide.get(requireContext()).clearDiskCache()).start();
                 Glide.get(requireContext()).clearMemory();
-
-                VolleySingleton.getInstance(requireContext())
-                        .getRequestQueue()
-                        .getCache()
-                        .clear();
+                VolleySingleton.getInstance(requireContext()).getRequestQueue().getCache().clear();
 
                 String sizeText = String.format("%.2f", mb);
-
-                Toast.makeText(
-                        getContext(),
+                Toast.makeText(getContext(),
                         getString(R.string.cache_cleared, sizeText),
-                        Toast.LENGTH_LONG
-                ).show();
+                        Toast.LENGTH_LONG).show();
+                Log.d("CACHE", "Cleared " + sizeText + " MB");
 
-                Log.d("CACHE","Cleared " + sizeText + " MB");
-
-            }catch(Exception e){
-
-                Log.e("CACHE","Clear cache error",e);
-
-                Toast.makeText(
-                        getContext(),
-                        getString(R.string.cache_error),
-                        Toast.LENGTH_SHORT
-                ).show();
+            } catch (Exception e) {
+                Log.e("CACHE", "Clear cache error", e);
+                Toast.makeText(getContext(), getString(R.string.cache_error), Toast.LENGTH_SHORT).show();
             }
-
         });
     }
 
-    // =============================
-    // CACHE SIZE
-    // =============================
-
-    private long getDirSize(File dir){
-
+    // ==============================
+    // HELPER: GET DIR SIZE
+    // ==============================
+    private long getDirSize(File dir) {
         long size = 0;
-
-        if(dir!=null && dir.isDirectory()){
-
+        if (dir != null && dir.isDirectory()) {
             File[] files = dir.listFiles();
-
-            if(files!=null){
-
-                for(File file : files){
-
-                    if(file.isFile()){
-                        size += file.length();
-                    }else{
-                        size += getDirSize(file);
-                    }
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile()) size += file.length();
+                    else size += getDirSize(file);
                 }
             }
         }
-
         return size;
     }
 }

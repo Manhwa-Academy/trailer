@@ -15,6 +15,7 @@
         <!-- PROFILE -->
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/btnProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="12dp"
@@ -46,12 +47,8 @@
                     android:text="@string/profile"
                     android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"/>
-
             </LinearLayout>
-
         </androidx.cardview.widget.CardView>
-
-
         <!-- FAVORITE -->
 
         <androidx.cardview.widget.CardView

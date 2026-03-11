@@ -18,6 +18,16 @@
         android:title="@string/nav_tv"/>
 
     <item
+        android:id="@+id/nav_manga"
+        android:icon="@drawable/ic_manga"
+        android:title="Manga"/>
+
+    <item
+        android:id="@+id/nav_novel"
+        android:icon="@drawable/ic_novel"
+        android:title="Novel"/>
+
+    <item
         android:id="@+id/nav_settings"
         android:icon="@drawable/ic_settings"
         android:title="@string/nav_settings"/>

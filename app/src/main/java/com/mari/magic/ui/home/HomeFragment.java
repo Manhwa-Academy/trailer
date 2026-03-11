@@ -37,12 +37,11 @@ public class HomeFragment extends Fragment {
     HomeSectionAdapter adapter;
 
     List<Section> sectionList = new ArrayList<>();
-
     List<Anime> movieList = new ArrayList<>();
     List<Anime> seriesList = new ArrayList<>();
     List<Anime> ecchiList = new ArrayList<>();
     List<Anime> adultList = new ArrayList<>();
-
+    List<Anime> updatedAnimeList = new ArrayList<>(); // Anime mới cập nhật tập
     public HomeFragment(){}
 
     @Override
@@ -52,29 +51,32 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         recyclerHome = view.findViewById(R.id.recyclerHome);
-
-        recyclerHome.setLayoutManager(
-                new LinearLayoutManager(getContext())
-        );
+        recyclerHome.setLayoutManager(new LinearLayoutManager(getContext()));
 
         setupSections();
 
         adapter = new HomeSectionAdapter(getContext(), sectionList);
         recyclerHome.setAdapter(adapter);
 
-        loadHomeAnime();
+        loadHomeAnime(); // load dữ liệu
 
         return view;
     }
 
     // ================= SECTIONS =================
-
     private void setupSections(){
 
         sectionList.clear();
 
         sectionList.add(new Section(Section.TYPE_BANNER));
         sectionList.add(new Section(Section.TYPE_SEARCH));
+
+        // ⭐ Anime mới cập nhật
+        sectionList.add(new Section(
+                Section.CAT_NEW,
+                getString(R.string.updated_anime), // cần khai báo strings.xml
+                updatedAnimeList
+        ));
 
         sectionList.add(new Section(
                 Section.CAT_MOVIES,
@@ -108,7 +110,6 @@ public class HomeFragment extends Fragment {
     }
 
     // ================= API =================
-
     private void loadHomeAnime(){
 
         if(!isAdded()) return;
@@ -117,21 +118,30 @@ public class HomeFragment extends Fragment {
         String query =
                 "query {" +
 
+                        // ⭐ Anime mới
+                        "newAnime: Page(page:1, perPage:20) {" +
+                        "  media(type:ANIME, status:RELEASING, sort:UPDATED_AT_DESC) {" +
+                        "   id title { romaji english native }" +
+                        "   format season seasonYear duration episodes" +
+                        "   status averageScore description genres isAdult" +
+                        "   coverImage { large }" +
+                        "   nextAiringEpisode { episode airingAt }" + // để biết tập mới nhất
+                        "   studios { nodes { name } }" +
+                        "   updatedAt " +
+                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
+                        "   trailer { id site }" +
+                        "  }" +
+                        " }" +
+
                         "movies: Page(page:1, perPage:20) {" +
                         "  media(type:ANIME, format:MOVIE, sort:POPULARITY_DESC) {" +
                         "   id title { romaji english native }" +
                         "   format season seasonYear duration episodes" +
-                        "   status " +
-                        "   averageScore description genres isAdult" +
+                        "   status averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   updatedAt " +
-                        "   staff(perPage:5) {" +
-                        "     nodes {" +
-                        "       name { full }" +
-                        "       primaryOccupations" +
-                        "     }" +
-                        "   }" +
+                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
@@ -141,17 +151,11 @@ public class HomeFragment extends Fragment {
                         "   id title { romaji english native }" +
                         "   format season seasonYear duration episodes" +
                         "   nextAiringEpisode { episode airingAt }" +
-                        "   status " +
-                        "   averageScore description genres isAdult" +
+                        "   status averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   updatedAt " +
-                        "   staff(perPage:5) {" +
-                        "     nodes {" +
-                        "       name { full }" +
-                        "       primaryOccupations" +
-                        "     }" +
-                        "   }" +
+                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
@@ -161,17 +165,11 @@ public class HomeFragment extends Fragment {
                         "   id title { romaji english native }" +
                         "   format season seasonYear duration episodes" +
                         "   nextAiringEpisode { episode airingAt }" +
-                        "   status " +
-                        "   averageScore description genres isAdult" +
+                        "   status averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   updatedAt " +
-                        "   staff(perPage:5) {" +
-                        "     nodes {" +
-                        "       name { full }" +
-                        "       primaryOccupations" +
-                        "     }" +
-                        "   }" +
+                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
@@ -181,17 +179,11 @@ public class HomeFragment extends Fragment {
                         "   id title { romaji english native }" +
                         "   format season seasonYear duration episodes" +
                         "   nextAiringEpisode { episode airingAt }" +
-                        "   status " +
-                        "   averageScore description genres isAdult" +
+                        "   status averageScore description genres isAdult" +
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   updatedAt " +
-                        "   staff(perPage:5) {" +
-                        "     nodes {" +
-                        "       name { full }" +
-                        "       primaryOccupations" +
-                        "     }" +
-                        "   }" +
+                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
@@ -214,8 +206,14 @@ public class HomeFragment extends Fragment {
                                 if(!isAdded()) return;
 
                                 try{
-
                                     JSONObject data = response.getJSONObject("data");
+
+                                    // ⭐ Parse Anime mới
+                                    parseAnime(
+                                            data.getJSONObject("newAnime")
+                                                    .getJSONArray("media"),
+                                            updatedAnimeList
+                                    );
 
                                     parseAnime(
                                             data.getJSONObject("movies")
@@ -229,11 +227,9 @@ public class HomeFragment extends Fragment {
                                             seriesList
                                     );
 
-                                    String filter =
-                                            AppSettings.getContentFilter(getContext());
+                                    String filter = AppSettings.getContentFilter(getContext());
 
                                     if("16".equals(filter)){
-
                                         parseAnime(
                                                 data.getJSONObject("ecchi")
                                                         .getJSONArray("media"),
@@ -242,7 +238,6 @@ public class HomeFragment extends Fragment {
                                     }
 
                                     if("18".equals(filter)){
-
                                         parseAnime(
                                                 data.getJSONObject("adult")
                                                         .getJSONArray("media"),
@@ -265,13 +260,10 @@ public class HomeFragment extends Fragment {
 
                         @Override
                         public Map<String,String> getHeaders(){
-
                             Map<String,String> headers = new HashMap<>();
-
                             headers.put("Content-Type","application/json");
                             headers.put("Accept","application/json");
                             headers.put("User-Agent","MagicAnimeApp");
-
                             return headers;
                         }
                     };
@@ -284,9 +276,7 @@ public class HomeFragment extends Fragment {
                     DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
             ));
 
-            VolleySingleton
-                    .getInstance(getContext())
-                    .addToRequestQueue(request);
+            VolleySingleton.getInstance(getContext()).addToRequestQueue(request);
 
         }catch(Exception e){
             e.printStackTrace();
@@ -294,40 +284,30 @@ public class HomeFragment extends Fragment {
     }
 
     // ================= PARSE =================
-
     private void parseAnime(JSONArray media, List<Anime> list){
-
         if(!isAdded()) return;
 
         list.clear();
 
         try{
-
             for(int i=0;i<media.length();i++){
-
                 JSONObject obj = media.getJSONObject(i);
-
                 Anime anime = AnimeParser.parse(obj,getContext());
-
                 if(anime != null){
                     list.add(anime);
                 }
             }
-
         }catch(Exception e){
             Log.e(TAG,"PARSE ERROR",e);
         }
     }
 
     // ================= CANCEL REQUEST =================
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-
         if(getContext()!=null){
-            VolleySingleton
-                    .getInstance(getContext())
+            VolleySingleton.getInstance(getContext())
                     .getRequestQueue()
                     .cancelAll(TAG);
         }

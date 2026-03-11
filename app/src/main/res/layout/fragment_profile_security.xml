@@ -1,0 +1,84 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollProfileSecurity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!-- Tiêu đề -->
+        <TextView
+            android:id="@+id/txtSecurityTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/security_title"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="?android:attr/textColorPrimary"/>
+
+        <!-- Mô tả -->
+        <TextView
+            android:id="@+id/txtSecuritySubtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/security_subtitle"
+            android:textSize="14sp"
+            android:textColor="#888"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Thông báo Google login -->
+        <TextView
+            android:id="@+id/txtGoogleInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/google_user_cant_change"
+            android:textColor="#f00"
+            android:visibility="gone"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Mật khẩu hiện tại -->
+        <EditText
+            android:id="@+id/edtCurrentPassword"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="@string/current_password_hint"
+            android:inputType="textPassword"
+            android:background="@drawable/edit_text_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Mật khẩu mới -->
+        <EditText
+            android:id="@+id/edtNewPassword"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="@string/new_password_hint"
+            android:inputType="textPassword"
+            android:background="@drawable/edit_text_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="8dp"/>
+
+        <!-- Xác nhận mật khẩu -->
+        <EditText
+            android:id="@+id/edtConfirmPassword"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:hint="@string/confirm_password_hint"
+            android:inputType="textPassword"
+            android:background="@drawable/edit_text_bg"
+            android:padding="12dp"
+            android:layout_marginBottom="16dp"/>
+
+        <!-- Nút đổi mật khẩu -->
+        <Button
+            android:id="@+id/btnChangePassword"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:text="@string/change_password_button"
+            android:backgroundTint="?attr/colorPrimary"
+            android:textColor="@android:color/white"/>
+    </LinearLayout>
+</ScrollView>

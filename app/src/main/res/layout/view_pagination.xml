@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/txtPageInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="Trang 1 của 1"
+        android:textStyle="bold"
+        android:textSize="14sp"
+
+        android:gravity="center"
+        android:textAlignment="center"
+
+        android:paddingBottom="8dp"/>
+
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/pageContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal"
+            android:gravity="center"/>
+
+    </HorizontalScrollView>
+
+</LinearLayout>

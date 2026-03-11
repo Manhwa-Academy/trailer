@@ -103,4 +103,60 @@
     <string name="manga">Manga</string>
     <string name="novel">Tiểu thuyết</string>
     <string name="one_shot">One Shot</string>
+    <string name="read_online">📖 Đọc truyện</string>
+
+    <!-- Novel Sections -->
+    <string name="trending_novel_title">🔥 Tiểu thuyết hot</string>
+    <string name="top_novel_title">⭐ Tiểu thuyết đánh giá cao</string>
+    <string name="new_novel_title">🆕 Tiểu thuyết mới</string>
+
+    <string name="top_manga_title">⭐ Manga đánh giá cao</string>
+    <string name="trending_manga_title">🔥 Manga hot</string>
+
+    <string name="updated_anime">Anime mới cập nhật</string>
+
+    <string name="stats_title">Thống kê hoạt động</string>
+    <string name="streak">Ngày liên tiếp</string>
+    <string name="watched">Đã xem</string>
+    <string name="read">Đã đọc</string>
+    <string name="account_created">Ngày tạo tài khoản: </string>
+
+    <string name="tab_overview">Tổng quan</string>
+    <string name="tab_edit">Chỉnh sửa</string>
+    <string name="tab_security">Bảo mật</string>
+    <string name="username_placeholder">\@username</string>
+
+    <string name="profile_title">Chỉnh sửa hồ sơ</string>
+    <string name="profile_subtitle">Cập nhật thông tin cá nhân của bạn</string>
+    <string name="email_label">Email</string>
+    <string name="email_hint">Email</string>
+    <string name="username_label">Tên đăng nhập</string>
+    <string name="username_hint">Nhập tên đăng nhập mới</string>
+    <string name="displayname_label">Tên hiển thị</string>
+    <string name="displayname_hint">Tên hiển thị</string>
+    <string name="bio_label">Giới thiệu bản thân</string>
+    <string name="bio_hint">Viết vài dòng về bản thân...</string>
+    <string name="save_button">Lưu thay đổi</string>
+
+    <string name="username_info">Bạn có thể đổi tên đăng nhập sau %1$d ngày nữa</string>
+    <string name="error_displayname_empty">Tên hiển thị không được để trống</string>
+    <string name="profile_save_success">Lưu hồ sơ thành công</string>
+    <string name="profile_save_fail">Lưu hồ sơ thất bại</string>
+
+    <string name="security_title">Đổi mật khẩu</string>
+    <string name="security_subtitle">Cập nhật mật khẩu để bảo vệ tài khoản</string>
+    <string name="current_password_hint">Nhập mật khẩu hiện tại</string>
+    <string name="new_password_hint">Nhập mật khẩu mới</string>
+    <string name="confirm_password_hint">Nhập lại mật khẩu mới</string>
+    <string name="change_password_button">Đổi mật khẩu</string>
+
+    <string name="google_user_cant_change">Tài khoản Google không thể đổi mật khẩu từ ứng dụng.</string>
+    <string name="enter_all_fields">Vui lòng nhập đầy đủ thông tin</string>
+    <string name="password_not_match">Mật khẩu xác nhận không khớp</string>
+    <string name="change_password_success">Đổi mật khẩu thành công!</string>
+    <string name="change_password_failed">Đổi mật khẩu thất bại: %1$s</string>
+
+    <string name="change_avatar">Thay đổi ảnh đại diện</string>
+    <string name="choose_avatar_instruction">Chọn avatar có sẵn</string>
+    <string name="select_avatar_button">Chọn avatar này</string>
 </resources>

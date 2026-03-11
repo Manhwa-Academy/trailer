@@ -24,7 +24,7 @@ import com.mari.magic.ui.home.SeeAllActivity;
 import com.mari.magic.ui.search.SearchActivity;
 
 import java.util.List;
-
+import com.mari.magic.ui.manga.MangaFragment;
 public class HomeSectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     Context context;

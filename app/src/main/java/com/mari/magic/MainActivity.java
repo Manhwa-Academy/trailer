@@ -7,7 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.content.Intent;
-
+import com.mari.magic.ui.manga.MangaFragment;
 import com.mari.magic.adapter.DrawerMenuAdapter;
 import com.mari.magic.adapter.GenreAdapter;
 import com.mari.magic.model.DrawerMenuItem;
@@ -49,6 +49,7 @@ import com.mari.magic.adapter.SeasonAdapter;
 import com.mari.magic.ui.season.SeasonAnimeActivity;
 import com.mari.magic.model.Section;
 import com.mari.magic.ui.home.SeeAllActivity;
+import com.mari.magic.ui.novel.NovelFragment;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -123,6 +124,14 @@ public class MainActivity extends AppCompatActivity {
             }
             else if(id == R.id.nav_tv){
                 fragment = new TvSeriesFragment();
+            }
+            else if(id == R.id.nav_manga){
+                loadFragment(new MangaFragment());
+                return true;
+            }
+            else if(id == R.id.nav_novel){
+                loadFragment(new NovelFragment());
+                return true;
             }
             else if(id == R.id.nav_settings){
                 fragment = new SettingsFragment();

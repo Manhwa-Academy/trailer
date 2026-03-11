@@ -227,32 +227,57 @@ public class AnimeParser {
                     }
                 }
             }
+            // ===== READ LINK =====
+
+            // ===== EXTERNAL LINKS =====
+
             JSONArray links = obj.optJSONArray("externalLinks");
 
-            if(links != null && links.length() > 0){
+            String mangaDex = null;
+            String mal = null;
+            String fallback = null;
+
+            if(links != null){
 
                 for(int i = 0; i < links.length(); i++){
 
                     JSONObject link = links.optJSONObject(i);
-
                     if(link == null) continue;
 
                     String site = link.optString("site","");
                     String url = link.optString("url","");
 
+                    if(url == null || url.isEmpty()) continue;
+
+                    if(fallback == null)
+                        fallback = url;
+
                     if(site.equalsIgnoreCase("MangaDex")){
-                        anime.setMangaDexUrl(url);
+                        mangaDex = url;
                     }
 
                     if(site.equalsIgnoreCase("MyAnimeList")){
-                        anime.setMalUrl(url);
-                    }
-
-                    // ⭐ fallback link
-                    if(anime.getMangaDexUrl() == null && anime.getMalUrl() == null){
-                        anime.setMalUrl(url);
+                        mal = url;
                     }
                 }
+            }
+
+// AniList page
+            String siteUrl = obj.optString("siteUrl","");
+
+// ưu tiên MangaDex -> MAL -> AniList -> fallback
+
+            if(mangaDex != null){
+                anime.setMalUrl(mangaDex);
+            }
+            else if(mal != null){
+                anime.setMalUrl(mal);
+            }
+            else if(siteUrl != null && !siteUrl.isEmpty()){
+                anime.setMalUrl(siteUrl);
+            }
+            else{
+                anime.setMalUrl(fallback);
             }
             return anime;
 // ===== EXTERNAL LINKS (MangaDex / MAL) =====

@@ -2,51 +2,69 @@ package com.mari.magic.ui.genre;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import android.widget.TextView;
+
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.mari.magic.R;
 import com.mari.magic.adapter.AnimeAdapter;
 import com.mari.magic.model.Anime;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.ui.component.PaginationView;
 import com.mari.magic.utils.AnimeParser;
+import com.mari.magic.utils.GridSpacingItemDecoration;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
-import com.mari.magic.utils.GridSpacingItemDecoration;
+
 import java.util.ArrayList;
 import java.util.List;
-import android.view.View;
+
 public class GenreAnimeActivity extends AppCompatActivity {
+
     TextView txtNoResult;
     RecyclerView recycler;
     AnimeAdapter adapter;
+    PaginationView paginationView;
+
     List<Anime> list = new ArrayList<>();
+
+    String genre;
+
+    int currentPage = 1;
+    int totalPages = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_genre_anime);
 
         recycler = findViewById(R.id.genreAnimeRecycler);
         txtNoResult = findViewById(R.id.txtNoResult);
+        paginationView = findViewById(R.id.paginationBottom);
+
         recycler.setLayoutManager(new GridLayoutManager(this,3));
         recycler.addItemDecoration(new GridSpacingItemDecoration(3,20,true));
+
         TextView title = findViewById(R.id.txtGenreTitle);
 
-        String genre = getIntent().getStringExtra("genre");
+        genre = getIntent().getStringExtra("genre");
+
         title.setText(getString(R.string.genre_title_format, genre));
-        // FIX 1: AnimeAdapter cần layoutId
+
         adapter = new AnimeAdapter(
                 this,
                 list,
                 R.layout.item_anime_genre
         );
-        recycler.setAdapter(adapter);
 
+        recycler.setAdapter(adapter);
 
         if(genre == null){
             Log.e("GENRE","Genre is null");
@@ -54,21 +72,39 @@ public class GenreAnimeActivity extends AppCompatActivity {
             return;
         }
 
-        loadAnimeByGenre(genre);
+        paginationView.setOnPageChangeListener(page -> {
+
+            currentPage = page;
+
+            recycler.scrollToPosition(0);
+
+            loadAnimeByGenre(genre,currentPage);
+
+        });
+
+        loadAnimeByGenre(genre,currentPage);
     }
 
-    private void loadAnimeByGenre(String genre){
+    private void loadAnimeByGenre(String genre,int page){
 
         String url = "https://graphql.anilist.co";
 
         try{
 
+            JSONObject variables = new JSONObject();
+            variables.put("genre",genre);
+            variables.put("page",page);
+
             JSONObject body = new JSONObject();
 
             body.put("query",
-                    "query ($genre: String) {" +
-                            " Page(page:1, perPage:20) {" +
-                            " media(genre_in:[$genre], type:ANIME) {" +
+                    "query ($genre: String,$page:Int) {" +
+                            " Page(page:$page, perPage:20) {" +
+
+                            " pageInfo { currentPage lastPage total } " +
+
+                            " media(genre_in:[$genre], type:ANIME, sort:TRENDING_DESC) {" +
+
                             " id " +
                             " title { romaji english native } " +
                             " coverImage { large } " +
@@ -76,21 +112,19 @@ public class GenreAnimeActivity extends AppCompatActivity {
                             " description(asHtml:false) " +
                             " genres " +
                             " format " +
-                            "   updatedAt " +
+                            " updatedAt " +
                             " season " +
                             " seasonYear " +
                             " duration " +
-                            "   episodes" +
-                            "   nextAiringEpisode { episode  airingAt} " +
-                            "status " +
-                            " isAdult " +   // ⭐ thêm dòng này
+                            " episodes " +
+                            " nextAiringEpisode { episode airingAt } " +
+                            " status " +
+                            " isAdult " +
                             " studios { nodes { name } } " +
                             " staff(perPage:5) { nodes { name { full } primaryOccupations } } " +
                             " trailer { id site } " +
-                            " }}}");
 
-            JSONObject variables = new JSONObject();
-            variables.put("genre",genre);
+                            " }}}");
 
             body.put("variables",variables);
 
@@ -103,6 +137,16 @@ public class GenreAnimeActivity extends AppCompatActivity {
 
                         try{
 
+                            JSONObject pageInfo = response
+                                    .getJSONObject("data")
+                                    .getJSONObject("Page")
+                                    .getJSONObject("pageInfo");
+
+                            currentPage = pageInfo.getInt("currentPage");
+                            totalPages = pageInfo.getInt("lastPage");
+
+                            paginationView.setPages(currentPage,totalPages);
+
                             JSONArray array = response
                                     .getJSONObject("data")
                                     .getJSONObject("Page")
@@ -113,21 +157,28 @@ public class GenreAnimeActivity extends AppCompatActivity {
                             for(int i=0;i<array.length();i++){
 
                                 JSONObject obj = array.getJSONObject(i);
-                                Anime anime = AnimeParser.parse(obj, this);
+
+                                Anime anime = AnimeParser.parse(obj,this);
 
                                 if(anime != null){
                                     list.add(anime);
                                 }
+
                             }
 
                             adapter.notifyDataSetChanged();
-                            // ⭐ kiểm tra sau khi load dữ liệu
+
                             if(list.isEmpty()){
+
                                 txtNoResult.setText(R.string.genre_empty);
                                 txtNoResult.setVisibility(View.VISIBLE);
+
                             }else{
+
                                 txtNoResult.setVisibility(View.GONE);
+
                             }
+
                         }catch(Exception e){
                             e.printStackTrace();
                         }
