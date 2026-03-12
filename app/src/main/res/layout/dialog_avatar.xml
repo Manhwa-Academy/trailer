@@ -7,7 +7,7 @@
     android:padding="16dp"
     android:background="@android:color/white">
 
-    <!-- Tiêu đề -->
+    <!-- Title -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
         android:textSize="18sp"
         android:textStyle="bold"/>
 
-    <!-- Hướng dẫn -->
+    <!-- Subtitle -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,21 +25,24 @@
         android:layout_marginTop="4dp"
         android:textSize="14sp"/>
 
-    <!-- TabLayout -->
+    <!-- TabLayout (optional nếu sau này phân loại avatar) -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabAvatar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"/>
 
-    <!-- RecyclerView hiển thị avatar -->
+    <!-- Avatar Grid -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewAvatars"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp"
+        android:overScrollMode="never"
+        android:scrollbars="vertical"/>
 
-    <!-- Nút chọn avatar -->
+    <!-- Select Button -->
     <Button
         android:id="@+id/btnSelectAvatar"
         android:layout_width="match_parent"
@@ -47,5 +50,6 @@
         android:text="@string/select_avatar_button"
         android:layout_marginTop="12dp"
         android:backgroundTint="@color/purple_500"
-        android:textColor="@android:color/black"/>
+        android:textColor="@android:color/white"/>
+
 </LinearLayout>

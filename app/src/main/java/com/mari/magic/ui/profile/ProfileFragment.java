@@ -56,7 +56,7 @@ public class ProfileFragment extends Fragment {
     private TextView txtUserId;
 
     private String currentUsername;
-    private int selectedAvatar = -1;
+    private String selectedAvatarName = null;
 
     private static final int REQUEST_PICK_IMAGE = 100;
 
@@ -94,6 +94,7 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserHeader() {
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) return;
 
@@ -102,25 +103,57 @@ public class ProfileFragment extends Fragment {
                 .document(user.getUid())
                 .get()
                 .addOnSuccessListener(doc -> {
-                    if (doc.exists()) {
-                        currentUsername = doc.getString("username");
-                        if (currentUsername == null) currentUsername = "@user";
 
-                        txtUsername.setText(user.getDisplayName());
-                        txtUserId.setText(currentUsername);
+                    if (!doc.exists()) return;
 
-                        if (doc.contains("avatarUrl") && doc.getString("avatarUrl") != null) {
-                            Glide.with(this).load(doc.getString("avatarUrl")).into(imgAvatar);
-                        } else if (doc.contains("avatarResId") && doc.getLong("avatarResId") != null) {
-                            int resId = doc.getLong("avatarResId").intValue();
+                    // username
+                    currentUsername = doc.getString("username");
+                    if (currentUsername == null) currentUsername = "@user";
+
+                    txtUserId.setText(currentUsername);
+
+                    // display name
+                    String displayName = user.getDisplayName();
+                    if (displayName == null) displayName = "User";
+                    txtUsername.setText(displayName);
+
+                    // 1️⃣ avatar từ Firebase Storage
+                    String avatarUrl = doc.getString("avatarUrl");
+                    if (avatarUrl != null && !avatarUrl.isEmpty()) {
+
+                        Glide.with(this)
+                                .load(avatarUrl)
+                                .placeholder(R.drawable.avatar1)
+                                .into(imgAvatar);
+
+                        return;
+                    }
+
+                    // 2️⃣ avatar từ drawable (avatarName)
+                    String avatarName = doc.getString("avatarName");
+
+                    if (avatarName != null) {
+
+                        int resId = getResources().getIdentifier(
+                                avatarName,
+                                "drawable",
+                                requireContext().getPackageName()
+                        );
+
+                        if (resId != 0) {
                             imgAvatar.setImageResource(resId);
+                            return;
                         }
                     }
+
+                    // 3️⃣ fallback avatar mặc định
+                    imgAvatar.setImageResource(R.drawable.avatar1);
+
                 });
     }
-
     private void showAvatarDialog() {
-        Dialog dialog = new Dialog(getContext());
+
+        Dialog dialog = new Dialog(requireContext());
         dialog.setContentView(R.layout.dialog_avatar);
         dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 
@@ -130,44 +163,85 @@ public class ProfileFragment extends Fragment {
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), 4));
 
         List<Integer> avatars = new ArrayList<>();
+        List<String> avatarNames = new ArrayList<>();
+
         for (int i = 1; i <= 20; i++) {
-            int resId = getResources().getIdentifier("avatar" + i, "drawable", requireContext().getPackageName());
+
+            String name = "avatar" + i;
+
+            int resId = getResources().getIdentifier(
+                    name,
+                    "drawable",
+                    requireContext().getPackageName()
+            );
+
             avatars.add(resId);
+            avatarNames.add(name);
         }
 
         AvatarAdapter adapter = new AvatarAdapter(avatars, resId -> {
-            selectedAvatar = resId;
+
+            int index = avatars.indexOf(resId);
+            selectedAvatarName = avatarNames.get(index);
+
             btnSelect.setEnabled(true);
         });
+
         recyclerView.setAdapter(adapter);
 
         btnSelect.setOnClickListener(v -> {
-            if (selectedAvatar != -1) {
-                imgAvatar.setImageResource(selectedAvatar);
-                saveAvatarResId(selectedAvatar);
-                Toast.makeText(getContext(), "Chọn avatar thành công!", Toast.LENGTH_SHORT).show();
+
+            if(selectedAvatarName != null){
+
+                int resId = getResources().getIdentifier(
+                        selectedAvatarName,
+                        "drawable",
+                        requireContext().getPackageName()
+                );
+
+                imgAvatar.setImageResource(resId);
+
+                saveAvatarName(selectedAvatarName);
+
+                Toast.makeText(getContext(),
+                        "Avatar updated!",
+                        Toast.LENGTH_SHORT).show();
+
                 dialog.dismiss();
-            } else {
-                Toast.makeText(getContext(), "Hãy chọn avatar trước!", Toast.LENGTH_SHORT).show();
+
+            }else{
+
+                Toast.makeText(getContext(),
+                        "Please select avatar",
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
         dialog.show();
-    }
 
-    private void saveAvatarResId(int resId) {
+        dialog.getWindow().setLayout(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+    }
+    private void saveAvatarName(String avatarName){
+
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) return;
+        if(user == null) return;
 
         FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(user.getUid())
                 .update(
-                        "avatarResId", resId,
+                        "avatarName", avatarName,
                         "avatarUrl", null
                 )
-                .addOnSuccessListener(aVoid -> android.util.Log.d("ProfileFragment", "Avatar updated successfully in Firestore"))
-                .addOnFailureListener(e -> android.util.Log.e("ProfileFragment", "Failed to update avatar", e));
+                .addOnSuccessListener(aVoid ->
+                        android.util.Log.d("ProfileFragment",
+                                "Avatar updated: " + avatarName))
+                .addOnFailureListener(e ->
+                        android.util.Log.e("ProfileFragment",
+                                "Failed update avatar", e));
     }
 
     @Override

@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "435201888855-8tpj7cgtpne7cugr83p8tqjmskh1jvgu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mari.magic",
+            "certificate_hash": "4ebc5164ba97f21d0746aa9c14eac38bdb59754f"
+          }
+        },
+        {
           "client_id": "435201888855-c126hcvi6n41nal2fkg6l7i8g37cfltu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

@@ -45,17 +45,17 @@ public class ProfileSecurityFragment extends Fragment {
 
         // Kiểm tra user login bằng phương thức email/password hiện tại
         boolean isEmailLogin = false;
-        if(user != null){
-            UserInfo mainProvider = user.getProviderData().get(0); // provider chính
-            String providerId = mainProvider.getProviderId();
-            String email = mainProvider.getEmail();
-            Log.d("ProfileSecurity", "Main Provider: " + providerId + ", email: " + email);
 
-            if("password".equals(providerId)){
+        if (user != null && user.getProviderData().size() > 1) {
+
+            String provider = user.getProviderData().get(1).getProviderId();
+
+            Log.d("ProfileSecurity", "Login Provider: " + provider);
+
+            if ("password".equals(provider)) {
                 isEmailLogin = true;
             }
         }
-
         final boolean canChangePassword = isEmailLogin; // final để dùng trong lambda
 
         // Ẩn/hiện EditText + Button đổi mật khẩu, hiển thị thông báo cho user Google login
@@ -76,7 +76,9 @@ public class ProfileSecurityFragment extends Fragment {
         }
 
         btnChangePassword.setOnClickListener(v -> changePassword(canChangePassword));
-
+        setupPasswordToggle(edtCurrentPassword);
+        setupPasswordToggle(edtNewPassword);
+        setupPasswordToggle(edtConfirmPassword);
         return view;
     }
 
@@ -102,10 +104,61 @@ public class ProfileSecurityFragment extends Fragment {
 
         if(user != null){
             user.updatePassword(newPass)
-                    .addOnSuccessListener(aVoid ->
-                            Toast.makeText(getContext(), R.string.change_password_success, Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e ->
-                            Toast.makeText(getContext(), getString(R.string.change_password_failed, e.getMessage()), Toast.LENGTH_SHORT).show());
+                    .addOnSuccessListener(aVoid -> {
+
+                        Toast.makeText(getContext(),
+                                R.string.change_password_success,
+                                Toast.LENGTH_SHORT).show();
+
+                        clearPasswordFields();
+
+                    });
         }
+    }
+    private void setupPasswordToggle(EditText editText){
+
+        final boolean[] isVisible = {false};
+
+        editText.setOnTouchListener((v, event) -> {
+
+            if(event.getAction() == android.view.MotionEvent.ACTION_UP){
+
+                if(event.getRawX() >= (editText.getRight()
+                        - editText.getCompoundDrawables()[2].getBounds().width())){
+
+                    if(isVisible[0]){
+
+                        editText.setInputType(
+                                android.text.InputType.TYPE_CLASS_TEXT |
+                                        android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+                        editText.setCompoundDrawablesWithIntrinsicBounds(
+                                0,0,R.drawable.ic_eye,0);
+
+                    }else{
+
+                        editText.setInputType(
+                                android.text.InputType.TYPE_CLASS_TEXT |
+                                        android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+
+                        editText.setCompoundDrawablesWithIntrinsicBounds(
+                                0,0,R.drawable.ic_eye_off,0);
+                    }
+
+                    isVisible[0] = !isVisible[0];
+
+                    editText.setSelection(editText.getText().length());
+
+                    return true;
+                }
+            }
+
+            return false;
+        });
+    }
+    private void clearPasswordFields(){
+        edtCurrentPassword.setText("");
+        edtNewPassword.setText("");
+        edtConfirmPassword.setText("");
     }
 }

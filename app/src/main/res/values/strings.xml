@@ -2,7 +2,9 @@
 
     <string name="app_name">Magic</string>
 
-    <string name="default_web_client_id">435201888855-c126hcvi6n41nal2fkg6l7i8g37cfltu.apps.googleusercontent.com</string>
+    <string name="default_web_client_id">
+435201888855-psv5bfustuu7qjuo1qqug9dql3gqoc37.apps.googleusercontent.com
+</string>
 
     <!-- Navigation -->
     <string name="nav_home">Home</string>

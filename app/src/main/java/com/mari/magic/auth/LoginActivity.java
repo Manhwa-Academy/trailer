@@ -20,6 +20,7 @@ import com.google.firebase.auth.*;
 import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
+import android.util.Log;
 public class LoginActivity extends AppCompatActivity {
 
     LinearLayout btnLoginGoogle;
@@ -226,10 +227,13 @@ public class LoginActivity extends AppCompatActivity {
 
             } catch (ApiException e) {
 
+                Log.e("GOOGLE_LOGIN", "Google Sign In Failed", e);
+                Log.e("GOOGLE_LOGIN", "Error Message: " + e.getMessage());
+                Log.e("GOOGLE_LOGIN", "Status Code: " + e.getStatusCode());
+
                 Toast.makeText(this,
                         "Google Login Failed",
                         Toast.LENGTH_SHORT).show();
-
             }
         }
     }
