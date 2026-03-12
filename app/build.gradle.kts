@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.mari.magic"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
+
     lint {
         baseline = file("lint-baseline.xml")
     }
+
     defaultConfig {
         applicationId = "com.mari.magic"
         minSdk = 24
@@ -21,7 +21,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // dùng debug.keystore trong project
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("../keystore/debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
     buildTypes {
+
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("debug")
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(
@@ -30,12 +44,12 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
 }
-
 dependencies {
 
     implementation(libs.appcompat)
