@@ -95,7 +95,7 @@ public class SeasonAnimeActivity extends AppCompatActivity {
                             "status " +
                             " trailer { id site } " +
                             " studios(isMain:true){ nodes{ name } } " +
-                            " staff(perPage:20){ nodes{ name{full} primaryOccupations } } " +
+                            "staff(perPage:20){ edges{ role node{ name{ full } } } } " +
                             " }}}"
             );
 

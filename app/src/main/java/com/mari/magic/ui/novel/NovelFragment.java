@@ -89,11 +89,10 @@ public class NovelFragment extends Fragment {
                         " coverImage{large} " +
                         " updatedAt " +
 
-                        " trailer{ id site } " +      // ⭐ thêm dòng này
-
+                        " trailer{ id site } " +
                         " siteUrl " +
 
-                        " staff(perPage:5){nodes{name{full} primaryOccupations}} " +
+                        " staff(perPage:10){edges{role node{name{full}}}} " +
 
                         " }}"+
 
@@ -104,9 +103,11 @@ public class NovelFragment extends Fragment {
                         " id title{romaji english native} format chapters volumes status " +
                         " averageScore description genres isAdult coverImage{large} updatedAt " +
 
-                        " trailer{ id site } " +      // ⭐ thêm
+                        " trailer{ id site } " +
+                        " siteUrl " +
 
-                        " siteUrl staff(perPage:5){nodes{name{full} primaryOccupations}}" +
+                        " staff(perPage:10){edges{role node{name{full}}}} " +
+
                         " }}"+
 
 
@@ -116,9 +117,11 @@ public class NovelFragment extends Fragment {
                         " id title{romaji english native} format chapters volumes status " +
                         " averageScore description genres isAdult coverImage{large} updatedAt " +
 
-                        " trailer{ id site } " +      // ⭐ thêm
+                        " trailer{ id site } " +
+                        " siteUrl " +
 
-                        " siteUrl staff(perPage:5){nodes{name{full} primaryOccupations}}" +
+                        " staff(perPage:10){edges{role node{name{full}}}} " +
+
                         " }}"+
 
                         "}";

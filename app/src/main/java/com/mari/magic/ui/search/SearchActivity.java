@@ -211,7 +211,7 @@ public class SearchActivity extends AppCompatActivity {
                         "     nextAiringEpisode { episode airingAt }" +
                         "     status" +
                         "     studios { nodes { name } }" +
-                        "     staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
+                        "     staff(perPage:5){ edges{ role node{ name{ full } } } } " +
                         "     trailer { id site }" +
                         "   }" +
                         " }" +

@@ -3,7 +3,6 @@ package com.mari.magic.ui.profile;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +23,6 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.bumptech.glide.Glide;
@@ -37,7 +32,6 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
 import com.mari.magic.R;
 import com.mari.magic.adapter.AvatarAdapter;
 
@@ -108,13 +102,37 @@ public class ProfileFragment extends Fragment {
 
                     // username
                     currentUsername = doc.getString("username");
-                    if (currentUsername == null) currentUsername = "@user";
+
+                    if(currentUsername == null || currentUsername.isEmpty()){
+
+                        String email = user.getEmail();
+
+                        if(email != null && email.contains("@")){
+                            currentUsername = "@" + email.substring(0, email.indexOf("@"));
+                        }else{
+                            currentUsername = "@user";
+                        }
+
+                    }else if(!currentUsername.startsWith("@")){
+                        currentUsername = "@" + currentUsername;
+                    }
 
                     txtUserId.setText(currentUsername);
 
-                    // display name
-                    String displayName = user.getDisplayName();
-                    if (displayName == null) displayName = "User";
+                    // display name từ Firestore
+                    String displayName = doc.getString("displayName");
+
+                    if(displayName == null || displayName.isEmpty()){
+
+                        String email = user.getEmail();
+
+                        if(email != null && email.contains("@")){
+                            displayName = email.substring(0, email.indexOf("@"));
+                        }else{
+                            displayName = "User";
+                        }
+                    }
+
                     txtUsername.setText(displayName);
 
                     // 1️⃣ avatar từ Firebase Storage
@@ -295,7 +313,7 @@ public class ProfileFragment extends Fragment {
                                                 .document(user.getUid())
                                                 .update(
                                                         "avatarUrl", uri.toString(),
-                                                        "avatarResId", null
+                                                        "avatarName", null
                                                 )
                                                 .addOnSuccessListener(aVoid ->
                                                         android.util.Log.d("ProfileFragment", "Avatar uploaded & saved: " + uri.toString())

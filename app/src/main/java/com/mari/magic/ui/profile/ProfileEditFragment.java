@@ -54,52 +54,77 @@ public class ProfileEditFragment extends Fragment {
         firestore = FirebaseFirestore.getInstance();
 
         if(user != null){
-            edtEmail.setText(user.getEmail()); // read-only
-            Log.d(TAG, "User email loaded: " + user.getEmail());
 
-            firestore.collection("users").document(user.getUid())
-                    .get().addOnSuccessListener(documentSnapshot -> {
-                        if(documentSnapshot.exists()){
-                            String username = documentSnapshot.getString("username");
-                            String displayName = documentSnapshot.getString("displayName");
-                            String bio = documentSnapshot.getString("bio");
-                            Long lastChange = documentSnapshot.getLong("usernameLastChanged");
+            edtEmail.setText(user.getEmail());
 
-                            // Luôn hiển thị @ ở ô input
-                            // Chỉ dùng @user nếu Firestore hoàn toàn không có username
-                            if(username == null || username.isEmpty()){
+            firestore.collection("users")
+                    .document(user.getUid())
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+
+                        String username = documentSnapshot.getString("username");
+                        String displayName = documentSnapshot.getString("displayName");
+                        String bio = documentSnapshot.getString("bio");
+                        Long lastChange = documentSnapshot.getLong("usernameLastChanged");
+
+                        // ===== USERNAME =====
+                        if(username == null || username.isEmpty()){
+
+                            String email = user.getEmail();
+
+                            if(email != null && email.contains("@")){
+                                username = "@" + email.substring(0,email.indexOf("@"));
+                            }else{
                                 username = "@user";
-                            } else if(!username.startsWith("@")){
-                                username = "@" + username; // thêm @ nếu thiếu
                             }
 
-                            edtUsername.setText(username);
-                            edtDisplayName.setText(displayName != null ? displayName : "");
-                            edtBio.setText(bio != null ? bio : "");
-
-                            // Xử lý disable username nếu chưa đủ 90 ngày
-                            boolean canChangeUsername = lastChange == null ||
-                                    (System.currentTimeMillis() - lastChange) / (1000L * 60 * 60 * 24) >= USERNAME_CHANGE_DAYS;
-
-                            if(canChangeUsername){
-                                edtUsername.setEnabled(true);
-                                txtUsernameInfo.setText("");
-                            } else {
-                                edtUsername.setEnabled(false);
-                                long daysLeft = USERNAME_CHANGE_DAYS -
-                                        (System.currentTimeMillis() - lastChange) / (1000L * 60 * 60 * 24);
-                                txtUsernameInfo.setText(getString(R.string.username_info, daysLeft));
-                            }
-
-                            edtUsername.setTag(lastChange);
-
-                            Log.d(TAG, "Loaded from Firestore -> username: " + username +
-                                    ", displayName: " + displayName + ", bio: " + bio +
-                                    ", lastChange: " + lastChange + ", canChangeUsername: " + canChangeUsername);
-                        } else {
-                            Log.w(TAG, "Firestore document not exists");
+                        }else if(!username.startsWith("@")){
+                            username = "@" + username;
                         }
-                    }).addOnFailureListener(e -> Log.e(TAG, "Firestore load error", e));
+
+                        // ===== DISPLAY NAME =====
+                        if(displayName == null || displayName.isEmpty()){
+
+                            String email = user.getEmail();
+
+                            if(email != null && email.contains("@")){
+                                displayName = email.substring(0,email.indexOf("@"));
+                            }else{
+                                displayName = "User";
+                            }
+                        }
+
+                        edtUsername.setText(username);
+                        edtDisplayName.setText(displayName);
+                        edtBio.setText(bio != null ? bio : "");
+
+                        // ===== USERNAME CHANGE LIMIT =====
+                        boolean canChangeUsername = lastChange == null ||
+                                (System.currentTimeMillis() - lastChange) /
+                                        (1000L*60*60*24) >= USERNAME_CHANGE_DAYS;
+
+                        if(canChangeUsername){
+
+                            edtUsername.setEnabled(true);
+                            txtUsernameInfo.setText("");
+
+                        }else{
+
+                            edtUsername.setEnabled(false);
+
+                            long daysLeft = USERNAME_CHANGE_DAYS -
+                                    (System.currentTimeMillis() - lastChange) /
+                                            (1000L*60*60*24);
+
+                            txtUsernameInfo.setText(
+                                    getString(R.string.username_info,daysLeft)
+                            );
+                        }
+
+                        edtUsername.setTag(lastChange);
+
+                    });
+
         }
 
         btnSaveProfile.setOnClickListener(v -> saveProfile());
@@ -107,72 +132,87 @@ public class ProfileEditFragment extends Fragment {
         return view;
     }
 
-    private void saveProfile() {
+    private void saveProfile(){
+
         String inputUsername = edtUsername.getText().toString().trim();
         String displayNameInput = edtDisplayName.getText().toString().trim();
         String bioInput = edtBio.getText().toString().trim();
 
         if(TextUtils.isEmpty(displayNameInput)){
-            Toast.makeText(getContext(), getString(R.string.error_displayname_empty), Toast.LENGTH_SHORT).show();
-            Log.w(TAG, "DisplayName empty");
+
+            Toast.makeText(
+                    getContext(),
+                    getString(R.string.error_displayname_empty),
+                    Toast.LENGTH_SHORT
+            ).show();
+
             return;
         }
 
-        firestore.collection("users").document(user.getUid())
-                .get().addOnSuccessListener(doc -> {
-                    if(doc.exists()){
-                        String oldUsername = doc.getString("username"); // username thực từ Firestore
-                        Long lastChange = doc.getLong("usernameLastChanged");
+        firestore.collection("users")
+                .document(user.getUid())
+                .get()
+                .addOnSuccessListener(doc -> {
 
-                        boolean canChangeUsername = lastChange == null ||
-                                (System.currentTimeMillis() - lastChange) / (1000L*60*60*24) >= USERNAME_CHANGE_DAYS;
+                    String oldUsername = doc.getString("username");
+                    Long lastChange = doc.getLong("usernameLastChanged");
 
-                        String finalUsername = canChangeUsername ? inputUsername : oldUsername;
+                    if(oldUsername == null) oldUsername = inputUsername;
 
-                        Map<String,Object> data = new HashMap<>();
-                        data.put("displayName", displayNameInput);
-                        data.put("bio", bioInput);
-                        data.put("username", finalUsername);
-                        if(canChangeUsername) data.put("usernameLastChanged", System.currentTimeMillis());
+                    boolean canChangeUsername = lastChange == null ||
+                            (System.currentTimeMillis() - lastChange) /
+                                    (1000L*60*60*24) >= USERNAME_CHANGE_DAYS;
 
-                        final String usernameForHeader = finalUsername;
-                        final String displayNameForHeader = displayNameInput;
+                    String finalUsername =
+                            canChangeUsername ? inputUsername : oldUsername;
 
-                        // Lưu Firestore
-                        firestore.collection("users").document(user.getUid())
-                                .set(data, SetOptions.merge())
-                                .addOnSuccessListener(aVoid -> {
-                                    Log.d(TAG, "Firestore save success: " + data.toString());
+                    Map<String,Object> data = new HashMap<>();
 
-                                    // Cập nhật FirebaseUser displayName
-                                    user.updateProfile(new UserProfileChangeRequest.Builder()
-                                                    .setDisplayName(displayNameInput)
-                                                    .build())
-                                            .addOnCompleteListener(task -> {
-                                                if(task.isSuccessful()){
-                                                    Fragment parent = getParentFragment();
-                                                    if(parent instanceof ProfileFragment){
-                                                        // Tên hiển thị update ngay
-                                                        ((ProfileFragment) parent).updateHeader(displayNameForHeader);
-                                                        // Username luôn lấy đúng từ Firestore
-                                                        ((ProfileFragment) parent).updateUsername(usernameForHeader);
-                                                        Log.d(TAG, "Header updated -> displayName: " + displayNameForHeader
-                                                                + ", username: " + usernameForHeader);
-                                                    }
-                                                }
-                                            });
+                    data.put("displayName",displayNameInput);
+                    data.put("bio",bioInput);
+                    data.put("username",finalUsername);
 
-                                    Toast.makeText(getContext(), getString(R.string.profile_save_success), Toast.LENGTH_SHORT).show();
-                                })
-                                .addOnFailureListener(e -> {
-                                    Log.e(TAG, "Firestore save failed", e);
-                                    Toast.makeText(getContext(), getString(R.string.profile_save_fail), Toast.LENGTH_SHORT).show();
-                                });
+                    if(canChangeUsername)
+                        data.put("usernameLastChanged",System.currentTimeMillis());
 
-                    } else {
-                        Log.w(TAG, "Firestore document not found");
-                    }
-                })
-                .addOnFailureListener(e -> Log.e(TAG, "Firestore load failed", e));
+                    firestore.collection("users")
+                            .document(user.getUid())
+                            .set(data, SetOptions.merge())
+                            .addOnSuccessListener(aVoid -> {
+
+                                user.updateProfile(
+                                        new UserProfileChangeRequest.Builder()
+                                                .setDisplayName(displayNameInput)
+                                                .build()
+                                );
+
+                                Fragment parent = getParentFragment();
+
+                                if(parent instanceof ProfileFragment){
+
+                                    ((ProfileFragment) parent)
+                                            .updateHeader(displayNameInput);
+
+                                    ((ProfileFragment) parent)
+                                            .updateUsername(finalUsername);
+                                }
+
+                                Toast.makeText(
+                                        getContext(),
+                                        getString(R.string.profile_save_success),
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                            })
+                            .addOnFailureListener(e ->
+
+                                    Toast.makeText(
+                                            getContext(),
+                                            getString(R.string.profile_save_fail),
+                                            Toast.LENGTH_SHORT
+                                    ).show()
+                            );
+
+                });
     }
 }

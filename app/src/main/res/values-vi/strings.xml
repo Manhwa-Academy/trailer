@@ -26,7 +26,7 @@
     <string name="cache_error">Lỗi khi xóa bộ nhớ đệm</string>
 
     <string name="logout">Đăng xuất</string>
-    <string name="app_version">Phiên bản ứng dụng 1.0</string>
+    <string name="app_version">Phiên bản %1$s</string>
 
     <string name="search_result">Kết quả tìm kiếm: %1$s</string>
     <string name="search_no_result">Không tìm thấy kết quả cho: %1$s</string>
@@ -74,13 +74,13 @@
     <string name="menu_random">Xem anime ngẫu nhiên</string>
     <string name="menu_history">Lịch sử xem</string>
     <string name="menu_type">Dạng anime</string>
-    <string name="menu_top">Top anime</string>
+    <string name="menu_top">Anime hàng đầu</string>
     <string name="menu_genre">Thể loại</string>
     <string name="menu_season">Mùa anime</string>
-    <string name="menu_library">Thư viện</string>
     <string name="menu_schedule">Lịch chiếu</string>
-
     <string name="search_history">Lịch sử tìm kiếm</string>
+    <string name="search_history_enabled">Đã bật lịch sử tìm kiếm</string>
+    <string name="search_history_disabled">Đã tắt lịch sử tìm kiếm</string>
     <string name="recent_searches">Tìm kiếm gần đây</string>
 
     <string name="no_favorite">Chưa có anime yêu thích ❤️</string>
@@ -93,7 +93,7 @@
     <string name="genre_title_format">Thể loại: %1$s</string>
     <string name="genre_empty">Không có anime trong thể loại này</string>
 
-    <string name="anime_type">Thể loại Anime</string>
+    <string name="anime_type">Dạng Anime</string>
     <string name="tv_anime">Anime TV</string>
     <string name="movie_anime">Anime Movie</string>
     <string name="ova_anime">Anime OVA</string>
@@ -159,4 +159,15 @@
     <string name="change_avatar">Thay đổi ảnh đại diện</string>
     <string name="choose_avatar_instruction">Chọn avatar có sẵn</string>
     <string name="select_avatar_button">Chọn avatar này</string>
+
+    <string name="top_anime">Anime hàng đầu</string>
+
+    <string name="top_today">Top hôm nay</string>
+    <string name="top_month">Top tháng</string>
+    <string name="top_season">Top mùa</string>
+    <string name="top_year">Top năm</string>
+    <string name="top_rating">Top đánh giá</string>
+
+    <string name="schedule_title">Lịch Chiếu Anime</string>
+    <string name="anime_cover">Ảnh anime</string>
 </resources>

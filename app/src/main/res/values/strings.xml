@@ -32,8 +32,7 @@
 
     <!-- App -->
     <string name="logout">Logout</string>
-    <string name="app_version">App Version 1.0</string>
-
+    <string name="app_version">Version %1$s</string>
     <!-- Search -->
     <string name="search_result">Search result for: %1$s</string>
     <string name="search_no_result">No result for: %1$s</string>
@@ -91,10 +90,10 @@
     <string name="menu_top">Top Anime</string>
     <string name="menu_genre">Genres</string>
     <string name="menu_season">Season</string>
-    <string name="menu_library">Library</string>
     <string name="menu_schedule">Schedule</string>
-
     <string name="search_history">Search History</string>
+    <string name="search_history_enabled">Search history enabled</string>
+    <string name="search_history_disabled">Search history disabled</string>
     <string name="recent_searches">Recent Searches</string>
 
     <string name="no_favorite">No favorite anime yet ❤️</string>
@@ -175,4 +174,15 @@
     <string name="change_avatar">Change Avatar</string>
     <string name="choose_avatar_instruction">Select an available avatar</string>
     <string name="select_avatar_button">Select this avatar</string>
+
+    <string name="top_anime">Top Anime</string>
+
+    <string name="top_today">Top Today</string>
+    <string name="top_month">Top Month</string>
+    <string name="top_season">Top Season</string>
+    <string name="top_year">Top Year</string>
+    <string name="top_rating">Top Rating</string>
+
+    <string name="schedule_title">Anime Schedule</string>
+    <string name="anime_cover">Anime cover</string>
 </resources>

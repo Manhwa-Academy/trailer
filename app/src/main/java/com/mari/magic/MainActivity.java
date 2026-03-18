@@ -31,18 +31,19 @@ import android.widget.AutoCompleteTextView;
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
-
 import com.mari.magic.utils.ThemeManager;
 import com.mari.magic.utils.RandomAnimeLoader;
 import com.mari.magic.utils.AppSettings;
 import com.mari.magic.network.VolleySingleton;
-
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
-
+import com.mari.magic.utils.ScheduleHelper;
+import com.mari.magic.utils.ScheduleListener;
+import com.mari.magic.model.Anime;
+import com.mari.magic.adapter.ScheduleAdapter;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
+import com.mari.magic.ui.component.PaginationView;
 import java.util.ArrayList;
 import java.util.List;
 import com.mari.magic.adapter.SeasonAdapter;
@@ -50,10 +51,13 @@ import com.mari.magic.ui.season.SeasonAnimeActivity;
 import com.mari.magic.model.Section;
 import com.mari.magic.ui.home.SeeAllActivity;
 import com.mari.magic.ui.novel.NovelFragment;
+import com.mari.magic.ui.top.TopAnimeActivity;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-
+    BottomSheetDialog seasonDialog;
+    BottomSheetDialog topDialog;
+    BottomSheetDialog genreDialog;
     BottomNavigationView bottomNavigation;
     DrawerLayout drawerLayout;
     Toolbar toolbar;
@@ -160,8 +164,7 @@ public class MainActivity extends AppCompatActivity {
         menuList.add(new DrawerMenuItem(getString(R.string.menu_top),true));
         menuList.add(new DrawerMenuItem(getString(R.string.menu_genre),true));
         menuList.add(new DrawerMenuItem(getString(R.string.menu_season),true));
-        menuList.add(new DrawerMenuItem(getString(R.string.menu_library),true));
-        menuList.add(new DrawerMenuItem(getString(R.string.menu_schedule),true));
+        menuList.add(new DrawerMenuItem(getString(R.string.menu_schedule),false));
 
         adapter = new DrawerMenuAdapter(this,menuList);
         menuRecycler.setAdapter(adapter);
@@ -178,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent intent = new Intent(this, SeeAllActivity.class);
                     intent.putExtra("section", Section.CAT_NEW);
-                    startActivity(intent);
+                    startActivityForResult(intent,100);
 
                     return;
 
@@ -196,9 +199,8 @@ public class MainActivity extends AppCompatActivity {
                     return;
 
                 case 5:
-                    // Top Anime
-                    break;
-
+                    openTopMenu();
+                    return;
                 case 6:
                     loadGenres();
                     return;
@@ -206,13 +208,8 @@ public class MainActivity extends AppCompatActivity {
                 case 7:
                     openSeasonMenu();
                     return;
-
                 case 8:
-                    // Library
-                    break;
-
-                case 9:
-                    // Schedule
+                    openScheduleDialog(); // ✅ gọi đúng method mới
                     break;
             }
 
@@ -278,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void openAnimeTypeMenu(List<String> types){
 
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        seasonDialog = new BottomSheetDialog(this);
 
         View view = getLayoutInflater().inflate(R.layout.bottom_type,null);
 
@@ -292,21 +289,57 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.setOnGenreClickListener(type -> {
 
-            dialog.dismiss();
+
 
             Intent intent = new Intent(this, com.mari.magic.ui.type.AnimeTypeActivity.class);
             intent.putExtra("format",type);
-            startActivity(intent);
+            startActivityForResult(intent,100);
 
         });
 
-        dialog.setContentView(view);
-        dialog.show();
+    seasonDialog.setContentView(view);
+seasonDialog.show();
+    }
+    private void openTopMenu(){
+
+        seasonDialog = new BottomSheetDialog(this);
+
+        View view = getLayoutInflater().inflate(R.layout.bottom_top_menu,null);
+
+        RecyclerView recycler = view.findViewById(R.id.topRecycler);
+
+        recycler.setLayoutManager(new GridLayoutManager(this,2));
+
+        List<String> list = new ArrayList<>();
+
+        list.add(getString(R.string.top_today));
+        list.add(getString(R.string.top_month));
+        list.add(getString(R.string.top_season));
+        list.add(getString(R.string.top_year));
+        list.add(getString(R.string.top_rating));
+
+        GenreAdapter adapter = new GenreAdapter(list);
+
+        recycler.setAdapter(adapter);
+
+        adapter.setOnGenreClickListener(type -> {
+
+
+
+            Intent intent = new Intent(this, TopAnimeActivity.class);
+            intent.putExtra("topType", type);
+
+            startActivityForResult(intent,100);
+
+        });
+
+    seasonDialog.setContentView(view);
+seasonDialog.show();
     }
     // Popup filter
     private void openContentSettings(){
 
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        seasonDialog = new BottomSheetDialog(this);
 
         View view = getLayoutInflater()
                 .inflate(R.layout.dialog_content_filter,null);
@@ -382,12 +415,12 @@ public class MainActivity extends AppCompatActivity {
 
                     AppSettings.setSetupDone(this);
 
-                    dialog.dismiss();
+
                     recreate();
                 });
 
-        dialog.setContentView(view);
-        dialog.show();
+    seasonDialog.setContentView(view);
+seasonDialog.show();
     }
     // Toolbar menu
     @Override
@@ -413,7 +446,7 @@ public class MainActivity extends AppCompatActivity {
     }
     private void openSeasonMenu(){
 
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        seasonDialog = new BottomSheetDialog(this);
 
         View view = getLayoutInflater().inflate(R.layout.bottom_season,null);
 
@@ -441,7 +474,6 @@ public class MainActivity extends AppCompatActivity {
 
         adapter.setOnSeasonClickListener(seasonText -> {
 
-            dialog.dismiss();
 
             try {
 
@@ -475,7 +507,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra("season",season);
                 intent.putExtra("year",year);
 
-                startActivity(intent);
+                startActivityForResult(intent,100);
 
             } catch (Exception e) {
 
@@ -485,8 +517,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-        dialog.setContentView(view);
-        dialog.show();
+    seasonDialog.setContentView(view);
+seasonDialog.show();
     }
     // Load genres
     private void loadGenres(){
@@ -537,7 +569,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openGenreMenu(List<String> genres){
 
-        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        seasonDialog = new BottomSheetDialog(this);
 
         View view = getLayoutInflater().inflate(R.layout.bottom_genre,null);
 
@@ -551,15 +583,77 @@ public class MainActivity extends AppCompatActivity {
 
         genreAdapter.setOnGenreClickListener(genre -> {
 
-            dialog.dismiss();
 
             Intent intent = new Intent(this, GenreAnimeActivity.class);
             intent.putExtra("genre",genre);
-            startActivity(intent);
+            startActivityForResult(intent,100);
 
         });
 
+    seasonDialog.setContentView(view);
+    seasonDialog.show();
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode,resultCode,data);
+
+        if(requestCode == 100){
+            if(seasonDialog != null){
+                seasonDialog.show();
+            }
+        }
+    }
+    private int currentPage = 1; // page hiện tại
+    private List<Anime> fullScheduleList = new ArrayList<>(); // lưu toàn bộ anime đã load
+
+    private void openScheduleDialog() {
+        currentPage = 1; // reset
+        fullScheduleList.clear();
+
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        View view = getLayoutInflater().inflate(R.layout.bottom_schedule, null);
+
+        RecyclerView recycler = view.findViewById(R.id.scheduleRecycler);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+
+        PaginationView paginationView = view.findViewById(R.id.paginationView);
+
         dialog.setContentView(view);
         dialog.show();
+
+        // click chuyển trang
+        paginationView.setOnPageChangeListener(page -> {
+            currentPage = page;
+            displaySchedulePage(recycler, paginationView);
+        });
+
+        // load tất cả anime sắp chiếu và sắp xếp
+        ScheduleHelper.loadScheduleAll(this, new ScheduleListener() {
+            @Override
+            public void onScheduleLoaded(List<Anime> scheduleList, int currentPageApi, int lastPage) {
+                fullScheduleList.addAll(scheduleList);
+                displaySchedulePage(recycler, paginationView);
+            }
+
+            @Override
+            public void onScheduleError(String error) {
+                Log.e("MainActivity","Schedule load error: "+error);
+            }
+        });
+    }
+
+    // Hiển thị anime theo page (20 anime / page)
+    private void displaySchedulePage(RecyclerView recycler, PaginationView paginationView) {
+        int pageSize = 20;
+        int totalPages = (int) Math.ceil((double) fullScheduleList.size() / pageSize);
+
+        int start = (currentPage - 1) * pageSize;
+        int end = Math.min(start + pageSize, fullScheduleList.size());
+        List<Anime> pageList = fullScheduleList.subList(start, end);
+
+        ScheduleAdapter adapter = new ScheduleAdapter(pageList);
+        recycler.setAdapter(adapter);
+
+        paginationView.setPages(currentPage, totalPages);
     }
 }

@@ -136,8 +136,8 @@ public class MoviesFragment extends Fragment {
                         "bannerImage " +
                         "studios{nodes{name}}" +
                         "updatedAt " +
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
+                        "staff(perPage:10){" +
+                        "edges{role node{name{full}}}" +
                         "}" +
                         "trailer{id site}" +
                         "}}" +
@@ -153,8 +153,8 @@ public class MoviesFragment extends Fragment {
                         "bannerImage " +
                         "studios{nodes{name}}" +
                         "updatedAt " +
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
+                        "staff(perPage:10){" +
+                        "edges{role node{name{full}}}" +
                         "}" +
                         "trailer{id site}" +
                         "}}" +
@@ -170,8 +170,8 @@ public class MoviesFragment extends Fragment {
                         "bannerImage " +
                         "studios{nodes{name}}" +
                         "updatedAt " +
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
+                        "staff(perPage:10){" +
+                        "edges{role node{name{full}}}" +
                         "}" +
                         "trailer{id site}" +
                         "}}" +
@@ -187,8 +187,8 @@ public class MoviesFragment extends Fragment {
                         "bannerImage " +
                         "studios{nodes{name}}" +
                         "updatedAt " +
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
+                        "staff(perPage:10){" +
+                        "edges{role node{name{full}}}" +
                         "}" +
                         "trailer{id site}" +
                         "}}" +
@@ -204,8 +204,8 @@ public class MoviesFragment extends Fragment {
                         "bannerImage " +
                         "studios{nodes{name}}" +
                         "updatedAt " +
-                        "staff(perPage:5){" +
-                        "nodes{name{full} primaryOccupations}" +
+                        "staff(perPage:10){" +
+                        "edges{role node{name{full}}}" +
                         "}" +
                         "trailer{id site}" +
                         "}}" +

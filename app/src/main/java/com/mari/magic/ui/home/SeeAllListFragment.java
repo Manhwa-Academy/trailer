@@ -226,7 +226,7 @@ public class SeeAllListFragment extends Fragment {
                             " coverImage { large extraLarge } " +
                             " trailer { id site thumbnail } " +
                             " studios(isMain:true){ nodes{ name } } " +
-                            " staff(perPage:10){ nodes{ name{full} primaryOccupations } } " +
+                            " staff(perPage:10){edges{role node{name{full}}}} " +
 
                             " }" +
                             " }" +

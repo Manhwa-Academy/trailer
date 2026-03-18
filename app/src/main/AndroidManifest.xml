@@ -38,7 +38,8 @@
             android:name=".ui.search.SearchActivity"
             android:exported="false" />
         <activity android:name=".ui.type.AnimeTypeActivity"/>
-
+        <activity
+            android:name=".ui.top.TopAnimeActivity"/>
         <!-- GENRE -->
         <activity
             android:name=".ui.genre.GenreAnimeActivity"

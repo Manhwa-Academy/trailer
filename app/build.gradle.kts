@@ -10,7 +10,9 @@ android {
     lint {
         baseline = file("lint-baseline.xml")
     }
-
+    buildFeatures {
+        buildConfig = true
+    }
     defaultConfig {
         applicationId = "com.mari.magic"
         minSdk = 24
@@ -62,7 +64,7 @@ dependencies {
 
     // Firebase BOM
     implementation(platform("com.google.firebase:firebase-bom:34.9.0"))
-
+    implementation("com.squareup.picasso:picasso:2.8")
     // Firebase
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")

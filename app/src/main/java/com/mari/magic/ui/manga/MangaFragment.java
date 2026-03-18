@@ -118,8 +118,7 @@ public class MangaFragment extends Fragment {
 
                         "trailer { id site } " +
 
-                        "staff(perPage:5){nodes{name{full} primaryOccupations}} " +
-                        "} }" +
+                        "staff(perPage:10){ edges{ role node{ name{ full } } } }" +
 
                         "trending: Page(page:1,perPage:10){ media(type:MANGA,sort:TRENDING_DESC){ " +
                         "id " +
@@ -141,7 +140,7 @@ public class MangaFragment extends Fragment {
 
                         "trailer { id site } " +
 
-                        "staff(perPage:5){nodes{name{full} primaryOccupations}} " +
+                        "staff(perPage:10){ edges{ role node{ name{ full } } } } " +
                         "} }" +
 
                         "}";

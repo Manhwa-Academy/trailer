@@ -128,7 +128,7 @@ public class HomeFragment extends Fragment {
                         "   nextAiringEpisode { episode airingAt }" + // để biết tập mới nhất
                         "   studios { nodes { name } }" +
                         "   updatedAt " +
-                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
+                        "   staff(perPage:10) {edges{role node{name{full}}}}" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
@@ -141,7 +141,7 @@ public class HomeFragment extends Fragment {
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   updatedAt " +
-                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
+                        "   staff(perPage:10) {edges{role node{name{full}}}}" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
@@ -155,7 +155,7 @@ public class HomeFragment extends Fragment {
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   updatedAt " +
-                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
+                        "   staff(perPage:10) {edges{role node{name{full}}}}" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
@@ -169,7 +169,7 @@ public class HomeFragment extends Fragment {
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   updatedAt " +
-                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
+                        "   staff(perPage:10) {edges{role node{name{full}}}}" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +
@@ -183,7 +183,7 @@ public class HomeFragment extends Fragment {
                         "   coverImage { large }" +
                         "   studios { nodes { name } }" +
                         "   updatedAt " +
-                        "   staff(perPage:5) { nodes { name { full } primaryOccupations } }" +
+                        "   staff(perPage:10) {edges{role node{name{full}}}}" +
                         "   trailer { id site }" +
                         "  }" +
                         " }" +

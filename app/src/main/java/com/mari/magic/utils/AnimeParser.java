@@ -185,44 +185,41 @@ public class AnimeParser {
                 }
             }
 
-            // ===== STAFF (AUTHOR + DIRECTOR) =====
-
             JSONObject staff = obj.optJSONObject("staff");
 
-            if(staff != null){
+// ✅ set default trước (quan trọng nhất)
+            anime.setDirector("Unknown");
+            anime.setAuthor("Unknown");
 
-                JSONArray nodes = staff.optJSONArray("nodes");
+            if (staff != null) {
 
-                if(nodes != null){
+                JSONArray edges = staff.optJSONArray("edges");
 
-                    for(int i=0;i<nodes.length();i++){
+                if (edges != null) {
 
-                        JSONObject person = nodes.getJSONObject(i);
-                        JSONArray jobs = person.optJSONArray("primaryOccupations");
+                    for (int i = 0; i < edges.length(); i++) {
 
-                        if(jobs == null) continue;
+                        JSONObject edge = edges.getJSONObject(i);
 
-                        for(int j=0;j<jobs.length();j++){
+                        String role = edge.optString("role", "").toLowerCase();
 
-                            String job = jobs.getString(j).toLowerCase();
+                        JSONObject node = edge.optJSONObject("node");
+                        if (node == null) continue;
 
-                            if(job.contains("director")){
+                        String name = node.getJSONObject("name")
+                                .optString("full", "Unknown");
 
-                                anime.setDirector(
-                                        person.getJSONObject("name")
-                                                .optString("full","Unknown")
-                                );
-                            }
+                        // 🎯 Director (Anime)
+                        if (role.contains("director")) {
+                            anime.setDirector(name);
+                            break; // lấy cái đầu tiên là đủ
+                        }
 
-                            if(job.contains("author") ||
-                                    job.contains("story") ||
-                                    job.contains("writer")){
-
-                                anime.setAuthor(
-                                        person.getJSONObject("name")
-                                                .optString("full","Unknown")
-                                );
-                            }
+                        // 🎯 Author (Manga/Novel)
+                        if (role.contains("original") ||
+                                role.contains("story") ||
+                                role.contains("writer")) {
+                            anime.setAuthor(name);
                         }
                     }
                 }

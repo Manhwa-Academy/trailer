@@ -142,10 +142,14 @@ public class AnimeDetailActivity extends AppCompatActivity {
                         (format.equalsIgnoreCase("MANGA")
                                 || format.equalsIgnoreCase("NOVEL")
                                 || format.equalsIgnoreCase("ONE_SHOT"));
-
+        isAdult = getIntent().getBooleanExtra("isAdult", false);
         boolean hasTrailer =
-                trailer != null && !trailer.isEmpty();
-
+                (trailer != null && !trailer.isEmpty()) || isAdult;
+// ===== DEBUG LOG =====
+        Log.d("TRAILER_DEBUG","title=" + title);
+        Log.d("TRAILER_DEBUG","trailer=" + trailer);
+        Log.d("TRAILER_DEBUG","isAdult=" + isAdult);
+        Log.d("TRAILER_DEBUG","hasTrailer=" + hasTrailer);
 // ===== HIỂN THỊ BUTTON =====
 
         if(isManga){
@@ -256,7 +260,7 @@ public class AnimeDetailActivity extends AppCompatActivity {
         views = getIntent().getLongExtra("views", 0);
         updatedAt = getIntent().getLongExtra("updatedAt", 0);
 
-        isAdult = getIntent().getBooleanExtra("isAdult", false);
+
 
         if (title == null) title = "Unknown";
 
@@ -432,12 +436,20 @@ public class AnimeDetailActivity extends AppCompatActivity {
         }else{
 
             txtTrailerDate.setVisibility(View.GONE);
-            btnTrailer.setVisibility(View.GONE);
+
+            if(!isAdult){
+                btnTrailer.setVisibility(View.GONE);
+            }else{
+                btnTrailer.setVisibility(View.VISIBLE);
+            }
         }
         // ================= FAVORITE =================
 // Tạo favoriteId cố định dựa trên API ID hoặc title + romaji
-        String favoriteId = title.replace("/", "_") + "_" + (romajiTitle != null ? romajiTitle.replace(" ", "_") : "");
+        String safeTitle = title != null ? title.replace("/", "_") : "";
+        String safeRomaji = romajiTitle != null ? romajiTitle.replace("/", "_") : "";
 
+        String favoriteId = (safeTitle + "_" + safeRomaji)
+                .replaceAll("[^a-zA-Z0-9_]", "_"); // 🔥 lọc sạch toàn bộ ký tự nguy hiểm
 // Kiểm tra trạng thái favorite
         FavoriteManager.checkFavorite(favoriteId, btnFavorite, txtFavorite);
 
