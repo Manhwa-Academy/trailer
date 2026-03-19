@@ -2,6 +2,7 @@ package com.mari.magic;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,14 @@ import com.mari.magic.ui.settings.SettingsFragment;
 import com.mari.magic.utils.LocaleManager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import java.util.concurrent.TimeUnit;
+
+import com.mari.magic.worker.AnimeWorker;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
@@ -28,9 +37,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.TextView;
+
 import com.google.android.material.materialswitch.MaterialSwitch;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.mari.magic.utils.NotificationHelper;
 import com.mari.magic.utils.ThemeManager;
 import com.mari.magic.utils.RandomAnimeLoader;
 import com.mari.magic.utils.AppSettings;
@@ -52,12 +64,12 @@ import com.mari.magic.model.Section;
 import com.mari.magic.ui.home.SeeAllActivity;
 import com.mari.magic.ui.novel.NovelFragment;
 import com.mari.magic.ui.top.TopAnimeActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     BottomSheetDialog seasonDialog;
-    BottomSheetDialog topDialog;
-    BottomSheetDialog genreDialog;
+
     BottomNavigationView bottomNavigation;
     DrawerLayout drawerLayout;
     Toolbar toolbar;
@@ -65,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView menuRecycler;
     DrawerMenuAdapter adapter;
     List<DrawerMenuItem> menuList = new ArrayList<>();
-
+    private TextView badgeText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         LocaleManager.setLocale(this, AppSettings.getLanguage(this));
@@ -75,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         bottomNavigation = findViewById(R.id.bottomNavigation);
         drawerLayout = findViewById(R.id.drawerLayout);
@@ -86,9 +99,9 @@ public class MainActivity extends AppCompatActivity {
         // Popup lần đầu
         if(!AppSettings.isSetupDone(this)){
 
-            new Handler().postDelayed(() -> {
+            new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 openContentSettings();
-            },500);
+            }, 500);
 
         }
 
@@ -107,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
                                 .setMessage("Bạn có muốn thoát khỏi app không?")
                                 .setPositiveButton("Thoát",(d,w)->{
                                     finishAffinity();
-                                    System.exit(0);
                                 })
                                 .setNegativeButton("Hủy",null)
                                 .show();
@@ -130,7 +142,13 @@ public class MainActivity extends AppCompatActivity {
                 fragment = new TvSeriesFragment();
             }
             else if(id == R.id.nav_manga){
-                loadFragment(new MangaFragment());
+                MangaFragment mangaFragment = new MangaFragment();
+
+// set chế độ mèo đen
+                String filter = AppSettings.getContentFilter(this);
+                mangaFragment.setBlackCatMode(filter.equals("18"));
+
+                loadFragment(mangaFragment);
                 return true;
             }
             else if(id == R.id.nav_novel){
@@ -147,10 +165,15 @@ public class MainActivity extends AppCompatActivity {
             loadFragment(fragment);
             return true;
         });
-
+        startAnimeWorker();
         setupDrawerMenu();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateBadge();
+    }
     // Drawer menu
     private void setupDrawerMenu(){
 
@@ -181,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent intent = new Intent(this, SeeAllActivity.class);
                     intent.putExtra("section", Section.CAT_NEW);
-                    startActivityForResult(intent,100);
+                    startActivity(intent);
 
                     return;
 
@@ -293,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
 
             Intent intent = new Intent(this, com.mari.magic.ui.type.AnimeTypeActivity.class);
             intent.putExtra("format",type);
-            startActivityForResult(intent,100);
+            startActivity(intent);
 
         });
 
@@ -329,7 +352,7 @@ seasonDialog.show();
             Intent intent = new Intent(this, TopAnimeActivity.class);
             intent.putExtra("topType", type);
 
-            startActivityForResult(intent,100);
+            startActivity(intent);
 
         });
 
@@ -425,19 +448,65 @@ seasonDialog.show();
     // Toolbar menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.top_menu,menu);
+        getMenuInflater().inflate(R.menu.top_menu, menu);
+
+        MenuItem item = menu.findItem(R.id.menu_notification);
+
+        // ✅ KHAI BÁO actionView
+        View actionView = item.getActionView();
+
+        // ✅ chống null crash
+        if(actionView == null){
+            actionView = getLayoutInflater().inflate(R.layout.menu_badge, null);
+            item.setActionView(actionView);
+        }
+
+        badgeText = actionView.findViewById(R.id.txtBadge);
+
+        updateBadge();
+
+        actionView.setOnClickListener(v -> {
+            handleNotificationClick();
+        });
+
         return true;
+    }
+    private void handleNotificationClick(){
+
+        // 🔴 reset badge
+        NotificationHelper.resetBadge(this);
+
+        updateBadge();
+
+        // 🔥 mở màn hình thông báo
+        Intent intent = new Intent(this, com.mari.magic.ui.notification.NotificationActivity.class);
+        startActivity(intent);
+    }
+    private void updateBadge(){
+        int count = NotificationHelper.getBadge(this);
+
+        if(badgeText == null) return;
+
+        if(count > 0){
+            badgeText.setText(count > 9 ? "9+" : String.valueOf(count));
+            badgeText.setVisibility(View.VISIBLE);
+            badgeText.setSelected(true);
+        }else{
+            badgeText.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
 
-        if(item.getItemId() == R.id.menu_nav){
+        int id = item.getItemId();
+
+        if(id == R.id.menu_nav){
             drawerLayout.openDrawer(GravityCompat.END);
             return true;
         }
 
-        if(item.getItemId() == R.id.menu_filter){
+        if(id == R.id.menu_filter){
             openContentSettings();
             return true;
         }
@@ -507,7 +576,7 @@ seasonDialog.show();
                 intent.putExtra("season",season);
                 intent.putExtra("year",year);
 
-                startActivityForResult(intent,100);
+                startActivity(intent);
 
             } catch (Exception e) {
 
@@ -586,23 +655,14 @@ seasonDialog.show();
 
             Intent intent = new Intent(this, GenreAnimeActivity.class);
             intent.putExtra("genre",genre);
-            startActivityForResult(intent,100);
+            startActivity(intent);
 
         });
 
     seasonDialog.setContentView(view);
     seasonDialog.show();
     }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode,resultCode,data);
 
-        if(requestCode == 100){
-            if(seasonDialog != null){
-                seasonDialog.show();
-            }
-        }
-    }
     private int currentPage = 1; // page hiện tại
     private List<Anime> fullScheduleList = new ArrayList<>(); // lưu toàn bộ anime đã load
 
@@ -644,16 +704,52 @@ seasonDialog.show();
 
     // Hiển thị anime theo page (20 anime / page)
     private void displaySchedulePage(RecyclerView recycler, PaginationView paginationView) {
+
         int pageSize = 20;
+
+        // 🔥 tránh crash list rỗng
+        if(fullScheduleList == null || fullScheduleList.isEmpty()){
+            recycler.setAdapter(new ScheduleAdapter(new ArrayList<>()));
+            paginationView.setPages(1,1);
+            return;
+        }
+
         int totalPages = (int) Math.ceil((double) fullScheduleList.size() / pageSize);
 
         int start = (currentPage - 1) * pageSize;
         int end = Math.min(start + pageSize, fullScheduleList.size());
+
+        // 🔥 đảm bảo không out of bounds
+        if(start >= fullScheduleList.size()){
+            start = 0;
+            end = Math.min(pageSize, fullScheduleList.size());
+        }
+
         List<Anime> pageList = fullScheduleList.subList(start, end);
 
         ScheduleAdapter adapter = new ScheduleAdapter(pageList);
         recycler.setAdapter(adapter);
 
         paginationView.setPages(currentPage, totalPages);
+    }
+    private void startAnimeWorker() {
+
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+
+        PeriodicWorkRequest workRequest =
+                new PeriodicWorkRequest.Builder(
+                        AnimeWorker.class,
+                        15, TimeUnit.MINUTES
+                )
+                        .setConstraints(constraints)
+                        .build();
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+                "anime_check",
+                ExistingPeriodicWorkPolicy.KEEP, // ✅ giữ cái cũ
+                workRequest
+        );
     }
 }

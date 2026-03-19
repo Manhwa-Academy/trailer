@@ -40,7 +40,10 @@ public class AnimeParser {
 
             Anime anime = new Anime();
 
-            anime.setId(obj.optInt("id"));
+            int id = obj.optInt("id");
+
+            anime.setId(id);
+            anime.setAnilistId(id);
             anime.setAdult(isAdult);
 
             // ===== TITLE =====
@@ -140,9 +143,9 @@ public class AnimeParser {
                 anime.setNextEpisode(nextEpisode);
                 anime.setNextAiringAt(airingAt);
 
-                if(nextEpisode > 1){
+                if(nextEpisode > 0){
 
-                    int airedEpisodes = nextEpisode - 1;
+                    int airedEpisodes = Math.max(nextEpisode - 1, 0);
 
                     if(episodes == 0 || episodes < airedEpisodes){
                         episodes = airedEpisodes;

@@ -20,16 +20,22 @@ import androidx.viewpager2.widget.ViewPager2;
 import com.mari.magic.R;
 import com.mari.magic.banner.BannerManager;
 import com.mari.magic.model.Section;
+import com.mari.magic.ui.detail.AnimeDetailActivity;
 import com.mari.magic.ui.home.SeeAllActivity;
 import com.mari.magic.ui.search.SearchActivity;
 
 import java.util.List;
 import com.mari.magic.ui.manga.MangaFragment;
+import com.mari.magic.ui.web.WebViewActivity;
 public class HomeSectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     Context context;
     List<Section> sectionList;
+    private AnimeAdapter.OnAnimeClickListener animeClickListener;
 
+    public void setOnAnimeClickListener(AnimeAdapter.OnAnimeClickListener listener){
+        this.animeClickListener = listener;
+    }
     public HomeSectionAdapter(Context ctx, List<Section> list){
         context = ctx;
         sectionList = list;
@@ -160,6 +166,43 @@ public class HomeSectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     new LinearLayoutManager(context,RecyclerView.HORIZONTAL,false));
 
             h.recycler.setAdapter(adapter);
+            // ⭐ Mở WebView nếu adult
+            adapter.setOnAnimeClickListener(anime -> {
+                if(anime.isAdult()){
+                    Intent intent = new Intent(context, WebViewActivity.class);
+                    intent.putExtra("url", anime.getMangaDexUrl());
+                    context.startActivity(intent);
+                } else {
+                    // Mở AnimeDetailActivity và truyền đầy đủ data
+                    Intent intent = new Intent(context, AnimeDetailActivity.class);
+                    intent.putExtra("animeId", anime.getId());
+                    intent.putExtra("title", anime.getTitle());
+                    intent.putExtra("englishTitle", anime.getEnglishTitle());
+                    intent.putExtra("romajiTitle", anime.getRomajiTitle());
+                    intent.putExtra("nativeTitle", anime.getNativeTitle());
+                    intent.putExtra("poster", anime.getPoster());
+                    intent.putExtra("rating", anime.getRating());
+                    intent.putExtra("trailer", anime.getTrailer());
+                    intent.putExtra("description", anime.getDescription());
+                    intent.putExtra("genres", anime.getGenres());
+                    intent.putExtra("studio", anime.getStudio());
+                    intent.putExtra("director", anime.getDirector());
+                    intent.putExtra("season", anime.getSeason());
+                    intent.putExtra("duration", anime.getDuration());
+                    intent.putExtra("format", anime.getFormat());
+                    intent.putExtra("views", anime.getViews());
+                    intent.putExtra("updatedAt", anime.getUpdatedAt());
+                    intent.putExtra("isAdult", anime.isAdult());
+                    intent.putExtra("episodes", anime.getEpisodes());
+                    intent.putExtra("nextEpisode", anime.getNextEpisode());
+                    intent.putExtra("nextAiringAt", anime.getNextAiringAt());
+                    intent.putExtra("status", anime.getStatus());
+                    intent.putExtra("chapters", anime.getChapters());
+                    intent.putExtra("volumes", anime.getVolumes());
+                    intent.putExtra("author", anime.getAuthor());
+                    context.startActivity(intent);
+                }
+            });
         }
     }
 

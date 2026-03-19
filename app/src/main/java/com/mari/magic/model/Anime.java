@@ -7,7 +7,7 @@ import java.util.Locale;
 public class Anime {
 
     private int id;
-
+    private int anilistId;
     // ===== TITLE =====
     private String title;
     private String englishTitle;
@@ -73,7 +73,13 @@ public class Anime {
 
         return "Unknown";
     }
+    public int getAnilistId(){
+        return anilistId;
+    }
 
+    public void setAnilistId(int anilistId){
+        this.anilistId = anilistId;
+    }
     public String getEnglishTitle(){
         return englishTitle != null ? englishTitle : "";
     }

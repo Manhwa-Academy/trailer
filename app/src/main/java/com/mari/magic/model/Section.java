@@ -27,7 +27,7 @@ public class Section {
     // ===== MANGA =====
     public static final String CAT_TOP_MANGA = "top_manga";
     public static final String CAT_TRENDING_MANGA = "trending_manga";
-
+    public static final String CAT_NEW_MANGA = "new_manga"; // ⭐ Manga mới
     // ===== NOVEL =====
     public static final String CAT_TOP_NOVEL = "top_novel";
     public static final String CAT_TRENDING_NOVEL = "trending_novel";

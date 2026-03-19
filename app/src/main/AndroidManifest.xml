@@ -3,8 +3,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mari.magic">
 
-    <!-- Internet permission -->
+    <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <application
         android:allowBackup="true"
@@ -16,6 +18,15 @@
         android:usesCleartextTraffic="true"
         android:hardwareAccelerated="true">
 
+        <!-- ✅ BootReceiver -->
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
         <!-- SPLASH SCREEN (LAUNCHER) -->
         <activity
             android:name=".ui.splash.SplashActivity"
@@ -32,7 +43,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
+        <activity android:name=".ui.notification.NotificationActivity"/>
         <!-- SEARCH -->
         <activity
             android:name=".ui.search.SearchActivity"
@@ -44,7 +55,9 @@
         <activity
             android:name=".ui.genre.GenreAnimeActivity"
             android:exported="false" />
-
+        <activity
+            android:name=".ui.web.WebViewActivity"
+            android:exported="true" />
         <!-- ANIME DETAIL -->
         <activity
             android:name=".ui.detail.AnimeDetailActivity"

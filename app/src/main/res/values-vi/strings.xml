@@ -170,4 +170,12 @@
 
     <string name="schedule_title">Lịch Chiếu Anime</string>
     <string name="anime_cover">Ảnh anime</string>
+
+    <string name="anime_title">Tên Anime</string>
+    <string name="anime_message">Tập mới vừa ra 🔥</string>
+    <string name="anime_countdown">Còn bao lâu...</string>
+
+    <string name="notification_title">📩 Thông báo</string>
+    <string name="notification_empty">Không có thông báo 😢</string>
+    <string name="new_manga_title">Manga mới</string>
 </resources>

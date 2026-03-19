@@ -72,6 +72,10 @@ dependencies {
     implementation("com.google.android.material:material:1.9.0")
 // ViewPager2
     implementation("androidx.viewpager2:viewpager2:1.1.0")
+    implementation("com.google.firebase:firebase-messaging:23.4.1")
+    implementation("androidx.work:work-runtime:2.9.0")
+    implementation("com.android.volley:volley:1.2.1")
+    implementation("org.jsoup:jsoup:1.16.1")
     // Glide (load ảnh poster anime)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")

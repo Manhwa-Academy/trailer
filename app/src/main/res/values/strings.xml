@@ -185,4 +185,12 @@
 
     <string name="schedule_title">Anime Schedule</string>
     <string name="anime_cover">Anime cover</string>
+
+    <string name="anime_title">Anime Title</string>
+    <string name="anime_message">New episode just dropped 🔥</string>
+    <string name="anime_countdown">Time left...</string>
+
+    <string name="notification_title">📩 Notifications</string>
+    <string name="notification_empty">No notifications 😢</string>
+    <string name="new_manga_title">New Manga</string>
 </resources>

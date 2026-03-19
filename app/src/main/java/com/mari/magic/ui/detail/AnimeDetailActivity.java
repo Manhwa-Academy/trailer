@@ -6,6 +6,10 @@ import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
 import android.widget.*;
+
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.mari.magic.MainActivity;
 import com.mari.magic.model.Anime;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
@@ -14,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.mlkit.nl.translate.*;
+import com.mari.magic.utils.NotificationHelper;
 import com.mari.magic.utils.NovelResolver;
 import com.mari.magic.R;
 import com.mari.magic.utils.YoutubeService;
@@ -57,7 +62,7 @@ public class AnimeDetailActivity extends AppCompatActivity {
     String studio, director, season, format;
 
     int duration, episodes;
-
+    private boolean isFavorite = false;
     long views, updatedAt;
 
     double rating;
@@ -264,8 +269,17 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         if (title == null) title = "Unknown";
 
-        animeId = title.replace("/", "_");
+        animeId = title
+                .replaceAll("[^a-zA-Z0-9]", "_")
+                .toLowerCase();
+        Log.d("FAV_CHECK", "animeId = " + animeId);
 
+        // 🔥 GỌI API TẠI ĐÂY
+        int anilistId = getIntent().getIntExtra("anilistId", 0);
+
+        if(anilistId != 0){
+            loadAnimeDetailFromApi(anilistId);
+        }
         // ================= TRANSLATOR =================
 
         TranslatorOptions options =
@@ -299,55 +313,46 @@ public class AnimeDetailActivity extends AppCompatActivity {
             txtDesc.setText(Html.fromHtml(desc, Html.FROM_HTML_MODE_LEGACY));
 
         // ================= INFO =================
-
         txtStudio.setText("Studio: " + studio);
         txtDirector.setText("Director: " + director);
         txtSeason.setText("Season: " + season);
         txtDuration.setText("Duration: " + duration + " min");
-        if(chapters > 0)
-            txtChapters.setText("Chapters: " + chapters);
-        else
-            txtChapters.setText("Chapters: ?");
 
-        if(volumes > 0)
-            txtVolumes.setText("Volumes: " + volumes);
-        else
-            txtVolumes.setText("Volumes: ?");
+        txtChapters.setText(chapters > 0 ? "Chapters: " + chapters : "Chapters: ?");
+        txtVolumes.setText(volumes > 0 ? "Volumes: " + volumes : "Volumes: ?");
+        txtAuthor.setText(author != null && !author.isEmpty() ? "Author: " + author : "Author: Unknown");
 
-        if(author != null && !author.isEmpty())
-            txtAuthor.setText("Author: " + author);
-        else
-            txtAuthor.setText("Author: Unknown");
-        if (episodes > 0) {
-            txtEpisodes.setText("Episodes: " + episodes);
-        } else {
-            txtEpisodes.setText("Episodes: ?");
-        }
-
-        int nextEpisode = getIntent().getIntExtra("nextEpisode",0);
-        long nextAiring = getIntent().getLongExtra("nextAiringAt",0);
+// Lấy episodes và nextEpisode từ intent
+        int episodes = getIntent().getIntExtra("episodes", 0);
+        int nextEpisode = getIntent().getIntExtra("nextEpisode", 0);
+        long nextAiring = getIntent().getLongExtra("nextAiringAt", 0);
         String status = getIntent().getStringExtra("status");
-        if("FINISHED".equalsIgnoreCase(status)){
 
-            txtNextEpisode.setText("EP " + episodes + " ✓ Completed");
-
+// Tính currentEpisode chuẩn
+        int currentEpisode;
+        if(nextEpisode > 0){
+            currentEpisode = nextEpisode - 1; // chính xác luôn
+        } else if(episodes > 0){
+            currentEpisode = episodes;
+        } else {
+            currentEpisode = 0;
         }
-        else if(nextEpisode > 0 && nextAiring > 0){
 
-            int currentEpisode = nextEpisode - 1;
+// Hiển thị episodes
+        txtEpisodes.setText(episodes > 0 ? "Episodes: " + episodes : "Episodes: ?");
 
+// Hiển thị nextEpisode
+        if ("FINISHED".equalsIgnoreCase(status)) {
+            txtNextEpisode.setText("EP " + episodes + " ✓ Completed");
+        } else if (nextEpisode > 0 && nextAiring > 0) {
             long now = System.currentTimeMillis() / 1000;
             long diff = nextAiring - now;
 
-            if(diff > 0){
-
+            if (diff > 0) {
                 new android.os.CountDownTimer(diff * 1000, 1000) {
-
                     @Override
                     public void onTick(long millisUntilFinished) {
-
                         long seconds = millisUntilFinished / 1000;
-
                         long days = seconds / 86400;
                         long hours = (seconds % 86400) / 3600;
                         long minutes = (seconds % 3600) / 60;
@@ -366,46 +371,29 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
                     @Override
                     public void onFinish() {
-
                         txtNextEpisode.setText("Episode " + nextEpisode + " • Airing now");
-
                     }
-
                 }.start();
-
+            } else {
+                txtNextEpisode.setText("EP " + currentEpisode + " • Next EP " + nextEpisode);
             }
-
-        }
-        else if(nextEpisode > 0){
-
-            txtNextEpisode.setText("EP " + (nextEpisode - 1));
-
-        }
-        else{
-
+        } else if (nextEpisode > 0) {
+            txtNextEpisode.setText("EP " + currentEpisode);
+        } else {
             txtNextEpisode.setText("Episode ?");
         }
 
+// Type + Views
         txtFormat.setText("Type: " + format);
-
-
-        if("FINISHED".equalsIgnoreCase(status)){
-            txtEpisodes.setText("Episodes: " + episodes + " ✓ Completed");
-        }
         NumberFormat nf = NumberFormat.getInstance(Locale.US);
         txtViews.setText("Views: " + nf.format(views));
 
-        // ================= UPDATED =================
-
+// UpdatedAt
         if (updatedAt > 0) {
-
             java.text.SimpleDateFormat sdf =
                     new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault());
-
             String time = sdf.format(new java.util.Date(updatedAt * 1000));
-
             txtUpdated.setText("Updated: " + time);
-
         } else {
             txtUpdated.setText("Updated: Unknown");
         }
@@ -444,19 +432,22 @@ public class AnimeDetailActivity extends AppCompatActivity {
             }
         }
         // ================= FAVORITE =================
-// Tạo favoriteId cố định dựa trên API ID hoặc title + romaji
-        String safeTitle = title != null ? title.replace("/", "_") : "";
-        String safeRomaji = romajiTitle != null ? romajiTitle.replace("/", "_") : "";
 
-        String favoriteId = (safeTitle + "_" + safeRomaji)
-                .replaceAll("[^a-zA-Z0-9_]", "_"); // 🔥 lọc sạch toàn bộ ký tự nguy hiểm
-// Kiểm tra trạng thái favorite
-        FavoriteManager.checkFavorite(favoriteId, btnFavorite, txtFavorite);
+// ✅ LUÔN dùng 1 ID duy nhất
+        String safeId = animeId.replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
 
+// 🔥 Check trạng thái từ Firestore/LOCAL
+        FavoriteManager.checkFavorite(safeId, btnFavorite, txtFavorite, fav -> {
+            isFavorite = fav;
+            Log.d("FAV_STATE", "Init state = " + isFavorite);
+        });
+
+// 👉 CLICK
+        // 👉 CLICK FAVORITE
         btnFavorite.setOnClickListener(v -> {
-            // Tạo Anime object đầy đủ từ dữ liệu API
+
             Anime anime = new Anime();
-            anime.setId(favoriteId.hashCode());      // ID cố định
+            anime.setId(safeId.hashCode());
             anime.setTitle(title);
             anime.setEnglishTitle(englishTitle);
             anime.setRomajiTitle(romajiTitle);
@@ -471,21 +462,49 @@ public class AnimeDetailActivity extends AppCompatActivity {
             anime.setSeason(season);
             anime.setFormat(format);
             anime.setDuration(duration);
-            anime.setEpisodes(episodes);             // ✅ Lấy từ API
+            anime.setEpisodes(episodes);
             anime.setNextEpisode(nextEpisode);
             anime.setNextAiringAt(nextAiring);
             anime.setStatus(status);
             anime.setAdult(isAdult);
             anime.setViews(views);
-            anime.setUpdatedAt(updatedAt);           // ✅ Lấy từ API
+            anime.setUpdatedAt(updatedAt);
 
-            // 🔹 LOG kiểm tra dữ liệu trước khi lưu vào Firestore
-            Log.d("FAV_DEBUG", "Before toggleFavorite -> episodes=" + anime.getEpisodes() + ", updatedAt=" + anime.getUpdatedAt());
+            // 🔹 Toggle favorite dùng FavoriteManager
+            FavoriteManager.toggleFavorite(this, anime, btnFavorite, txtFavorite, safeId, fav -> {
+                isFavorite = fav;
 
-            // Gọi toggle favorite với favoriteId cố định
-            FavoriteManager.toggleFavorite(this, anime, btnFavorite, txtFavorite, favoriteId);
+                if (isFavorite) {
+                    // Thêm vào local favorite
+                    NotificationHelper.addFavorite(this, safeId);
+
+                    // 🔥 Hiển thị notification ngay lập tức
+                    // Sửa thành
+                    long realAiringAt = getIntent().getLongExtra("nextAiringAt", 0); // lấy từ intent hoặc DB
+                    NotificationHelper.showNotification(
+                            this,
+                            title,
+                            "Bạn đã thêm vào yêu thích 🔥",
+                            new Intent(this, MainActivity.class),
+                            poster != null ? poster : "",
+                            realAiringAt > 0 ? realAiringAt : System.currentTimeMillis() / 1000, // ✅ dùng thời gian thật
+                            getIntent().getIntExtra("nextEpisode", 0)
+                    );
+
+                    // Subscribe topic FCM để nhận notification tập mới
+                    FirebaseMessaging.getInstance().subscribeToTopic("anime_" + safeId);
+
+                    Log.d("FAV_LOCAL","Added favorite & notified: " + safeId);
+
+                } else {
+                    // Xóa khỏi favorite
+                    NotificationHelper.removeFavorite(this, safeId);
+                    FirebaseMessaging.getInstance().unsubscribeFromTopic("anime_" + safeId);
+
+                    Log.d("FAV_LOCAL","Removed favorite: " + safeId);
+                }
+            });
         });
-
 // ================= TRAILER =================
 // Gọi saveHistory đầy đủ 22 tham số, lấy chính xác từ API
         btnTrailer.setOnClickListener(v -> {
@@ -537,6 +556,85 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
             translateToVietnamese(desc);
         });
+    }
+    private void loadAnimeDetailFromApi(int id){
+
+        String url = "https://graphql.anilist.co";
+
+        String query = "{ \"query\": \"query ($id: Int) { Media(id: $id, type: ANIME) { " +
+                "episodes nextAiringEpisode { episode airingAt } status } }\", " +
+                "\"variables\": { \"id\": " + id + " } }";
+
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.POST,
+                url,
+                null,
+                response -> {
+                    try {
+
+                        JSONObject media = response
+                                .getJSONObject("data")
+                                .getJSONObject("Media");
+
+                        int episodes = media.optInt("episodes", 0);
+                        String status = media.optString("status", "");
+
+                        int nextEp = 0;
+                        long nextAiring = 0;
+
+                        if(media.has("nextAiringEpisode") && !media.isNull("nextAiringEpisode")){
+                            JSONObject airing = media.getJSONObject("nextAiringEpisode");
+                            nextEp = airing.optInt("episode", 0);
+                            nextAiring = airing.optLong("airingAt", 0);
+                        }
+
+                        // 🔥 UPDATE UI NGAY
+                        updateEpisodeUI(episodes, nextEp, nextAiring, status);
+
+                    } catch (Exception e){
+                        e.printStackTrace();
+                    }
+                },
+                error -> Log.e("API_ERROR", error.toString())
+        ){
+
+            @Override
+            public byte[] getBody(){
+                try{
+                    return query.getBytes("utf-8");
+                }catch (Exception e){
+                    return null;
+                }
+            }
+
+            @Override
+            public Map<String, String> getHeaders(){
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                return headers;
+            }
+        };
+
+        VolleySingleton.getInstance(this).addToRequestQueue(request);
+    }
+    private void updateEpisodeUI(int episodes, int nextEp, long nextAiring, String status){
+
+        if("FINISHED".equalsIgnoreCase(status)){
+            txtEpisodes.setText("Episodes: " + episodes + " ✓ Completed");
+            txtNextEpisode.setText("EP " + episodes);
+            return;
+        }
+
+        if(nextEp > 0){
+            int current = nextEp - 1;
+            txtNextEpisode.setText("EP " + current + " • Next EP " + nextEp);
+        }else if(episodes > 0){
+            txtNextEpisode.setText("EP " + episodes);
+        }else{
+            txtNextEpisode.setText("EP ?");
+        }
+
+        txtEpisodes.setText("Episodes: " + (episodes > 0 ? episodes : "?"));
     }
     // ================= TRANSLATE =================
 

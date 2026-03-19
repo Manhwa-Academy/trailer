@@ -12,6 +12,7 @@ public class AnimeFirestoreParser {
 
         if(map == null) return anime;
 
+        // ===== BASIC =====
         anime.setTitle((String) map.getOrDefault("title",""));
         anime.setPoster((String) map.getOrDefault("poster",""));
         anime.setTrailer((String) map.getOrDefault("trailer",""));
@@ -28,7 +29,9 @@ public class AnimeFirestoreParser {
         anime.setSeason((String) map.getOrDefault("season",""));
         anime.setFormat((String) map.getOrDefault("format",""));
 
-        // ===== NUMBER SAFE PARSE =====
+        anime.setStatus((String) map.getOrDefault("status",""));
+
+        // ===== NUMBER SAFE =====
 
         if(map.get("rating") instanceof Number)
             anime.setRating(((Number) map.get("rating")).doubleValue());
@@ -39,8 +42,24 @@ public class AnimeFirestoreParser {
         if(map.get("views") instanceof Number)
             anime.setViews(((Number) map.get("views")).longValue());
 
-        // ===== ANIME ID SAFE =====
+        if(map.get("updatedAt") instanceof Number)
+            anime.setUpdatedAt(((Number) map.get("updatedAt")).longValue());
 
+        if(map.get("episodes") instanceof Number)
+            anime.setEpisodes(((Number) map.get("episodes")).intValue());
+
+        if(map.get("nextEpisode") instanceof Number)
+            anime.setNextEpisode(((Number) map.get("nextEpisode")).intValue());
+
+        if(map.get("nextAiringAt") instanceof Number)
+            anime.setNextAiringAt(((Number) map.get("nextAiringAt")).longValue());
+
+        // ===== 🔥 ANILIST ID (QUAN TRỌNG NHẤT) =====
+        if(map.get("anilistId") instanceof Number){
+            anime.setAnilistId(((Number) map.get("anilistId")).intValue());
+        }
+
+        // ===== LEGACY ID =====
         Object id = map.get("animeId");
 
         if(id instanceof Number){
@@ -52,8 +71,7 @@ public class AnimeFirestoreParser {
             }catch(Exception ignored){}
         }
 
-        // ===== ADULT FLAG =====
-
+        // ===== ADULT =====
         if(map.get("isAdult") instanceof Boolean)
             anime.setAdult((Boolean) map.get("isAdult"));
 

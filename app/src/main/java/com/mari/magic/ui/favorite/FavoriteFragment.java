@@ -54,13 +54,14 @@ public class FavoriteFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-        loadFavorites();
+        loadFavoritesRealtime();
         setupSwipeActions();
 
         return view;
     }
 
-    private void loadFavorites() {
+    // ================= LOAD FAVORITES REALTIME =================
+    private void loadFavoritesRealtime() {
         if (auth.getCurrentUser() == null) {
             txtEmpty.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
@@ -74,6 +75,8 @@ public class FavoriteFragment extends Fragment {
                 .collection("favorites")
                 .orderBy("time", Query.Direction.DESCENDING)
                 .addSnapshotListener((snapshot, error) -> {
+                    list.clear();
+
                     if (error != null) {
                         txtEmpty.setText("Lỗi tải dữ liệu!");
                         txtEmpty.setVisibility(View.VISIBLE);
@@ -81,12 +84,33 @@ public class FavoriteFragment extends Fragment {
                         return;
                     }
 
-                    list.clear();
                     if (snapshot != null && !snapshot.isEmpty()) {
-                        for (DocumentSnapshot doc : snapshot) {
-                            Map<String, Object> data = new HashMap<>(doc.getData());
-                            data.put("docId", doc.getId()); // để xóa
-                            list.add(data);
+                        for (DocumentSnapshot doc : snapshot.getDocuments()) {
+                            Map<String, Object> data = doc.getData();
+                            if (data != null) {
+
+                                // 🔹 CẬP NHẬT EPHIỆN TẠI dựa vào nextEpisode
+                                int episodes = 0;
+                                int nextEpisode = 0;
+
+                                Object epObj = data.get("episodes");
+                                Object nextObj = data.get("nextEpisode");
+
+                                if(epObj instanceof Long) episodes = ((Long) epObj).intValue();
+                                else if(epObj instanceof Integer) episodes = (Integer) epObj;
+
+                                if(nextObj instanceof Long) nextEpisode = ((Long) nextObj).intValue();
+                                else if(nextObj instanceof Integer) nextEpisode = (Integer) nextObj;
+
+                                if(nextEpisode > 0 && episodes < nextEpisode - 1){
+                                    data.put("episodes", nextEpisode - 1);
+                                    // optional: update local cache
+                                    com.mari.magic.utils.FavoriteManager.updateEpisodesFromNext((String)data.get("animeId"), nextEpisode);
+                                }
+
+                                data.put("docId", doc.getId());
+                                list.add(data);
+                            }
                         }
                     }
 
@@ -96,6 +120,7 @@ public class FavoriteFragment extends Fragment {
                 });
     }
 
+    // ================= SWIPE ACTIONS =================
     private void setupSwipeActions() {
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
                 ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
@@ -110,50 +135,39 @@ public class FavoriteFragment extends Fragment {
             @Override
             public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 int position = viewHolder.getAdapterPosition();
+                if(position == RecyclerView.NO_POSITION) return;
+
                 Map<String,Object> item = list.get(position);
 
-                if(direction == ItemTouchHelper.RIGHT) {
-                    // Mở Detail + gửi tất cả data
+                if(direction == ItemTouchHelper.RIGHT){
                     Intent intent = new Intent(getContext(), AnimeDetailActivity.class);
-
-                    intent.putExtra("animeId", (String)item.get("animeId"));
-                    intent.putExtra("title", (String)item.get("title"));
-                    intent.putExtra("englishTitle", (String)item.get("englishTitle"));
-                    intent.putExtra("romajiTitle", (String)item.get("romajiTitle"));
-                    intent.putExtra("nativeTitle", (String)item.get("nativeTitle"));
-
-                    intent.putExtra("poster", (String)item.get("poster"));
-                    intent.putExtra("rating", item.get("rating") != null ? ((Number)item.get("rating")).doubleValue() : 0.0);
-                    intent.putExtra("trailer", (String)item.get("trailer"));
-
-                    intent.putExtra("description", (String)item.get("description"));
-                    intent.putExtra("genres", (String)item.get("genres"));
-
-                    intent.putExtra("studio", (String)item.get("studio"));
-                    intent.putExtra("director", (String)item.get("director"));
-                    intent.putExtra("season", (String)item.get("season"));
-                    intent.putExtra("format", (String)item.get("format"));
-
-                    intent.putExtra("duration", item.get("duration") != null ? ((Number)item.get("duration")).intValue() : 0);
-                    intent.putExtra("episodes", item.get("episodes") != null ? ((Number)item.get("episodes")).intValue() : 0);
-
-                    intent.putExtra("status", (String)item.get("status"));
-                    intent.putExtra("nextEpisode", item.get("nextEpisode") != null ? ((Number)item.get("nextEpisode")).intValue() : 0);
-                    intent.putExtra("nextAiringAt", item.get("nextAiringAt") != null ? ((Number)item.get("nextAiringAt")).longValue() : 0);
-                    intent.putExtra("isAdult", item.get("isAdult") != null && (Boolean)item.get("isAdult"));
-                    intent.putExtra("views", item.get("views") != null ? ((Number)item.get("views")).longValue() : 0L);
-                    intent.putExtra("updatedAt", item.get("updatedAt") != null ? ((Number)item.get("updatedAt")).longValue() : 0L);
-
+                    for(String key : item.keySet()){
+                        Object value = item.get(key);
+                        if(value instanceof Number) {
+                            if(value instanceof Double)
+                                intent.putExtra(key, ((Number)value).doubleValue());
+                            else
+                                intent.putExtra(key, ((Number)value).longValue());
+                        } else if(value instanceof Boolean){
+                            intent.putExtra(key, (Boolean)value);
+                        } else if(value instanceof String){
+                            intent.putExtra(key, (String)value);
+                        }
+                    }
                     startActivity(intent);
-
-                    adapter.notifyItemChanged(position); // reset item
-                } else if(direction == ItemTouchHelper.LEFT) {
-                    // Xóa favorite
-                    String uid = auth.getCurrentUser().getUid();
-                    String docId = (String)item.get("docId");
-                    db.collection("users").document(uid).collection("favorites").document(docId).delete();
-                    list.remove(position);
-                    adapter.notifyItemRemoved(position);
+                    adapter.notifyItemChanged(position);
+                } else if(direction == ItemTouchHelper.LEFT){
+                    String docId = (String) item.get("docId");
+                    if(auth.getCurrentUser() != null && docId != null){
+                        String uid = auth.getCurrentUser().getUid();
+                        db.collection("users")
+                                .document(uid)
+                                .collection("favorites")
+                                .document(docId)
+                                .delete();
+                        list.remove(position);
+                        adapter.notifyItemRemoved(position);
+                    }
                 }
             }
 
@@ -161,8 +175,7 @@ public class FavoriteFragment extends Fragment {
             public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
                                     @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY,
                                     int actionState, boolean isCurrentlyActive) {
-
-                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                if(actionState == ItemTouchHelper.ACTION_STATE_SWIPE){
                     View itemView = viewHolder.itemView;
                     Paint paint = new Paint();
                     Paint textPaint = new Paint();
@@ -170,19 +183,18 @@ public class FavoriteFragment extends Fragment {
                     textPaint.setTextSize(40f);
                     textPaint.setAntiAlias(true);
 
-                    float textY = itemView.getTop() + itemView.getHeight() / 2f + 15;
+                    float textY = itemView.getTop() + itemView.getHeight()/2f + 15;
 
-                    if (dX > 0) {
-                        paint.setColor(Color.parseColor("#4CAF50")); // xanh → mở detail
-                        c.drawRect(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + dX, itemView.getBottom(), paint);
-                        c.drawText("Detail", itemView.getLeft() + 50, textY, textPaint);
-                    } else if (dX < 0) {
-                        paint.setColor(Color.parseColor("#f44336")); // đỏ → xóa
-                        c.drawRect(itemView.getRight() + dX, itemView.getTop(), itemView.getRight(), itemView.getBottom(), paint);
-                        c.drawText("Delete", itemView.getRight() - 250, textY, textPaint);
+                    if(dX > 0){
+                        paint.setColor(Color.parseColor("#4CAF50"));
+                        c.drawRect(itemView.getLeft(), itemView.getTop(), itemView.getLeft()+dX, itemView.getBottom(), paint);
+                        c.drawText("Detail", itemView.getLeft()+50, textY, textPaint);
+                    } else if(dX < 0){
+                        paint.setColor(Color.parseColor("#f44336"));
+                        c.drawRect(itemView.getRight()+dX, itemView.getTop(), itemView.getRight(), itemView.getBottom(), paint);
+                        c.drawText("Delete", itemView.getRight()-250, textY, textPaint);
                     }
                 }
-
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         };
@@ -193,8 +205,6 @@ public class FavoriteFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        if (listener != null) {
-            listener.remove();
-        }
+        if(listener != null) listener.remove();
     }
 }

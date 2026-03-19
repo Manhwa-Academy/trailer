@@ -28,7 +28,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 public class HomeFragment extends Fragment {
 
     private static final String TAG = "HOME_DEBUG";
@@ -247,6 +246,7 @@ public class HomeFragment extends Fragment {
 
                                     if(adapter != null){
                                         adapter.notifyDataSetChanged();
+
                                     }
 
                                 }catch(Exception e){

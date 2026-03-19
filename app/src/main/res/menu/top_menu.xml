@@ -8,7 +8,12 @@
         android:title="Filter"
         android:icon="@android:drawable/ic_menu_manage"
         app:showAsAction="always"/>
-
+    <item
+        android:id="@+id/menu_notification"
+        android:title="Thông báo"
+        android:icon="@drawable/ic_notification"
+        app:showAsAction="always"
+        app:actionLayout="@layout/menu_badge"/>
     <item
         android:id="@+id/menu_nav"
         android:title="Menu"
