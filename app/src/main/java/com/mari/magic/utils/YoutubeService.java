@@ -6,6 +6,7 @@ import android.widget.TextView;
 import com.android.volley.Request;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,10 +21,11 @@ public class YoutubeService {
     public static void loadTrailerInfo(Context ctx,
                                        String trailerId,
                                        TextView txtViews,
-                                       TextView txtDate){
+                                       TextView txtDate) {
 
         if(trailerId == null || trailerId.isEmpty()){
-            txtDate.setText("Trailer: Unknown");
+            txtDate.setText(ctx.getString(R.string.trailer_label) + ": " + ctx.getString(R.string.unknown_label));
+            txtViews.setText(ctx.getString(R.string.views_label) + ": " + ctx.getString(R.string.unknown_label));
             return;
         }
 
@@ -32,60 +34,48 @@ public class YoutubeService {
                         + trailerId +
                         "&part=statistics,snippet&key=AIzaSyBrm4ovRR5rbFQkK4DtjsfKf8bToom0IF4";
 
-        JsonObjectRequest request =
-                new JsonObjectRequest(Request.Method.GET, url, null,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+                response -> {
+                    try {
+                        JSONArray items = response.getJSONArray("items");
 
-                        response -> {
+                        if(items.length() == 0){
+                            txtDate.setText(ctx.getString(R.string.trailer_label) + ": " + ctx.getString(R.string.unknown_label));
+                            txtViews.setText(ctx.getString(R.string.views_label) + ": " + ctx.getString(R.string.unknown_label));
+                            return;
+                        }
 
-                            try{
+                        JSONObject video = items.getJSONObject(0);
 
-                                JSONArray items = response.getJSONArray("items");
+                        long views = video.getJSONObject("statistics").optLong("viewCount", 0);
 
-                                if(items.length() == 0){
-                                    txtDate.setText("Trailer: Unknown");
-                                    return;
-                                }
+                        txtViews.setText(
+                                ctx.getString(R.string.views_label) + ": " +
+                                        NumberFormat.getInstance(Locale.getDefault()).format(views)
+                        );
 
-                                JSONObject video = items.getJSONObject(0);
+                        String published = video.getJSONObject("snippet").getString("publishedAt");
 
-                                long views = video
-                                        .getJSONObject("statistics")
-                                        .optLong("viewCount",0);
+                        SimpleDateFormat apiFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+                        Date date = apiFormat.parse(published);
 
-                                txtViews.setText(
-                                        "Views: " +
-                                                NumberFormat.getInstance().format(views)
-                                );
+                        SimpleDateFormat displayFormat = new SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault());
 
-                                String published =
-                                        video.getJSONObject("snippet")
-                                                .getString("publishedAt");
+                        txtDate.setText(
+                                ctx.getString(R.string.trailer_label) + ": " + displayFormat.format(date)
+                        );
 
-                                SimpleDateFormat api =
-                                        new SimpleDateFormat(
-                                                "yyyy-MM-dd'T'HH:mm:ss'Z'",
-                                                Locale.US);
+                    } catch(Exception e){
+                        txtDate.setText(ctx.getString(R.string.trailer_label) + ": " + ctx.getString(R.string.unknown_label));
+                        txtViews.setText(ctx.getString(R.string.views_label) + ": " + ctx.getString(R.string.unknown_label));
+                    }
 
-                                Date date = api.parse(published);
-
-                                SimpleDateFormat display =
-                                        new SimpleDateFormat(
-                                                "HH:mm dd/MM/yyyy",
-                                                Locale.getDefault());
-
-                                txtDate.setText(
-                                        "Trailer Released: " +
-                                                display.format(date)
-                                );
-
-                            }catch(Exception e){
-                                txtDate.setText("Trailer: Unknown");
-                            }
-
-                        },
-
-                        error -> txtDate.setText("Trailer: Unknown")
-                );
+                },
+                error -> {
+                    txtDate.setText(ctx.getString(R.string.trailer_label) + ": " + ctx.getString(R.string.unknown_label));
+                    txtViews.setText(ctx.getString(R.string.views_label) + ": " + ctx.getString(R.string.unknown_label));
+                }
+        );
 
         VolleySingleton.getInstance(ctx).addToRequestQueue(request);
     }

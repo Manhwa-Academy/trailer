@@ -193,4 +193,29 @@
     <string name="notification_title">📩 Notifications</string>
     <string name="notification_empty">No notifications 😢</string>
     <string name="new_manga_title">New Manga</string>
+    <string name="next_ep">Next: EP %1$d ⏳</string>
+    <string name="ep_just_released">EP %1$d • Just released 🔥</string>
+    <string name="ep_minutes_ago">EP %1$d • Released %2$d minutes ago 🔥</string>
+    <string name="ep_hours_ago">EP %1$d • Released %2$d hours ago 🔥</string>
+    <string name="ep_days_ago">EP %1$d • Released %2$d days ago 🔥</string>
+    <string name="next_ep_countdown">Next: EP %1$d in %2$s</string>
+
+    <string name="watch_movie">▶ Play Anime</string>
+
+    <string name="type_label">Type</string>
+    <string name="season_label">Season</string>
+    <string name="duration_label">Duration</string>
+    <string name="studio_label">Studio</string>
+    <string name="director_label">Director</string>
+    <string name="episodes_label">Episodes</string>
+    <string name="next_episode_label">Next EP</string>
+    <string name="updated_label">Updated</string>
+    <string name="trailer_label">Trailer Released</string>
+    <string name="description_label">Description</string>
+    <string name="unknown_label">Unknown</string>
+    <string name="views_label">Views</string>
+    <string name="completed_label">✓ Completed</string>
+    <string name="airing_now">Airing now</string>
+    <string name="next_episode_countdown">%1$s %2$d • %3$s %4$d in %5$dd %6$dh %7$dm %8$ds</string>
+
 </resources>

@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +26,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.mari.magic.R;
 import com.mari.magic.model.NotificationItem;
+import com.mari.magic.ui.notification.NotificationActivity;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -60,22 +62,40 @@ public class NotificationHelper {
                                         Intent intent,
                                         @Nullable String imageUrl,
                                         long airingAt,
-                                        int episode) {
+                                        int episode,
+                                        // 🔹 Thêm thông tin chi tiết
+                                        String format,
+                                        String season,
+                                        String studio,
+                                        String director,
+                                        int duration,
+                                        double rating,
+                                        long views,
+                                        String description,
+                                        String genres,
+                                        String englishTitle,
+                                        String romajiTitle,
+                                        String nativeTitle,
+                                        String trailer) {
 
         createChannel(context);
 
         NotificationManager manager =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        int notificationId = (title + message + System.currentTimeMillis()).hashCode();
+        Log.d("NOTI_DEBUG", "Creating notification: title=" + title + ", episode=" + episode);
+        Log.d("NOTI_DEBUG", "Intent class: " + intent.getComponent());
+        // 🔹 đây là chỗ dùng nanoTime để tạo notificationId duy nhất
+        int notificationId = (title + message + System.nanoTime()).hashCode();
 
+        // 🔹 tạo PendingIntent trỏ NotificationActivity
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 context,
                 notificationId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
         );
-
+        Log.d("NOTI_DEBUG", "PendingIntent created"); // chỉ log là PendingIntent đã tạo xong
         NotificationCompat.Builder builder =
                 new NotificationCompat.Builder(context, CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_notification)
@@ -92,7 +112,10 @@ public class NotificationHelper {
             builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder));
             manager.notify(notificationId, builder.build());
 
-            saveNotification(context, title, message, "", airingAt, episode);
+            saveNotification(context, title, message, "", airingAt, episode,
+                    format, season, studio, director, duration, rating, views,
+                    description, genres, englishTitle, romajiTitle, nativeTitle, trailer);
+
             increaseBadge(context);
             return;
         }
@@ -114,7 +137,10 @@ public class NotificationHelper {
 
                         manager.notify(notificationId, builder.build());
 
-                        saveNotification(context, title, message, imageUrl, airingAt, episode);
+                        saveNotification(context, title, message, imageUrl, airingAt, episode,
+                                format, season, studio, director, duration, rating, views,
+                                description, genres, englishTitle, romajiTitle, nativeTitle, trailer);
+
                         increaseBadge(context);
                     }
 
@@ -126,7 +152,10 @@ public class NotificationHelper {
                         builder.setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.placeholder));
                         manager.notify(notificationId, builder.build());
 
-                        saveNotification(context, title, message, "", airingAt, episode);
+                        saveNotification(context, title, message, "", airingAt, episode,
+                                format, season, studio, director, duration, rating, views,
+                                description, genres, englishTitle, romajiTitle, nativeTitle, trailer);
+
                         increaseBadge(context);
                     }
                 });
@@ -138,7 +167,20 @@ public class NotificationHelper {
                                         String message,
                                         String imageUrl,
                                         long airingAt,
-                                        int episode) {
+                                        int episode,
+                                        String format,
+                                        String season,
+                                        String studio,
+                                        String director,
+                                        int duration,
+                                        double rating,
+                                        long views,
+                                        String description,
+                                        String genres,
+                                        String englishTitle,
+                                        String romajiTitle,
+                                        String nativeTitle,
+                                        String trailer) {
 
         SharedPreferences prefs = context.getSharedPreferences("app", Context.MODE_PRIVATE);
 
@@ -150,13 +192,45 @@ public class NotificationHelper {
 
         if (list == null) list = new ArrayList<>();
 
-        list.add(0, new NotificationItem(title, message, imageUrl, airingAt, episode));
+        // 🔹 Kiểm tra xem anime đã có trong danh sách notification chưa
+        String animeId = title.replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
+        boolean exists = false;
+        for (NotificationItem n : list) {
+            String nId = n.getTitle().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
+            if (nId.equals(animeId)) {
+                exists = true;
+                break;
+            }
+        }
+
+        // 🔹 Chỉ thêm nếu chưa tồn tại
+        if (!exists) {
+            list.add(0, new NotificationItem(
+                    title,
+                    message,
+                    imageUrl,
+                    airingAt,
+                    episode,
+                    format,
+                    season,
+                    studio,
+                    director,
+                    duration,
+                    rating,
+                    views,
+                    description,
+                    genres,
+                    englishTitle,
+                    romajiTitle,
+                    nativeTitle,
+                    trailer
+            ));
+        }
 
         prefs.edit()
                 .putString("notification_list", gson.toJson(list))
                 .apply();
     }
-
     public static List<NotificationItem> getNotifications(Context context) {
         SharedPreferences prefs = context.getSharedPreferences("app", Context.MODE_PRIVATE);
 
@@ -187,7 +261,6 @@ public class NotificationHelper {
     }
 
     // ================= FAVORITES =================
-    // 🔹 Thêm anime vào favorite, KHÔNG thay đổi thời gian airing
     public static void addFavorite(Context context, String animeId) {
         SharedPreferences prefs = context.getSharedPreferences("app", Context.MODE_PRIVATE);
         Set<String> favs = new HashSet<>(prefs.getStringSet("favorites", new HashSet<>()));
@@ -197,7 +270,6 @@ public class NotificationHelper {
         }
     }
 
-    // 🔹 Xóa anime khỏi favorite, KHÔNG thay đổi thời gian airing
     public static void removeFavorite(Context context, String animeId) {
         SharedPreferences prefs = context.getSharedPreferences("app", Context.MODE_PRIVATE);
         Set<String> favs = new HashSet<>(prefs.getStringSet("favorites", new HashSet<>()));
@@ -205,6 +277,24 @@ public class NotificationHelper {
             favs.remove(animeId);
             prefs.edit().putStringSet("favorites", favs).apply();
         }
+
+        // 🔹 Xóa luôn notification liên quan
+        removeNotificationForAnime(context, animeId);
+
+    }
+
+    // 🔹 Xóa notification theo animeId hoặc animeTitle
+    public static void removeNotificationForAnime(Context context, String animeTitle){
+        List<NotificationItem> list = getNotifications(context);
+        String animeId = animeTitle.replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
+
+        list.removeIf(n -> n.getTitle().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase().equals(animeId));
+
+        Gson gson = new Gson();
+        context.getSharedPreferences("app", Context.MODE_PRIVATE)
+                .edit()
+                .putString("notification_list", gson.toJson(list))
+                .apply();
     }
 
     public static void isFavorite(Context context, String animeId, FavoriteCallback callback) {

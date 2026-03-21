@@ -35,5 +35,14 @@
             android:text="@string/anime_countdown"
             android:textColor="@android:color/darker_gray"
             android:textSize="14sp"/>
+
+        <!-- TextView mới hiển thị EP tiếp theo -->
+        <TextView
+            android:id="@+id/txtNextEp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/holo_orange_light"
+            android:textSize="12sp"
+            android:text="@string/next_ep"/>
     </LinearLayout>
 </LinearLayout>

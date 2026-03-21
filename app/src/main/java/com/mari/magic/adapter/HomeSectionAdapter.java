@@ -175,7 +175,7 @@ public class HomeSectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                 } else {
                     // Mở AnimeDetailActivity và truyền đầy đủ data
                     Intent intent = new Intent(context, AnimeDetailActivity.class);
-                    intent.putExtra("animeId", anime.getId());
+                    intent.putExtra("anilistId", anime.getAnilistId());
                     intent.putExtra("title", anime.getTitle());
                     intent.putExtra("englishTitle", anime.getEnglishTitle());
                     intent.putExtra("romajiTitle", anime.getRomajiTitle());

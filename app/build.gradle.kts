@@ -76,6 +76,7 @@ dependencies {
     implementation("androidx.work:work-runtime:2.9.0")
     implementation("com.android.volley:volley:1.2.1")
     implementation("org.jsoup:jsoup:1.16.1")
+    implementation("androidx.browser:browser:1.7.0")
     // Glide (load ảnh poster anime)
     implementation("com.github.bumptech.glide:glide:4.16.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")

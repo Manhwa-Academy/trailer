@@ -193,13 +193,21 @@ public class FavoriteManager {
                 );
     }
     // ================= REMOVE FAVORITE =================
-    public static void removeFavorite(String animeId) {
+    public static void removeFavorite(String animeId, @NonNull Context context) {
         if (auth.getCurrentUser() == null) return;
         String uid = auth.getCurrentUser().getUid();
+
         db.collection("users")
                 .document(uid)
                 .collection("favorites")
                 .document(animeId)
-                .delete();
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    // ✅ truyền đủ 2 tham số
+                    NotificationHelper.removeNotificationForAnime(context, animeId);
+                })
+                .addOnFailureListener(e -> {
+                    android.util.Log.e("FAV_DEBUG", "Failed: " + e.getMessage());
+                });
     }
 }

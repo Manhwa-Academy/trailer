@@ -4,20 +4,30 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.*;
+import androidx.browser.customtabs.CustomTabsIntent;
 
+import com.android.volley.DefaultRetryPolicy;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.mari.magic.MainActivity;
+import com.mari.magic.adapter.RandomAnimeAdapter;
 import com.mari.magic.model.Anime;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.view.View;
 import android.widget.Button;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.mlkit.nl.translate.*;
+import com.mari.magic.ui.notification.NotificationActivity;
+import com.mari.magic.utils.AnimeParser;
 import com.mari.magic.utils.NotificationHelper;
 import com.mari.magic.utils.NovelResolver;
 import com.mari.magic.R;
@@ -28,8 +38,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.text.NumberFormat;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Map;
 import com.mari.magic.utils.HistoryManager;
 import com.mari.magic.utils.TrailerHelper;
@@ -41,6 +54,10 @@ public class AnimeDetailActivity extends AppCompatActivity {
     TextView txtChapters;
     int chapters, volumes;
     Button btnRead;
+    // RecyclerView + Adapter + List
+    private RecyclerView recyclerRandomAnime;
+    private RandomAnimeAdapter randomAdapter;
+    private final List<Anime> randomAnimeList = new ArrayList<>();
     String author;
     TextView txtVolumes;
     TextView txtAuthor;
@@ -108,7 +125,12 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         btnEnglish = findViewById(R.id.btnEnglish);
         btnVietnamese = findViewById(R.id.btnVietnamese);
-
+        recyclerRandomAnime = findViewById(R.id.recyclerRandomAnime);
+        recyclerRandomAnime.setLayoutManager(
+                new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        );
+        randomAdapter = new RandomAnimeAdapter(this, randomAnimeList); // <-- gán vào field
+        recyclerRandomAnime.setAdapter(randomAdapter);
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -139,7 +161,9 @@ public class AnimeDetailActivity extends AppCompatActivity {
         format = getIntent().getStringExtra("format");
         String mangaDex = getIntent().getStringExtra("mangadex");
         String mal = getIntent().getStringExtra("mal");
-
+        randomAnimeList.clear();
+        randomAdapter.notifyDataSetChanged(); // này chỉ để reset view cũ trước khi load API
+        loadRandomAnimeFromApi(); // 🔹 gọi API AniList
         Log.d("READ_DEBUG","MangaDex=" + mangaDex);
         Log.d("READ_DEBUG","MAL=" + mal);
         boolean isManga =
@@ -177,6 +201,48 @@ public class AnimeDetailActivity extends AppCompatActivity {
                 btnTrailer.setVisibility(View.GONE);
             }
         }
+        // Gán nút Watch
+        Button btnWatch = findViewById(R.id.btnWatch);
+
+// Hiển thị nút Watch nếu anime là TV/Anime, bất kể có trailer hay không
+        if(title != null && format != null && !format.equalsIgnoreCase("MANGA")) {
+            btnWatch.setVisibility(View.VISIBLE);
+        } else {
+            btnWatch.setVisibility(View.GONE);
+        }
+
+// Click mở AnimeVietSub (tìm kiếm Romaji + Native + English)
+        btnWatch.setOnClickListener(v -> {
+
+            List<String> searchNames = new ArrayList<>();
+
+            if (romajiTitle != null && !romajiTitle.isEmpty()) searchNames.add(romajiTitle);
+            if (nativeTitle != null && !nativeTitle.isEmpty()) searchNames.add(nativeTitle);
+            if (englishTitle != null && !englishTitle.isEmpty()) searchNames.add(englishTitle);
+
+            // Ghép tất cả tên thành 1 chuỗi, chuyển thành keyword
+            StringBuilder sb = new StringBuilder();
+            for (String name : searchNames) {
+                String clean = name.toLowerCase()
+                        .replaceAll("season|part|movie|final", "")
+                        .replaceAll("[^a-z0-9\\s]", "")
+                        .trim()
+                        .replaceAll("\\s+", "+");
+                sb.append(clean).append("+");
+            }
+
+            String keyword = sb.toString();
+            if (keyword.endsWith("+")) keyword = keyword.substring(0, keyword.length() - 1);
+
+            String url = "https://animevietsub.mx/tim-kiem/" + keyword + "/";
+
+            Log.d("ANIMEVIE_SUB", "Search URL: " + url);
+
+            CustomTabsIntent customTabsIntent =
+                    new CustomTabsIntent.Builder().build();
+
+            customTabsIntent.launchUrl(this, Uri.parse(url));
+        });
         btnRead.setOnClickListener(v -> {
             String searchTitle = title != null ? title : romajiTitle;
             int nextEpisode = 0;
@@ -313,10 +379,10 @@ public class AnimeDetailActivity extends AppCompatActivity {
             txtDesc.setText(Html.fromHtml(desc, Html.FROM_HTML_MODE_LEGACY));
 
         // ================= INFO =================
-        txtStudio.setText("Studio: " + studio);
-        txtDirector.setText("Director: " + director);
-        txtSeason.setText("Season: " + season);
-        txtDuration.setText("Duration: " + duration + " min");
+        txtStudio.setText(getString(R.string.studio_label) + ": " + studio);
+        txtDirector.setText(getString(R.string.director_label) + ": " + director);
+        txtSeason.setText(getString(R.string.season_label) + ": " + season);
+        txtDuration.setText(getString(R.string.duration_label) + ": " + duration + " phút");
 
         txtChapters.setText(chapters > 0 ? "Chapters: " + chapters : "Chapters: ?");
         txtVolumes.setText(volumes > 0 ? "Volumes: " + volumes : "Volumes: ?");
@@ -339,11 +405,15 @@ public class AnimeDetailActivity extends AppCompatActivity {
         }
 
 // Hiển thị episodes
-        txtEpisodes.setText(episodes > 0 ? "Episodes: " + episodes : "Episodes: ?");
+        txtEpisodes.setText(episodes > 0
+                ? getString(R.string.episodes_label) + ": " + episodes
+                : getString(R.string.episodes_label) + ": " + getString(R.string.unknown_label));
 
 // Hiển thị nextEpisode
         if ("FINISHED".equalsIgnoreCase(status)) {
-            txtNextEpisode.setText("EP " + episodes + " ✓ Completed");
+            txtNextEpisode.setText(
+                    getString(R.string.episodes_label) + " " + episodes + " " + getString(R.string.completed_label)
+            );
         } else if (nextEpisode > 0 && nextAiring > 0) {
             long now = System.currentTimeMillis() / 1000;
             long diff = nextAiring - now;
@@ -358,44 +428,53 @@ public class AnimeDetailActivity extends AppCompatActivity {
                         long minutes = (seconds % 3600) / 60;
                         long sec = seconds % 60;
 
-                        txtNextEpisode.setText(
-                                "EP " + currentEpisode +
-                                        " • Next EP " + nextEpisode +
-                                        " in " +
-                                        days + "d " +
-                                        hours + "h " +
-                                        minutes + "m " +
-                                        sec + "s"
-                        );
+                        txtNextEpisode.setText(String.format(
+                                getString(R.string.next_episode_countdown),
+                                getString(R.string.episodes_label),      // "Tập" / "Episodes"
+                                currentEpisode,
+                                getString(R.string.next_episode_label),  // "Tập tiếp theo" / "Next EP"
+                                nextEpisode,
+                                days,
+                                hours,
+                                minutes,
+                                sec
+                        ));
                     }
 
                     @Override
                     public void onFinish() {
-                        txtNextEpisode.setText("Episode " + nextEpisode + " • Airing now");
+                        txtNextEpisode.setText(
+                                getString(R.string.episodes_label) + " " + nextEpisode + " • " + getString(R.string.airing_now)
+                        );
                     }
                 }.start();
             } else {
-                txtNextEpisode.setText("EP " + currentEpisode + " • Next EP " + nextEpisode);
+                txtNextEpisode.setText(
+                        getString(R.string.episodes_label) + " " + currentEpisode +
+                                " • " + getString(R.string.next_episode_label) + " " + nextEpisode
+                );
             }
         } else if (nextEpisode > 0) {
-            txtNextEpisode.setText("EP " + currentEpisode);
+            txtNextEpisode.setText(getString(R.string.episodes_label) + " " + currentEpisode);
         } else {
-            txtNextEpisode.setText("Episode ?");
+            txtNextEpisode.setText(getString(R.string.episodes_label) + " " + getString(R.string.unknown_label));
         }
-
 // Type + Views
-        txtFormat.setText("Type: " + format);
+// Type
+        txtFormat.setText(getString(R.string.type_label) + ": " + (format != null ? format : getString(R.string.unknown_label)));
+
+// Views
         NumberFormat nf = NumberFormat.getInstance(Locale.US);
-        txtViews.setText("Views: " + nf.format(views));
+        txtViews.setText(getString(R.string.views_label) + ": " + nf.format(views));
 
 // UpdatedAt
         if (updatedAt > 0) {
             java.text.SimpleDateFormat sdf =
                     new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault());
             String time = sdf.format(new java.util.Date(updatedAt * 1000));
-            txtUpdated.setText("Updated: " + time);
+            txtUpdated.setText(getString(R.string.updated_label) + ": " + time);
         } else {
-            txtUpdated.setText("Updated: Unknown");
+            txtUpdated.setText(getString(R.string.updated_label) + ": " + getString(R.string.unknown_label));
         }
 
         // ================= POSTER =================
@@ -442,8 +521,7 @@ public class AnimeDetailActivity extends AppCompatActivity {
             Log.d("FAV_STATE", "Init state = " + isFavorite);
         });
 
-// 👉 CLICK
-        // 👉 CLICK FAVORITE
+// 👉 CLICK FAVORITE
         btnFavorite.setOnClickListener(v -> {
 
             Anime anime = new Anime();
@@ -478,17 +556,28 @@ public class AnimeDetailActivity extends AppCompatActivity {
                     // Thêm vào local favorite
                     NotificationHelper.addFavorite(this, safeId);
 
-                    // 🔥 Hiển thị notification ngay lập tức
-                    // Sửa thành
-                    long realAiringAt = getIntent().getLongExtra("nextAiringAt", 0); // lấy từ intent hoặc DB
+                    // 🔹 Gọi showNotification đầy đủ
                     NotificationHelper.showNotification(
                             this,
                             title,
                             "Bạn đã thêm vào yêu thích 🔥",
-                            new Intent(this, MainActivity.class),
+                            new Intent(this, NotificationActivity.class),
                             poster != null ? poster : "",
-                            realAiringAt > 0 ? realAiringAt : System.currentTimeMillis() / 1000, // ✅ dùng thời gian thật
-                            getIntent().getIntExtra("nextEpisode", 0)
+                            nextAiring > 0 ? nextAiring : System.currentTimeMillis() / 1000,
+                            nextEpisode,
+                            format,
+                            season,
+                            studio,
+                            director,
+                            duration,
+                            rating,
+                            views,
+                            desc,
+                            genres,
+                            englishTitle,
+                            romajiTitle,
+                            nativeTitle,
+                            trailer
                     );
 
                     // Subscribe topic FCM để nhận notification tập mới
@@ -499,9 +588,13 @@ public class AnimeDetailActivity extends AppCompatActivity {
                 } else {
                     // Xóa khỏi favorite
                     NotificationHelper.removeFavorite(this, safeId);
+
+                    // 🔹 Xóa notification liên quan luôn
+                    NotificationHelper.removeNotificationForAnime(this, title);
+
                     FirebaseMessaging.getInstance().unsubscribeFromTopic("anime_" + safeId);
 
-                    Log.d("FAV_LOCAL","Removed favorite: " + safeId);
+                    Log.d("FAV_LOCAL","Removed favorite & notification: " + safeId);
                 }
             });
         });
@@ -561,9 +654,17 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         String url = "https://graphql.anilist.co";
 
-        String query = "{ \"query\": \"query ($id: Int) { Media(id: $id, type: ANIME) { " +
-                "episodes nextAiringEpisode { episode airingAt } status } }\", " +
-                "\"variables\": { \"id\": " + id + " } }";
+        String query =
+                "query ($id: Int) {" +
+                        "  Media(id: $id, type: ANIME) {" +
+                        "    episodes" +
+                        "    nextAiringEpisode {" +
+                        "      episode" +
+                        "      airingAt" +
+                        "    }" +
+                        "    status" +
+                        "  }" +
+                        "}";
 
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
@@ -619,22 +720,126 @@ public class AnimeDetailActivity extends AppCompatActivity {
     }
     private void updateEpisodeUI(int episodes, int nextEp, long nextAiring, String status){
 
+        long now = System.currentTimeMillis() / 1000L;
+        int currentEpisode;
+        int displayNextEp;
+
         if("FINISHED".equalsIgnoreCase(status)){
             txtEpisodes.setText("Episodes: " + episodes + " ✓ Completed");
             txtNextEpisode.setText("EP " + episodes);
             return;
         }
 
-        if(nextEp > 0){
-            int current = nextEp - 1;
-            txtNextEpisode.setText("EP " + current + " • Next EP " + nextEp);
-        }else if(episodes > 0){
-            txtNextEpisode.setText("EP " + episodes);
-        }else{
+        if(nextEp > 0 && nextAiring > now){
+            // Tập sắp phát → current = tập trước, next = tập sắp phát
+            currentEpisode = nextEp - 1;
+            displayNextEp = nextEp;
+
+            long diff = nextAiring - now;
+            long days = diff / 86400;
+            long hours = (diff % 86400) / 3600;
+            long minutes = (diff % 3600) / 60;
+            long seconds = diff % 60;
+
+            String countdown = (days > 0 ? days + "d " : "") +
+                    String.format("%02d:%02d:%02d ⏳", hours, minutes, seconds);
+
+            txtNextEpisode.setText("Next EP " + displayNextEp + " • " + countdown);
+        } else if(nextEp > 0){
+            // EP đã phát
+            currentEpisode = nextEp - 1;
+            displayNextEp = nextEp;
+
+            txtNextEpisode.setText("EP " + currentEpisode + " • Next EP " + displayNextEp);
+        } else if(episodes > 0){
+            currentEpisode = episodes;
+            txtNextEpisode.setText("EP " + currentEpisode);
+        } else {
+            currentEpisode = 0;
             txtNextEpisode.setText("EP ?");
         }
 
         txtEpisodes.setText("Episodes: " + (episodes > 0 ? episodes : "?"));
+    }
+    private void loadRandomAnimeFromApi() {
+
+        String url = "https://graphql.anilist.co";
+
+        String query = "query { " +
+                "randomAnime: Page(page:1, perPage:20) { " +
+                "  media(type:ANIME, sort:TRENDING_DESC) { " +
+                "    id title { romaji english native } " +
+                "    format season seasonYear duration episodes " +
+                "    status averageScore description genres isAdult " +
+                "    coverImage { large } " +
+                "    nextAiringEpisode { episode airingAt } " +
+                "    studios { nodes { name } } " +
+                "    updatedAt " +
+                "    staff(perPage:10) { edges { role node { name { full } } } } " +
+                "    trailer { id site } " +
+                "  } " +
+                "} " +
+                "}";
+
+        try {
+            JSONObject body = new JSONObject();
+            body.put("query", query);
+            body.put("variables", new JSONObject());
+
+            JsonObjectRequest request = new JsonObjectRequest(
+                    Request.Method.POST,
+                    url,
+                    body,
+                    response -> {
+                        try {
+                            JSONArray mediaArray = response.getJSONObject("data")
+                                    .getJSONObject("randomAnime")
+                                    .getJSONArray("media");
+
+                            randomAnimeList.clear();
+
+                            for (int i = 0; i < mediaArray.length(); i++) {
+                                JSONObject obj = mediaArray.getJSONObject(i);
+                                Anime anime = AnimeParser.parse(obj, this); // <-- 'this' là Activity context
+                                if (anime != null) randomAnimeList.add(anime);
+                            }
+
+                            // Shuffle + giới hạn 5 anime
+                            Collections.shuffle(randomAnimeList);
+                            if (randomAnimeList.size() > 5) {
+                                randomAnimeList.subList(5, randomAnimeList.size()).clear();
+                            }
+
+                            randomAdapter.notifyDataSetChanged();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.e("RANDOM_API", "JSON ERROR " + e.getMessage());
+                        }
+                    },
+                    error -> Log.e("RANDOM_API", "Volley error: " + error)
+            ) {
+                @Override
+                public Map<String, String> getHeaders() {
+                    Map<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    headers.put("Accept", "application/json");
+                    headers.put("User-Agent", "MagicAnimeApp");
+                    return headers;
+                }
+            };
+
+            request.setRetryPolicy(new DefaultRetryPolicy(
+                    10000,
+                    0,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT
+            ));
+
+            VolleySingleton.getInstance(this).addToRequestQueue(request);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     // ================= TRANSLATE =================
 

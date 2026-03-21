@@ -141,21 +141,53 @@ public class FavoriteFragment extends Fragment {
 
                 if(direction == ItemTouchHelper.RIGHT){
                     Intent intent = new Intent(getContext(), AnimeDetailActivity.class);
+
+                    // Lấy giá trị trực tiếp từ map, xử lý episodes và nextEpisode chuẩn
+                    int episodes = 0;
+                    int nextEpisode = 0;
+                    int duration = 0;
+
+                    Object epObj = item.get("episodes");
+                    Object nextObj = item.get("nextEpisode");
+                    Object durObj = item.get("duration");
+
+                    if(epObj instanceof Long) episodes = ((Long) epObj).intValue();
+                    else if(epObj instanceof Integer) episodes = (Integer) epObj;
+
+                    if(nextObj instanceof Long) nextEpisode = ((Long) nextObj).intValue();
+                    else if(nextObj instanceof Integer) nextEpisode = (Integer) nextObj;
+
+                    if(durObj instanceof Long) duration = ((Long) durObj).intValue();
+                    else if(durObj instanceof Integer) duration = (Integer) durObj;
+
+                    // Nếu nextEpisode mới hơn, update episodes ngay
+                    if(nextEpisode > 0 && episodes != nextEpisode - 1){
+                        episodes = nextEpisode - 1;
+                    }
+
+                    // Gửi toàn bộ dữ liệu quan trọng qua intent
                     for(String key : item.keySet()){
                         Object value = item.get(key);
-                        if(value instanceof Number) {
-                            if(value instanceof Double)
-                                intent.putExtra(key, ((Number)value).doubleValue());
-                            else
-                                intent.putExtra(key, ((Number)value).longValue());
+                        if(value instanceof Number){
+                            if(key.equals("episodes")) intent.putExtra(key, episodes);
+                            else if(key.equals("duration")) intent.putExtra(key, duration);
+                            else if(value instanceof Double) intent.putExtra(key, ((Number)value).doubleValue());
+                            else intent.putExtra(key, ((Number)value).longValue());
                         } else if(value instanceof Boolean){
                             intent.putExtra(key, (Boolean)value);
                         } else if(value instanceof String){
                             intent.putExtra(key, (String)value);
                         }
                     }
+
+                    // Đảm bảo gửi nextEpisode, duration chuẩn
+                    intent.putExtra("episodes", episodes);
+                    intent.putExtra("nextEpisode", nextEpisode);
+                    intent.putExtra("duration", duration);
+
                     startActivity(intent);
                     adapter.notifyItemChanged(position);
+
                 } else if(direction == ItemTouchHelper.LEFT){
                     String docId = (String) item.get("docId");
                     if(auth.getCurrentUser() != null && docId != null){

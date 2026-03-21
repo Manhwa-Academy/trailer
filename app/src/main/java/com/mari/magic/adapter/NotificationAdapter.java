@@ -1,6 +1,7 @@
 package com.mari.magic.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
@@ -15,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.mari.magic.R;
 import com.mari.magic.model.NotificationItem;
+import com.mari.magic.ui.detail.AnimeDetailActivity;
 
 import java.util.List;
 
@@ -52,60 +54,85 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         NotificationItem item = list.get(position);
 
-        // Hiển thị tên anime
         holder.txtTitle.setText(item.getTitle());
 
-        // Số tập
-        String epText = item.getEpisode() > 0 ? "EP " + item.getEpisode() + " • " : "";
-
-        // Thời gian hiện tại và airingAt thực tế
         long now = System.currentTimeMillis() / 1000L;
-        long airingAt = item.getNextAiringAt(); // dùng giá trị chuẩn từ API / Firestore
-        long diff = airingAt - now;
+        long nextAiringAt = item.getNextAiringAt(); // UNIX timestamp tập tiếp theo
+        int nextEp = item.getEpisode();             // Tập sắp phát
+        int currentEp = nextEp - 1;                // Tập vừa phát
 
-        String countdownText;
+        // --- Tính thời gian EP vừa phát ---
+        long prevAiringAt = nextAiringAt - 7 * 86400; // giả sử 1 tuần giữa các tập
 
-        if(airingAt <= 0){
-            countdownText = "Không có lịch ⏳";
-        } else if(diff > 0){
-            // Tập chưa phát, hiển thị countdown
-            long days = diff / 86400;
-            long hours = (diff % 86400) / 3600;
-            long minutes = (diff % 3600) / 60;
-            long seconds = diff % 60;
+        long diffSeconds = now - prevAiringAt;
+        String prevTimeStr;
 
-            StringBuilder countdown = new StringBuilder();
-            if(days > 0) countdown.append(days).append(" ngày ");
-            countdown.append(String.format("%02d:%02d:%02d ⏳", hours, minutes, seconds));
-
-            countdownText = countdown.toString();
+        if(diffSeconds < 60){
+            prevTimeStr = "vừa phát";
+        } else if(diffSeconds < 3600){
+            long minutes = diffSeconds / 60;
+            prevTimeStr = minutes + " phút trước";
+        } else if(diffSeconds < 86400){
+            long hours = diffSeconds / 3600;
+            prevTimeStr = hours + " giờ trước";
         } else {
-            // Tập đã phát, tính chính xác
-            long passedSeconds = Math.abs(diff);
-            long minutes = passedSeconds / 60;
-            long hours = minutes / 60;
-
-            if(passedSeconds < 60){
-                countdownText = "Vừa phát xong 🔥"; // < 1 phút
-            } else if(minutes < 60){
-                countdownText = "Đã phát " + minutes + " phút trước 🔥";
-            } else if(hours < 24){
-                countdownText = "Đã phát " + hours + " giờ trước 🔥";
-            } else {
-                long days = hours / 24;
-                countdownText = "Đã phát " + days + " ngày trước 🔥";
-            }
+            long days = diffSeconds / 86400;
+            prevTimeStr = days + " ngày trước";
         }
 
-        // Hiển thị countdown + số tập
-        holder.txtCountdown.setText(epText + countdownText);
+        // --- Countdown cho EP tiếp theo ---
+        long diffNext = nextAiringAt - now;
+        String countdownStr;
+        if(diffNext > 0){
+            long days = diffNext / 86400;
+            long hours = (diffNext % 86400) / 3600;
+            long minutes = (diffNext % 3600) / 60;
+            long seconds = diffNext % 60;
+            countdownStr = (days > 0 ? days + "d " : "") +
+                    String.format("%02d:%02d:%02d ⏳", hours, minutes, seconds);
+        } else {
+            countdownStr = "Đang phát";
+        }
 
-        // Load poster
+        // --- Set Text ---
+        holder.txtCountdown.setText("EP " + currentEp + " đã phát: " + prevTimeStr);
+        holder.txtNextEp.setText("Next EP " + nextEp + " • " + countdownStr);
+
+        // --- Load poster ---
         Glide.with(context)
                 .load(item.getImageUrl())
                 .placeholder(R.drawable.placeholder)
                 .error(R.drawable.placeholder)
                 .into(holder.imgPoster);
+
+        // --- Click chuyển Activity ---
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, AnimeDetailActivity.class);
+
+            intent.putExtra("title", item.getTitle());
+            intent.putExtra("poster", item.getImageUrl());
+            intent.putExtra("episodes", item.getEpisode());
+            intent.putExtra("nextEpisode", nextEp);
+            intent.putExtra("nextAiringAt", nextAiringAt);
+            intent.putExtra("status", "RELEASING");
+            intent.putExtra("isAdult", false);
+
+            intent.putExtra("format", item.getFormat());
+            intent.putExtra("season", item.getSeason());
+            intent.putExtra("studio", item.getStudio());
+            intent.putExtra("director", item.getDirector());
+            intent.putExtra("duration", item.getDuration());
+            intent.putExtra("rating", item.getRating());
+            intent.putExtra("views", item.getViews());
+            intent.putExtra("description", item.getDescription());
+            intent.putExtra("genres", item.getGenres());
+            intent.putExtra("englishTitle", item.getEnglishTitle());
+            intent.putExtra("romajiTitle", item.getRomajiTitle());
+            intent.putExtra("nativeTitle", item.getNativeTitle());
+            intent.putExtra("trailer", item.getTrailer());
+
+            context.startActivity(intent);
+        });
     }
 
     @Override
@@ -113,15 +140,16 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         return list.size();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder{
+    public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView imgPoster;
-        TextView txtTitle, txtCountdown;
+        TextView txtTitle, txtCountdown, txtNextEp; // <-- thêm txtNextEp
 
-        public ViewHolder(@NonNull View itemView){
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
             imgPoster = itemView.findViewById(R.id.imgPoster);
             txtTitle = itemView.findViewById(R.id.txtTitle);
             txtCountdown = itemView.findViewById(R.id.txtCountdown);
+            txtNextEp = itemView.findViewById(R.id.txtNextEp); // <-- khai báo ở đây
         }
     }
 

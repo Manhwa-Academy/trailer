@@ -178,4 +178,31 @@
     <string name="notification_title">📩 Thông báo</string>
     <string name="notification_empty">Không có thông báo 😢</string>
     <string name="new_manga_title">Manga mới</string>
+    <string name="ep_just_released">EP %1$d • Vừa phát xong 🔥</string>
+    <string name="ep_minutes_ago">EP %1$d • Đã phát %2$d phút trước 🔥</string>
+    <string name="ep_hours_ago">EP %1$d • Đã phát %2$d giờ trước 🔥</string>
+    <string name="ep_days_ago">EP %1$d • Đã phát %2$d ngày trước 🔥</string>
+    <string name="next_ep">Sắp phát: EP %1$d ⏳</string>
+    <string name="next_ep_countdown">Next: EP %1$d in %2$s</string>
+
+    <string name="watch_movie">▶ Xem phim</string>
+
+    <string name="type_label">Loại</string>
+    <string name="season_label">Mùa phát sóng</string>
+    <string name="duration_label">Thời lượng</string>
+    <string name="studio_label">Studio</string>
+    <string name="director_label">Đạo diễn</string>
+
+    <string name="updated_label">Cập nhật</string>
+    <string name="trailer_label">Trailer phát hành</string>
+    <string name="unknown_label">Không xác định</string>
+    <string name="views_label">Lượt xem</string>
+    <string name="description_label">Mô tả</string>
+    <string name="episodes_label">Tập</string>
+
+    <string name="next_episode_label">Tập tiếp theo tập</string>
+    <string name="completed_label">✓ Hoàn thành</string>
+    <string name="airing_now">Đang phát</string>
+    <string name="next_episode_countdown">%1$s %2$d • %3$s %4$d trong %5$d ngày %6$d giờ %7$d phút %8$d giây</string>
+
 </resources>

@@ -14,8 +14,10 @@ import com.bumptech.glide.Glide;
 import com.mari.magic.R;
 import com.mari.magic.model.Anime;
 import com.mari.magic.ui.detail.AnimeDetailActivity;
+import com.mari.magic.ui.notification.NotificationActivity;
 import com.mari.magic.utils.AnimeFirestoreParser;
 import com.mari.magic.utils.FavoriteManager;
+import com.mari.magic.utils.NotificationHelper;
 
 import java.util.List;
 import java.util.Locale;
@@ -83,11 +85,17 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
 // ---------- TÍNH CURRENT EPISODE CHUẨN ----------
         int currentEpisode;
         if(nextEpisode > 0){
-            currentEpisode = nextEpisode - 1; // dùng nextEpisode để luôn chính xác
+            currentEpisode = nextEpisode - 1;
         } else if(episodes > 0){
             currentEpisode = episodes;
         } else {
             currentEpisode = 0;
+        }
+
+// Luôn update episodes để hiển thị mới nhất
+        if(nextEpisode > 0 && episodes != nextEpisode - 1){
+            episodes = nextEpisode - 1;
+            FavoriteManager.updateEpisodesFromNext((String) map.get("animeId"), nextEpisode);
         }
 
 // ---------- TẠO TEXT HIỂN THỊ ----------
@@ -95,7 +103,9 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
         if("FINISHED".equalsIgnoreCase(status) && episodes > 0){
             episodeText = "EP " + episodes + " ✓ Completed";
         } else if(nextEpisode > 0){
-            episodeText = "EP " + currentEpisode + " • Next EP " + nextEpisode;
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("HH:mm dd/MM/yyyy", Locale.getDefault());
+            String nextTime = nextAiringAt > 0 ? sdf.format(new java.util.Date(nextAiringAt * 1000)) : "Unknown";
+            episodeText = "EP " + currentEpisode + " • Next EP " + nextEpisode + " (" + nextTime + ")";
         } else if(episodes > 0){
             episodeText = "EP " + episodes;
         } else {
@@ -123,15 +133,25 @@ public class FavoriteAdapter extends RecyclerView.Adapter<FavoriteAdapter.ViewHo
             }
         }
 
-// ---------- DELETE FAVORITE ----------
+// ------- DELETE FAVORITE ----------
         holder.btnDelete.setOnClickListener(v -> {
             String animeId = (String) map.get("animeId");
-            FavoriteManager.removeFavorite(animeId);
+
+            // Xóa favorite + xóa notification trong SharedPreferences
+            FavoriteManager.removeFavorite(animeId, v.getContext());
+            NotificationHelper.removeNotificationForAnime(v.getContext(), animeId);
+
+            // Xóa item khỏi list UI favorite
             int pos = holder.getAdapterPosition();
             if(pos != RecyclerView.NO_POSITION){
                 list.remove(pos);
                 notifyItemRemoved(pos);
                 notifyItemRangeChanged(pos, list.size());
+            }
+
+            // 🔹 Thông báo cho NotificationActivity reload list
+            if(context instanceof NotificationActivity){
+                ((NotificationActivity) context).loadData(); // reload lại RecyclerView
             }
         });
 

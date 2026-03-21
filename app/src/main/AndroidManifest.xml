@@ -43,7 +43,9 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-        <activity android:name=".ui.notification.NotificationActivity"/>
+        <activity
+            android:name=".ui.notification.NotificationActivity"
+            android:exported="true"/>
         <!-- SEARCH -->
         <activity
             android:name=".ui.search.SearchActivity"

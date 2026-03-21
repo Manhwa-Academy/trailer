@@ -14,6 +14,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.mari.magic.MainActivity;
 import com.mari.magic.model.EpisodeModel;
+import com.mari.magic.ui.notification.NotificationActivity;
 import com.mari.magic.utils.FavoriteManager;
 import com.mari.magic.utils.NotificationHelper;
 
@@ -28,8 +29,6 @@ public class AnimeWorker extends Worker {
     private final FirebaseFirestore db;
     private boolean hasError = false;
 
-    private static final boolean DEBUG_FORCE_NOTIFY = false;
-
     public AnimeWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
         db = FirebaseFirestore.getInstance();
@@ -38,7 +37,6 @@ public class AnimeWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-
         Log.d("WORKER", "Worker started");
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -57,37 +55,29 @@ public class AnimeWorker extends Worker {
 
     // ================= API =================
     private void checkAnime(CountDownLatch latch) {
-
         String url = "https://graphql.anilist.co";
 
-        String query = "{ Page(page:1, perPage:25){ media(type:ANIME,status:RELEASING,sort:UPDATED_AT_DESC){ title{romaji} nextAiringEpisode{episode airingAt} coverImage{large} } } }";
+        // Query: lấy title, cover, nextAiringEpisode, format, season, duration, episodes, studio, staff, description, genres
+        String query = "{ Page(page:1, perPage:25){ media(type:ANIME,status:RELEASING,sort:UPDATED_AT_DESC){ " +
+                "id title { userPreferred romaji english native } coverImage { large } " +
+                "format season seasonYear duration episodes description genres studios { nodes { name } } " +
+                "staff { edges { role node { name { full } } } } trailer { id site } " +
+                "nextAiringEpisode { episode airingAt } averageScore popularity } } }";
 
         JSONObject body = new JSONObject();
-        try {
-            body.put("query", query);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        try { body.put("query", query); } catch (Exception e){ e.printStackTrace(); }
 
         JsonObjectRequest request = new JsonObjectRequest(
                 Request.Method.POST,
                 url,
                 body,
-                response -> {
-                    handleResponse(response);
-                    latch.countDown();
-                },
-                error -> {
-                    Log.e("WORKER", "API error: " + error);
-                    hasError = true;
-                    latch.countDown();
-                }
+                response -> { handleResponse(response); latch.countDown(); },
+                error -> { Log.e("WORKER", "API error: " + error); hasError = true; latch.countDown(); }
         );
 
         Volley.newRequestQueue(getApplicationContext()).add(request);
     }
 
-    // ================= HANDLE RESPONSE =================
     // ================= HANDLE RESPONSE =================
     private void handleResponse(JSONObject response) {
         try {
@@ -96,33 +86,76 @@ public class AnimeWorker extends Worker {
                     .getJSONArray("media");
 
             for (int i = 0; i < list.length(); i++) {
-
                 JSONObject anime = list.getJSONObject(i);
                 if (anime.isNull("nextAiringEpisode")) continue;
 
                 JSONObject airing = anime.getJSONObject("nextAiringEpisode");
-
                 int nextEpisode = airing.getInt("episode");
-                long airingAt = airing.getLong("airingAt"); // thời gian tập mới thực sự phát
-
+                long airingAt = airing.getLong("airingAt");
                 int currentEpisode = nextEpisode - 1;
 
-                // SỬA: dùng userPreferred để hiển thị đúng tên anime
-                String title = anime.getJSONObject("title")
-                        .optString("userPreferred", "Unknown");
-
-                String poster = anime.getJSONObject("coverImage")
-                        .optString("large", "");
-
-                // Dùng title làm id cũng ổn, nhưng nên chuẩn hóa
+                String title = anime.getJSONObject("title").optString("userPreferred", "Unknown");
+                String poster = anime.getJSONObject("coverImage").optString("large", "");
                 String animeId = title.replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
 
-                checkAndNotify(animeId, title, currentEpisode, nextEpisode, airingAt, poster);
-            }
+                // Lấy các thông tin chi tiết
+                String format = anime.optString("format", "TV");
+                String season = anime.optString("season", "");
+                int seasonYear = anime.optInt("seasonYear", 0);
+                if (!season.isEmpty() && seasonYear > 0) season = season + " " + seasonYear;
+                int duration = anime.optInt("duration", 0);
+                int episodes = anime.optInt("episodes", 0);
+                String description = anime.optString("description", "");
+                JSONArray genresArr = anime.optJSONArray("genres");
+                StringBuilder genresBuilder = new StringBuilder();
+                if(genresArr != null) {
+                    for(int j=0;j<genresArr.length();j++){
+                        genresBuilder.append(genresArr.optString(j));
+                        if(j < genresArr.length()-1) genresBuilder.append(", ");
+                    }
+                }
+                String genres = genresBuilder.toString();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+                JSONArray studiosNodes = anime.optJSONObject("studios").optJSONArray("nodes");
+                String studio = (studiosNodes != null && studiosNodes.length() > 0)
+                        ? studiosNodes.getJSONObject(0).optString("name", "Unknown")
+                        : "Unknown";
+
+                String director = "Unknown";
+                JSONArray staffEdges = anime.optJSONObject("staff").optJSONArray("edges");
+                if(staffEdges != null){
+                    for(int j=0;j<staffEdges.length();j++){
+                        JSONObject edge = staffEdges.getJSONObject(j);
+                        String role = edge.optString("role","").toLowerCase();
+                        JSONObject node = edge.optJSONObject("node");
+                        if(node == null) continue;
+                        String name = node.getJSONObject("name").optString("full","Unknown");
+                        if(role.contains("director")){
+                            director = name;
+                            break;
+                        }
+                    }
+                }
+
+                String trailer = "";
+                if(anime.has("trailer") && !anime.isNull("trailer")){
+                    JSONObject t = anime.getJSONObject("trailer");
+                    if("youtube".equalsIgnoreCase(t.optString("site",""))) trailer = t.optString("id","");
+                }
+
+                double rating = anime.optDouble("averageScore",0);
+                long views = anime.optLong("popularity",0);
+                String englishTitle = anime.getJSONObject("title").optString("english","");
+                String romajiTitle = anime.getJSONObject("title").optString("romaji","");
+                String nativeTitle = anime.getJSONObject("title").optString("native","");
+
+                checkAndNotify(
+                        animeId, title, currentEpisode, nextEpisode, airingAt, poster,
+                        format, season, studio, director, duration, rating, views, description,
+                        genres, englishTitle, romajiTitle, nativeTitle, trailer
+                );
+            }
+        } catch (Exception e){ e.printStackTrace(); }
     }
 
     // ================= CHECK + NOTIFY =================
@@ -131,13 +164,20 @@ public class AnimeWorker extends Worker {
                                 int currentEpisode,
                                 int nextEpisode,
                                 long airingAt,
-                                String poster) {
-
-        Log.d("WORKER_DEBUG", "Check animeId=" + animeId
-                + " | title=" + title
-                + " | currentEpisode=" + currentEpisode
-                + " | nextEpisode=" + nextEpisode
-                + " | airingAt=" + airingAt);
+                                String poster,
+                                String format,
+                                String season,
+                                String studio,
+                                String director,
+                                int duration,
+                                double rating,
+                                long views,
+                                String description,
+                                String genres,
+                                String englishTitle,
+                                String romajiTitle,
+                                String nativeTitle,
+                                String trailer) {
 
         db.collection("episodes")
                 .document(animeId)
@@ -146,99 +186,72 @@ public class AnimeWorker extends Worker {
                     int lastEpisode = 0;
                     long lastAiringAt = 0;
 
-                    if (doc.exists()) {
+                    if(doc.exists()){
                         if(doc.getLong("episode") != null) lastEpisode = doc.getLong("episode").intValue();
                         if(doc.getLong("airingAt") != null) lastAiringAt = doc.getLong("airingAt");
                     }
 
-                    Log.d("WORKER_DEBUG", "Firestore lastEpisode=" + lastEpisode
-                            + " | lastAiringAt=" + lastAiringAt);
-
-                    // chỉ gửi notification khi tập mới > tập lưu trong DB
                     if(currentEpisode > lastEpisode){
-                        Log.d("WORKER_DEBUG", "Send notification: EP " + currentEpisode
-                                + " | airingAt=" + airingAt);
+                        sendNotification(
+                                title, currentEpisode, poster, airingAt,
+                                format, season, studio, director, duration, rating, views,
+                                description, genres, englishTitle, romajiTitle, nativeTitle, trailer
+                        );
 
-                        // gửi notification với thời gian airing thật
-                        sendNotification(title, currentEpisode, poster, airingAt);
-
-                        // lưu episode + nextEpisode + airingAt chuẩn từ API
                         EpisodeModel model = new EpisodeModel(currentEpisode, nextEpisode, airingAt);
-                        db.collection("episodes")
-                                .document(animeId)
-                                .set(model);
-
-                        // update favorite chỉ lưu trạng thái, KHÔNG thay đổi airingAt
-                        updateFavorite(animeId, currentEpisode, nextEpisode, airingAt);
-                    } else {
-                        Log.d("WORKER_DEBUG", "No new episode, skip notification");
+                        db.collection("episodes").document(animeId).set(model);
                     }
-                })
-                .addOnFailureListener(e ->
-                        Log.e("WORKER_DEBUG", "Fetch episode fail: " + e.getMessage())
-                );
+                });
     }
+
     // ================= SEND NOTIFICATION =================
     private void sendNotification(String title,
                                   int episode,
                                   String poster,
-                                  long airingAt) {
+                                  long airingAt,
+                                  String format,
+                                  String season,
+                                  String studio,
+                                  String director,
+                                  int duration,
+                                  double rating,
+                                  long views,
+                                  String description,
+                                  String genres,
+                                  String englishTitle,
+                                  String romajiTitle,
+                                  String nativeTitle,
+                                  String trailer) {
 
-        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        // 🔹 Intent mở NotificationActivity thay vì MainActivity
+        Intent intent = new Intent(getApplicationContext(), NotificationActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         String message = "Tập " + episode + " vừa ra 🔥";
 
-        // 🔥 FIX QUAN TRỌNG: truyền episode
         NotificationHelper.showNotification(
                 getApplicationContext(),
                 title,
                 message,
                 intent,
-                poster,
-                airingAt,
-                episode
+                poster != null ? poster : "",
+                airingAt > 0 ? airingAt : System.currentTimeMillis() / 1000,
+                episode,
+                format != null ? format : "",
+                season != null ? season : "",
+                studio != null ? studio : "",
+                director != null ? director : "",
+                duration,
+                rating,
+                views,
+                description != null ? description : "",
+                genres != null ? genres : "",
+                englishTitle != null ? englishTitle : "",
+                romajiTitle != null ? romajiTitle : "",
+                nativeTitle != null ? nativeTitle : "",
+                trailer != null ? trailer : ""
         );
     }
-
-    // ================= UPDATE FAVORITE =================
-    private void updateFavorite(String animeId,
-                                int currentEpisode,
-                                int nextEpisode,
-                                long airingAt) {
-
-        long updatedAt = System.currentTimeMillis() / 1000;
-
-        try {
-            FavoriteManager.updateFavoriteEpisode(
-                    animeId,
-                    currentEpisode,
-                    nextEpisode,
-                    airingAt,
-                    "RELEASING",
-                    updatedAt
-            );
-        } catch (Exception e) {
-            Log.e("WORKER", "Local update fail: " + e.getMessage());
-        }
-
-        db.collectionGroup("favorites")
-                .whereEqualTo("animeId", animeId)
-                .get()
-                .addOnSuccessListener(qs -> {
-                    for (DocumentSnapshot doc : qs.getDocuments()) {
-                        doc.getReference().update(
-                                "episodes", currentEpisode,
-                                "nextEpisode", nextEpisode,
-                                "nextAiringAt", airingAt,
-                                "updatedAt", updatedAt
-                        );
-                    }
-                })
-                .addOnFailureListener(e ->
-                        Log.e("WORKER", "Update favorites failed: " + e.getMessage())
-                );
-    }
-
     // ================= ENQUEUE =================
     public static void enqueueExpedited(Context context) {
         OneTimeWorkRequest request =

@@ -35,7 +35,7 @@ public class TrailerHelper {
                     .replaceAll("-+", "-")
                     .replaceAll("^-|-$", "");
 
-            String url = "https://hentaiz3.com/browse?q=" + slug + "-" + episode;
+            String url = "https://hentaiz.hot/browse?q=" + slug + "-" + episode;
 
             context.startActivity(new Intent(
                     Intent.ACTION_VIEW,
