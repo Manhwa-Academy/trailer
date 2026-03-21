@@ -23,7 +23,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@drawable/toolbar_gradient"
             android:elevation="6dp"
-            app:title="Magic Anime"
+            app:title="Magic"
             app:titleCentered="true"
             app:titleTextColor="@android:color/white"
             app:navigationIconTint="@android:color/white"/>
