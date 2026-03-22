@@ -1,14 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scrollProfileSecurity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:fillViewport="true"
+    android:background="@android:color/transparent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:gravity="center_horizontal"
+        android:background="#88000000"> <!-- nền mờ đen -->
 
         <!-- Title -->
         <TextView
@@ -16,9 +20,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/security_title"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
-            android:textColor="?android:attr/textColorPrimary"/>
+            android:textColor="#FFFFFF"
+            android:layout_marginBottom="4dp"/>
 
         <!-- Subtitle -->
         <TextView
@@ -27,7 +32,7 @@
             android:layout_height="wrap_content"
             android:text="@string/security_subtitle"
             android:textSize="14sp"
-            android:textColor="#888"
+            android:textColor="#FFCCFF"
             android:layout_marginBottom="16dp"/>
 
         <!-- Google login warning -->
@@ -36,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/google_user_cant_change"
-            android:textColor="#ff4444"
+            android:textColor="#FF6666"
             android:visibility="gone"
             android:layout_marginBottom="16dp"/>
 
@@ -50,6 +55,8 @@
             android:drawableEnd="@drawable/ic_eye"
             android:drawablePadding="10dp"
             android:background="@drawable/edit_text_bg"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#CCDDFF"
             android:padding="12dp"
             android:layout_marginBottom="8dp"/>
 
@@ -63,6 +70,8 @@
             android:drawableEnd="@drawable/ic_eye"
             android:drawablePadding="10dp"
             android:background="@drawable/edit_text_bg"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#CCDDFF"
             android:padding="12dp"
             android:layout_marginBottom="8dp"/>
 
@@ -76,6 +85,8 @@
             android:drawableEnd="@drawable/ic_eye"
             android:drawablePadding="10dp"
             android:background="@drawable/edit_text_bg"
+            android:textColor="#FFFFFF"
+            android:textColorHint="#CCDDFF"
             android:padding="12dp"
             android:layout_marginBottom="16dp"/>
 
@@ -85,9 +96,9 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:text="@string/change_password_button"
-            android:backgroundTint="?attr/colorPrimary"
-            android:textColor="@android:color/white"/>
+            android:backgroundTint="#FF99FF"
+            android:textColor="#FFFFFF"
+            android:layout_marginTop="8dp"/>
 
     </LinearLayout>
-
 </ScrollView>

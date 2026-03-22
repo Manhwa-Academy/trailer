@@ -18,6 +18,7 @@ import com.mari.magic.adapter.HomeSectionAdapter;
 import com.mari.magic.model.Anime;
 import com.mari.magic.model.Section;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.ui.base.BaseFragment;
 import com.mari.magic.utils.AnimeParser;
 import com.mari.magic.utils.AppSettings;
 
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-public class HomeFragment extends Fragment {
+public class HomeFragment extends BaseFragment {
 
     private static final String TAG = "HOME_DEBUG";
 
@@ -118,7 +119,7 @@ public class HomeFragment extends Fragment {
                 "query {" +
 
                         // ⭐ Anime mới
-                        "newAnime: Page(page:1, perPage:20) {" +
+                        "newAnime: Page(page:1, perPage:10) {" +
                         "  media(type:ANIME, status:RELEASING, sort:UPDATED_AT_DESC) {" +
                         "   id title { romaji english native }" +
                         "   format season seasonYear duration episodes" +
@@ -132,7 +133,7 @@ public class HomeFragment extends Fragment {
                         "  }" +
                         " }" +
 
-                        "movies: Page(page:1, perPage:20) {" +
+                        "movies: Page(page:1, perPage:10) {" +
                         "  media(type:ANIME, format:MOVIE, sort:POPULARITY_DESC) {" +
                         "   id title { romaji english native }" +
                         "   format season seasonYear duration episodes" +
@@ -145,7 +146,7 @@ public class HomeFragment extends Fragment {
                         "  }" +
                         " }" +
 
-                        "series: Page(page:1, perPage:20) {" +
+                        "series: Page(page:1, perPage:10) {" +
                         "  media(type:ANIME, format:TV, sort:POPULARITY_DESC) {" +
                         "   id title { romaji english native }" +
                         "   format season seasonYear duration episodes" +
@@ -159,7 +160,7 @@ public class HomeFragment extends Fragment {
                         "  }" +
                         " }" +
 
-                        "ecchi: Page(page:1, perPage:20) {" +
+                        "ecchi: Page(page:1, perPage:10) {" +
                         "  media(type:ANIME, genre_in:[\"Ecchi\"], sort:POPULARITY_DESC) {" +
                         "   id title { romaji english native }" +
                         "   format season seasonYear duration episodes" +
@@ -173,7 +174,7 @@ public class HomeFragment extends Fragment {
                         "  }" +
                         " }" +
 
-                        "adult: Page(page:1, perPage:20) {" +
+                        "adult: Page(page:1, perPage:10) {" +
                         "  media(type:ANIME, isAdult:true, sort:POPULARITY_DESC) {" +
                         "   id title { romaji english native }" +
                         "   format season seasonYear duration episodes" +

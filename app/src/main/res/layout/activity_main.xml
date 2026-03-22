@@ -21,12 +21,12 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@drawable/toolbar_gradient"
+            android:background="?attr/colorSurface"
             android:elevation="6dp"
             app:title="Magic"
             app:titleCentered="true"
-            app:titleTextColor="@android:color/white"
-            app:navigationIconTint="@android:color/white"/>
+            app:titleTextColor="@color/nav_color"
+            app:navigationIconTint="@color/nav_color"/>
         <!-- Fragment container -->
 
         <FrameLayout

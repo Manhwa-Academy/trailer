@@ -1,5 +1,6 @@
 package com.mari.magic;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -95,7 +96,8 @@ public class MainActivity extends AppCompatActivity {
         menuRecycler = findViewById(R.id.menuRecycler);
 
         setSupportActionBar(toolbar);
-
+        // ✅ apply hình nền cho drawer menu
+        applyBackgroundToDrawerMenu();
         // Popup lần đầu
         if(!AppSettings.isSetupDone(this)){
 
@@ -114,15 +116,22 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void handleOnBackPressed() {
+                        Fragment currentFragment = getSupportFragmentManager()
+                                .findFragmentById(R.id.fragmentContainer);
 
-                        new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this)
-                                .setTitle("Thoát ứng dụng")
-                                .setMessage("Bạn có muốn thoát khỏi app không?")
-                                .setPositiveButton("Thoát",(d,w)->{
-                                    finishAffinity();
-                                })
-                                .setNegativeButton("Hủy",null)
-                                .show();
+                        // Kiểm tra có fragment trong backstack không
+                        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                            // Nếu có, lùi lại 1 bước (tự động về fragment trước đó)
+                            getSupportFragmentManager().popBackStack();
+                        } else {
+                            // Nếu không còn fragment trong backstack, đang ở màn chính → hỏi thoát
+                            new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Thoát ứng dụng")
+                                    .setMessage("Bạn có muốn thoát khỏi app không?")
+                                    .setPositiveButton("Thoát", (d, w) -> finishAffinity())
+                                    .setNegativeButton("Hủy", null)
+                                    .show();
+                        }
                     }
                 });
 
@@ -242,10 +251,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadFragment(Fragment fragment){
-
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.fragmentContainer,fragment)
+                .replace(R.id.fragmentContainer, fragment)
                 .commit();
     }
     private void loadAnimeTypes(){
@@ -297,67 +305,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void openAnimeTypeMenu(List<String> types){
-
-        seasonDialog = new BottomSheetDialog(this);
-
-        View view = getLayoutInflater().inflate(R.layout.bottom_type,null);
-
-        RecyclerView recycler = view.findViewById(R.id.typeRecycler);
-
-        recycler.setLayoutManager(new GridLayoutManager(this,2));
-
-        GenreAdapter adapter = new GenreAdapter(types);
-
-        recycler.setAdapter(adapter);
-
-        adapter.setOnGenreClickListener(type -> {
-
-
-
+        openGridBottomSheet(types, 2, R.id.typeRecycler, type -> {
             Intent intent = new Intent(this, com.mari.magic.ui.type.AnimeTypeActivity.class);
-            intent.putExtra("format",type);
+            intent.putExtra("format", type);
             startActivity(intent);
-
-        });
-
-    seasonDialog.setContentView(view);
-seasonDialog.show();
+        }, R.layout.bottom_type);
     }
     private void openTopMenu(){
-
-        seasonDialog = new BottomSheetDialog(this);
-
-        View view = getLayoutInflater().inflate(R.layout.bottom_top_menu,null);
-
-        RecyclerView recycler = view.findViewById(R.id.topRecycler);
-
-        recycler.setLayoutManager(new GridLayoutManager(this,2));
-
         List<String> list = new ArrayList<>();
-
         list.add(getString(R.string.top_today));
         list.add(getString(R.string.top_month));
         list.add(getString(R.string.top_season));
         list.add(getString(R.string.top_year));
         list.add(getString(R.string.top_rating));
 
-        GenreAdapter adapter = new GenreAdapter(list);
-
-        recycler.setAdapter(adapter);
-
-        adapter.setOnGenreClickListener(type -> {
-
-
-
+        openGridBottomSheet(list, 2, R.id.topRecycler, topType -> {
             Intent intent = new Intent(this, TopAnimeActivity.class);
-            intent.putExtra("topType", type);
-
+            intent.putExtra("topType", topType);
             startActivity(intent);
-
-        });
-
-    seasonDialog.setContentView(view);
-seasonDialog.show();
+        }, R.layout.bottom_top_menu);
     }
     // Popup filter
     private void openContentSettings(){
@@ -514,80 +480,34 @@ seasonDialog.show();
         return super.onOptionsItemSelected(item);
     }
     private void openSeasonMenu(){
-
-        seasonDialog = new BottomSheetDialog(this);
-
-        View view = getLayoutInflater().inflate(R.layout.bottom_season,null);
-
-        RecyclerView recycler = view.findViewById(R.id.seasonRecycler);
-
-        // ⭐ 4 cột để mỗi hàng có 4 season
-        recycler.setLayoutManager(new GridLayoutManager(this,4));
-
         List<String> seasons = new ArrayList<>();
-
         int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
 
         for(int year = currentYear; year >= 1970; year--){
-
             seasons.add(getString(R.string.season_winter) + " " + year);
             seasons.add(getString(R.string.season_spring) + " " + year);
             seasons.add(getString(R.string.season_summer) + " " + year);
             seasons.add(getString(R.string.season_fall) + " " + year);
-
         }
 
-        SeasonAdapter adapter = new SeasonAdapter(seasons);
-
-        recycler.setAdapter(adapter);
-
-        adapter.setOnSeasonClickListener(seasonText -> {
-
-
+        openGridBottomSheet(seasons, 4, R.id.seasonRecycler, seasonText -> {
             try {
-
-                Log.d("SEASON_CLICK","Clicked: " + seasonText);
-
-                String season;
-                int year;
-
-                // lấy year
-                year = Integer.parseInt(seasonText.substring(seasonText.length() - 4));
-
-                // xác định season
+                int year = Integer.parseInt(seasonText.substring(seasonText.length() - 4));
                 String text = seasonText.toLowerCase();
-
-                if(text.contains("winter") || text.contains("đông")){
-                    season = "WINTER";
-                }
-                else if(text.contains("spring") || text.contains("xuân")){
-                    season = "SPRING";
-                }
-                else if(text.contains("summer") || text.contains("hạ")){
-                    season = "SUMMER";
-                }
-                else{
-                    season = "FALL";
-                }
-
-                Log.d("SEASON_PARSE","season=" + season + " year=" + year);
+                String season;
+                if(text.contains("winter") || text.contains("đông")) season = "WINTER";
+                else if(text.contains("spring") || text.contains("xuân")) season = "SPRING";
+                else if(text.contains("summer") || text.contains("hạ")) season = "SUMMER";
+                else season = "FALL";
 
                 Intent intent = new Intent(this, SeasonAnimeActivity.class);
-                intent.putExtra("season",season);
-                intent.putExtra("year",year);
-
+                intent.putExtra("season", season);
+                intent.putExtra("year", year);
                 startActivity(intent);
-
-            } catch (Exception e) {
-
+            } catch (Exception e){
                 e.printStackTrace();
-                Log.e("SEASON_ERROR","Parse error: " + seasonText);
-
             }
-
-        });
-    seasonDialog.setContentView(view);
-seasonDialog.show();
+        }, R.layout.bottom_season);
     }
     // Load genres
     private void loadGenres(){
@@ -637,30 +557,11 @@ seasonDialog.show();
     }
 
     private void openGenreMenu(List<String> genres){
-
-        seasonDialog = new BottomSheetDialog(this);
-
-        View view = getLayoutInflater().inflate(R.layout.bottom_genre,null);
-
-        RecyclerView recycler = view.findViewById(R.id.genreAnimeRecycler);
-
-        recycler.setLayoutManager(new GridLayoutManager(this,3));
-
-        GenreAdapter genreAdapter = new GenreAdapter(genres);
-
-        recycler.setAdapter(genreAdapter);
-
-        genreAdapter.setOnGenreClickListener(genre -> {
-
-
+        openGridBottomSheet(genres, 3, R.id.genreAnimeRecycler, genre -> {
             Intent intent = new Intent(this, GenreAnimeActivity.class);
-            intent.putExtra("genre",genre);
+            intent.putExtra("genre", genre);
             startActivity(intent);
-
-        });
-
-    seasonDialog.setContentView(view);
-    seasonDialog.show();
+        }, R.layout.bottom_genre);
     }
 
     private int currentPage = 1; // page hiện tại
@@ -672,11 +573,15 @@ seasonDialog.show();
 
         BottomSheetDialog dialog = new BottomSheetDialog(this);
         View view = getLayoutInflater().inflate(R.layout.bottom_schedule, null);
-
+        applyBackgroundToBottomSheet(view); // ✅ set hình nền anime
         RecyclerView recycler = view.findViewById(R.id.scheduleRecycler);
         recycler.setLayoutManager(new LinearLayoutManager(this));
 
         PaginationView paginationView = view.findViewById(R.id.paginationView);
+
+        // 🔥 Thêm TextView loading
+        TextView loadingText = view.findViewById(R.id.loadingText);
+        loadingText.setVisibility(View.VISIBLE);
 
         dialog.setContentView(view);
         dialog.show();
@@ -692,16 +597,49 @@ seasonDialog.show();
             @Override
             public void onScheduleLoaded(List<Anime> scheduleList, int currentPageApi, int lastPage) {
                 fullScheduleList.addAll(scheduleList);
+                // 🔥 Ẩn TextView "Đang load anime..." khi load xong
+                loadingText.setVisibility(View.GONE);
                 displaySchedulePage(recycler, paginationView);
             }
-
             @Override
             public void onScheduleError(String error) {
+                loadingText.setText("Load anime thất bại 😢");
                 Log.e("MainActivity","Schedule load error: "+error);
             }
         });
     }
+    private void applyBackgroundToBottomSheet(View sheetView){
+        String bg = AppSettings.getBackground(this);
+        switch(bg){
+            case "anh1": sheetView.setBackgroundResource(R.drawable.anh1); break;
+            case "anh2": sheetView.setBackgroundResource(R.drawable.anh2); break;
+            case "anh3": sheetView.setBackgroundResource(R.drawable.anh3); break;
+            case "anh4": sheetView.setBackgroundResource(R.drawable.anh4); break;
+            default: sheetView.setBackgroundColor(Color.BLACK); break;
+        }
+    }
+    private void applyBackgroundToDrawerMenu() {
+        if (menuRecycler == null) return;
 
+        String bg = AppSettings.getBackground(this);
+        switch (bg) {
+            case "anh1":
+                menuRecycler.setBackgroundResource(R.drawable.anh1);
+                break;
+            case "anh2":
+                menuRecycler.setBackgroundResource(R.drawable.anh2);
+                break;
+            case "anh3":
+                menuRecycler.setBackgroundResource(R.drawable.anh3);
+                break;
+            case "anh4":
+                menuRecycler.setBackgroundResource(R.drawable.anh4);
+                break;
+            default:
+                menuRecycler.setBackgroundColor(Color.BLACK);
+                break;
+        }
+    }
     // Hiển thị anime theo page (20 anime / page)
     private void displaySchedulePage(RecyclerView recycler, PaginationView paginationView) {
 
@@ -731,6 +669,37 @@ seasonDialog.show();
         recycler.setAdapter(adapter);
 
         paginationView.setPages(currentPage, totalPages);
+    }
+    private void openGridBottomSheet(
+            List<String> items,
+            int spanCount,
+            int recyclerId,
+            OnItemClickListener listener,
+            int layoutRes // layout resource: bottom_genre, bottom_type, bottom_top, bottom_season
+    ) {
+        seasonDialog = new BottomSheetDialog(this);
+
+        // Inflate layout
+        View view = getLayoutInflater().inflate(layoutRes, null);
+
+        // Apply background anime-style
+        applyBackgroundToBottomSheet(view);
+
+        RecyclerView recycler = view.findViewById(recyclerId);
+        recycler.setLayoutManager(new GridLayoutManager(this, spanCount));
+
+        GenreAdapter adapter = new GenreAdapter(items);
+        recycler.setAdapter(adapter);
+
+        adapter.setOnGenreClickListener(item -> listener.onClick(item));
+
+        seasonDialog.setContentView(view);
+        seasonDialog.show();
+    }
+
+    // Interface callback
+    public interface OnItemClickListener {
+        void onClick(String value);
     }
     private void startAnimeWorker() {
 

@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.mari.magic.ui.base.BaseFragment;
 import com.mari.magic.utils.TrailerHelper;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -28,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class HistoryFragment extends Fragment {
+public class HistoryFragment extends BaseFragment {
 
     private RecyclerView recyclerView;
     private TextView txtHistoryEmpty;

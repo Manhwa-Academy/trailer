@@ -18,11 +18,12 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.*;
 import com.mari.magic.R;
 import com.mari.magic.adapter.FavoriteAdapter;
+import com.mari.magic.ui.base.BaseFragment;
 import com.mari.magic.ui.detail.AnimeDetailActivity;
 
 import java.util.*;
 
-public class FavoriteFragment extends Fragment {
+public class FavoriteFragment extends BaseFragment {
 
     private RecyclerView recyclerView;
     private TextView txtEmpty;

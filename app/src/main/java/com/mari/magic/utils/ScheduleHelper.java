@@ -31,7 +31,7 @@ public class ScheduleHelper {
         try{
             JSONObject body = new JSONObject();
             body.put("query",
-                    "query ($page:Int){ Page(page:$page, perPage:30){ " +
+                    "query ($page:Int){ Page(page:$page, perPage:18){ " +
                             "pageInfo{ currentPage lastPage } " +
                             "media(status:RELEASING, type:ANIME){ " +
 

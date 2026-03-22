@@ -34,11 +34,12 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.mari.magic.R;
 import com.mari.magic.adapter.AvatarAdapter;
+import com.mari.magic.ui.base.BaseFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends BaseFragment {
 
     private ViewPager2 viewPager;
     private TabLayout tabLayout;

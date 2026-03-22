@@ -2,12 +2,12 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
 
     <TextView
         android:layout_width="match_parent"
@@ -25,5 +25,9 @@
         android:id="@+id/seasonRecycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
+    <!-- Thêm PaginationView ở dưới -->
+    <com.mari.magic.ui.component.PaginationView
+        android:id="@+id/paginationBottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>

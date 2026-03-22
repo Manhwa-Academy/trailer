@@ -12,12 +12,13 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.mari.magic.R;
+import com.mari.magic.ui.base.BaseFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class ProfileStatsFragment extends Fragment {
+public class ProfileStatsFragment extends BaseFragment {
 
     private TextView txtStreak, txtMoviesWatched, txtMangaRead, txtAccountCreated;
 

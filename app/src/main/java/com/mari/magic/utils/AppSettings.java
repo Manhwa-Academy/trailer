@@ -89,5 +89,17 @@ public class AppSettings {
 
         return sp.getBoolean("search_history", true);
     }
+    // ================= BACKGROUND IMAGE =================
+    public static void setBackground(Context ctx, String bg){
+        SharedPreferences sp = prefs(ctx);
+        if(sp == null) return;
+        sp.edit().putString("background", bg).apply();
+    }
+
+    public static String getBackground(Context ctx){
+        SharedPreferences sp = prefs(ctx);
+        if(sp == null) return "default"; // mặc định là hình đen
+        return sp.getString("background", "default");
+    }
 }
 

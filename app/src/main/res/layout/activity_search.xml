@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootLayout"
     android:orientation="vertical"
-    android:background="?attr/colorSurface"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent">
 
     <!-- SEARCH BAR -->
     <androidx.cardview.widget.CardView
@@ -13,7 +14,7 @@
         android:layout_margin="16dp"
         app:cardCornerRadius="28dp"
         app:cardElevation="4dp"
-        app:cardBackgroundColor="?attr/colorSurfaceVariant">
+        app:cardBackgroundColor="@android:color/transparent"> <!-- trong suốt -->
 
         <LinearLayout
             android:layout_width="match_parent"

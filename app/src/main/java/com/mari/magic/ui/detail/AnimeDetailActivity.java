@@ -1,6 +1,7 @@
 package com.mari.magic.ui.detail;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
@@ -28,6 +29,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.mlkit.nl.translate.*;
 import com.mari.magic.ui.notification.NotificationActivity;
 import com.mari.magic.utils.AnimeParser;
+import com.mari.magic.utils.AppSettings;
 import com.mari.magic.utils.NotificationHelper;
 import com.mari.magic.utils.NovelResolver;
 import com.mari.magic.R;
@@ -95,7 +97,7 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_anime_detail);
-
+        applyBackground();
         // ================= VIEW =================
 
         imgBanner = findViewById(R.id.imgBanner);
@@ -839,6 +841,19 @@ public class AnimeDetailActivity extends AppCompatActivity {
 
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+    private void applyBackground() {
+        View root = findViewById(R.id.rootLayout);
+        if (root == null) return;
+
+        String bg = AppSettings.getBackground(this);
+        switch (bg){
+            case "anh1": root.setBackgroundResource(R.drawable.anh1); break;
+            case "anh2": root.setBackgroundResource(R.drawable.anh2); break;
+            case "anh3": root.setBackgroundResource(R.drawable.anh3); break;
+            case "anh4": root.setBackgroundResource(R.drawable.anh4); break;
+            default: root.setBackgroundColor(Color.BLACK); break;
         }
     }
     // ================= TRANSLATE =================

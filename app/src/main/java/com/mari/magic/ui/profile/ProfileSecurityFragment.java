@@ -18,8 +18,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
 import com.mari.magic.R;
+import com.mari.magic.ui.base.BaseFragment;
 
-public class ProfileSecurityFragment extends Fragment {
+public class ProfileSecurityFragment extends BaseFragment {
 
     private EditText edtCurrentPassword, edtNewPassword, edtConfirmPassword;
     private Button btnChangePassword;

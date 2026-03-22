@@ -20,7 +20,8 @@
 
         android:scaleType="centerCrop"
 
-        android:src="@drawable/placeholder"/>
+        android:src="@drawable/placeholder"
+        />
 
 
     <!-- TITLE -->

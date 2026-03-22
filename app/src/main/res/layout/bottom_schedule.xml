@@ -1,33 +1,46 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-
-    android:layout_width="match_parent"
-    android:layout_height="500dp"
-
+    android:id="@+id/rootLayout"
     android:orientation="vertical"
-    android:padding="16dp"
-
-    android:background="?attr/colorSurface">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/transparent"
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/scheduleTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:text="@string/schedule_title"
         android:textSize="18sp"
         android:textStyle="bold"
-
         android:textColor="?attr/colorOnSurface"
-
         android:paddingBottom="8dp"/>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/scheduleRecycler"
+    <!-- Frame để chứa recycler + loading -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1">
+
+        <!-- Recycler -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/scheduleRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <!-- Loading text ở giữa -->
+        <TextView
+            android:id="@+id/loadingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Đang load anime..."
+            android:textColor="?attr/colorOnSurface"
+            android:textSize="16sp"
+            android:layout_gravity="center"
+            android:visibility="visible"/>
+
+    </FrameLayout>
 
     <com.mari.magic.ui.component.PaginationView
         android:id="@+id/paginationView"

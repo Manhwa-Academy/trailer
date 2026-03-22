@@ -19,6 +19,7 @@ import com.mari.magic.adapter.HomeSectionAdapter;
 import com.mari.magic.model.Anime;
 import com.mari.magic.model.Section;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.ui.base.BaseFragment;
 import com.mari.magic.utils.AnimeParser;
 
 import org.json.JSONArray;
@@ -27,7 +28,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NovelFragment extends Fragment {
+public class NovelFragment extends BaseFragment {
 
     private static final String TAG = "NOVEL_DEBUG";
 

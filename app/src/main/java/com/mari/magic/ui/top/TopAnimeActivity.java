@@ -1,6 +1,8 @@
 package com.mari.magic.ui.top;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -69,6 +71,7 @@ public class TopAnimeActivity extends AppCompatActivity {
         });
 
         loadTopAnime();
+        applyBackground();
     }
 
     private void loadTopAnime(){
@@ -206,6 +209,30 @@ public class TopAnimeActivity extends AppCompatActivity {
 
         }catch(Exception e){
             e.printStackTrace();
+        }
+    }
+    private void applyBackground() {
+        View root = findViewById(R.id.rootLayout);
+        if (root == null) return;
+
+        String bg = AppSettings.getBackground(this);
+
+        switch (bg){
+            case "anh1":
+                root.setBackgroundResource(R.drawable.anh1);
+                break;
+            case "anh2":
+                root.setBackgroundResource(R.drawable.anh2);
+                break;
+            case "anh3":
+                root.setBackgroundResource(R.drawable.anh3);
+                break;
+            case "anh4":
+                root.setBackgroundResource(R.drawable.anh4);
+                break;
+            default:
+                root.setBackgroundColor(Color.BLACK);
+                break;
         }
     }
 }

@@ -44,6 +44,7 @@
         android:layout_height="match_parent"
 
         android:clipToPadding="false"
-        android:paddingBottom="80dp"/>
+        android:paddingBottom="80dp"
+        android:alpha="0.7"/>
 
 </LinearLayout>

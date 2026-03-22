@@ -19,6 +19,7 @@ import com.mari.magic.adapter.HomeSectionAdapter;
 import com.mari.magic.model.Anime;
 import com.mari.magic.model.Section;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.ui.base.BaseFragment;
 import com.mari.magic.ui.web.WebViewActivity;
 import com.mari.magic.utils.AnimeParser;
 import com.mari.magic.utils.AppSettings;
@@ -31,7 +32,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MangaFragment extends Fragment {
+public class MangaFragment extends BaseFragment {
 
     private static final String TAG = "MANGA_DEBUG";
 

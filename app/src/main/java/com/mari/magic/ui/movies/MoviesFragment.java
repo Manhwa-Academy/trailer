@@ -18,6 +18,7 @@ import com.mari.magic.adapter.HomeSectionAdapter;
 import com.mari.magic.model.Anime;
 import com.mari.magic.model.Section;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.ui.base.BaseFragment;
 import com.mari.magic.utils.AnimeParser;
 import com.mari.magic.utils.AppSettings;
 
@@ -29,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MoviesFragment extends Fragment {
+public class MoviesFragment extends BaseFragment {
 
     private static final String TAG = "MOVIES_DEBUG";
 

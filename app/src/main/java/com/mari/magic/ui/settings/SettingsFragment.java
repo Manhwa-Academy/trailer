@@ -1,6 +1,7 @@
 package com.mari.magic.ui.settings;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -10,6 +11,7 @@ import android.widget.Toast;
 import android.widget.TextView;
 import android.widget.ImageView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.cardview.widget.CardView;
@@ -21,6 +23,7 @@ import com.bumptech.glide.Glide;
 import com.mari.magic.R;
 import com.mari.magic.BuildConfig;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.ui.base.BaseFragment;
 import com.mari.magic.ui.favorite.FavoriteFragment;
 import com.mari.magic.ui.history.HistoryFragment;
 import com.mari.magic.ui.profile.ProfileFragment;
@@ -29,7 +32,7 @@ import com.mari.magic.utils.AppSettings;
 
 import java.io.File;
 
-public class SettingsFragment extends Fragment {
+public class SettingsFragment extends BaseFragment {
 
     private static final String TAG = "SettingsFragment";
 
@@ -56,7 +59,6 @@ public class SettingsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
         try {
-
             // =============== INIT BUTTONS =================
             btnProfile = view.findViewById(R.id.btnProfile);
             btnFavorites = view.findViewById(R.id.btnFavorites);
@@ -77,6 +79,7 @@ public class SettingsFragment extends Fragment {
             );
 
             updateThemeUI();
+            applyBackgroundToRoot(view); // <<< truyền view vào
 
             // =============== SETUP =================
             setupProfile();
@@ -84,6 +87,7 @@ public class SettingsFragment extends Fragment {
             setupHistory();
             setupSearchHistoryToggle();
             setupThemeToggle();
+            setupBackgroundToggle(view); // <<< truyền view fragmentRoot vào
             setupLogout();
             setupClearCache();
 
@@ -282,7 +286,64 @@ public class SettingsFragment extends Fragment {
             }
         });
     }
+    private void setupBackgroundToggle(View fragmentRoot) {
+        CardView btnBackground = fragmentRoot.findViewById(R.id.btnBackground);
+        if (btnBackground == null) return;
 
+        btnBackground.setOnClickListener(v -> {
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_background, null);
+
+            AlertDialog dialog = new AlertDialog.Builder(getContext())
+                    .setTitle("Chọn hình nền")
+                    .setView(dialogView)
+                    .setNegativeButton("Hủy", null)
+                    .create();
+
+            ImageView bg1 = dialogView.findViewById(R.id.bg1);
+            ImageView bg2 = dialogView.findViewById(R.id.bg2);
+            ImageView bg3 = dialogView.findViewById(R.id.bg3);
+            ImageView bg4 = dialogView.findViewById(R.id.bg4);
+
+            View.OnClickListener listener = click -> {
+                String selected = "default";
+                if(click.getId() == R.id.bg1) selected = "anh1";
+                else if(click.getId() == R.id.bg2) selected = "anh2";
+                else if(click.getId() == R.id.bg3) selected = "anh3";
+                else if(click.getId() == R.id.bg4) selected = "anh4";
+
+                AppSettings.setBackground(requireContext(), selected);
+
+                Toast.makeText(getContext(), "Đã chọn hình nền: " + selected, Toast.LENGTH_SHORT).show();
+
+                dialog.dismiss();
+
+                // apply background ngay cho fragment root
+                applyBackgroundToRoot(fragmentRoot);
+            };
+
+            bg1.setOnClickListener(listener);
+            bg2.setOnClickListener(listener);
+            bg3.setOnClickListener(listener);
+            bg4.setOnClickListener(listener);
+
+            dialog.show();
+        });
+    }
+
+    // Áp dụng hình nền cho root layout fragment
+    private void applyBackgroundToRoot(View root){
+        if(root == null) return;
+
+        String bg = AppSettings.getBackground(requireContext());
+
+        switch(bg){
+            case "anh1": root.setBackgroundResource(R.drawable.anh1); break;
+            case "anh2": root.setBackgroundResource(R.drawable.anh2); break;
+            case "anh3": root.setBackgroundResource(R.drawable.anh3); break;
+            case "anh4": root.setBackgroundResource(R.drawable.anh4); break;
+            default: root.setBackgroundColor(Color.BLACK); break;
+        }
+    }
     // ==============================
     // HELPER: GET DIR SIZE
     // ==============================

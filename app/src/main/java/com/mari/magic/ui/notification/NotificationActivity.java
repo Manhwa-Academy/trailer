@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.mari.magic.R;
 import com.mari.magic.adapter.NotificationAdapter;
 import com.mari.magic.model.NotificationItem;
+import com.mari.magic.utils.AppSettings;
 import com.mari.magic.utils.NotificationHelper;
 
 import java.util.Collections;
@@ -35,7 +36,7 @@ public class NotificationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification);
-
+        applyBackground();
         // 🔹 Log để biết activity được mở
         Log.d("NOTI_DEBUG", "NotificationActivity opened");
 
@@ -88,7 +89,30 @@ public class NotificationActivity extends AppCompatActivity {
             adapter.notifyDataSetChanged();
         }
     }
+    private void applyBackground() {
+        View root = findViewById(R.id.rootLayout);
+        if (root == null) return;
 
+        String bg = AppSettings.getBackground(this);
+
+        switch (bg){
+            case "anh1":
+                root.setBackgroundResource(R.drawable.anh1);
+                break;
+            case "anh2":
+                root.setBackgroundResource(R.drawable.anh2);
+                break;
+            case "anh3":
+                root.setBackgroundResource(R.drawable.anh3);
+                break;
+            case "anh4":
+                root.setBackgroundResource(R.drawable.anh4);
+                break;
+            default:
+                root.setBackgroundColor(Color.BLACK);
+                break;
+        }
+    }
     private void setupSwipe() {
         ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
                 0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {

@@ -20,6 +20,7 @@ import com.mari.magic.adapter.AnimeAdapter;
 import com.mari.magic.model.Anime;
 import com.mari.magic.model.Section;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.ui.base.BaseFragment;
 import com.mari.magic.ui.component.PaginationView;
 import com.mari.magic.utils.AnimeParser;
 import com.mari.magic.utils.AppSettings;
@@ -31,7 +32,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SeeAllListFragment extends Fragment {
+public class SeeAllListFragment extends BaseFragment {
 
     private static final String TAG = "SEE_ALL_FRAGMENT";
 
@@ -204,7 +205,7 @@ public class SeeAllListFragment extends Fragment {
 // adultMode → không thêm filter
             String query =
                     "query {" +
-                            " Page(page:"+currentPage+", perPage:30) {" +
+                            " Page(page:"+currentPage+", perPage:18) {" +
                             " pageInfo { currentPage hasNextPage } " +
                             " media(type:"+mediaType+","+filter+") {" +
 

@@ -1,5 +1,6 @@
 package com.mari.magic.ui.genre;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +18,7 @@ import com.mari.magic.model.Anime;
 import com.mari.magic.network.VolleySingleton;
 import com.mari.magic.ui.component.PaginationView;
 import com.mari.magic.utils.AnimeParser;
+import com.mari.magic.utils.AppSettings;
 import com.mari.magic.utils.GridSpacingItemDecoration;
 
 import org.json.JSONArray;
@@ -44,7 +46,7 @@ public class GenreAnimeActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_genre_anime);
-
+        applyBackground();
         recycler = findViewById(R.id.genreAnimeRecycler);
         txtNoResult = findViewById(R.id.txtNoResult);
         paginationView = findViewById(R.id.paginationBottom);
@@ -99,7 +101,7 @@ public class GenreAnimeActivity extends AppCompatActivity {
 
             body.put("query",
                     "query ($genre: String,$page:Int) {" +
-                            " Page(page:$page, perPage:20) {" +
+                            " Page(page:$page, perPage:18) {" +
 
                             " pageInfo { currentPage lastPage total } " +
 
@@ -192,6 +194,30 @@ public class GenreAnimeActivity extends AppCompatActivity {
 
         }catch(Exception e){
             e.printStackTrace();
+        }
+    }
+    private void applyBackground() {
+        View root = findViewById(R.id.rootLayout);
+        if (root == null) return;
+
+        String bg = AppSettings.getBackground(this);
+
+        switch (bg){
+            case "anh1":
+                root.setBackgroundResource(R.drawable.anh1);
+                break;
+            case "anh2":
+                root.setBackgroundResource(R.drawable.anh2);
+                break;
+            case "anh3":
+                root.setBackgroundResource(R.drawable.anh3);
+                break;
+            case "anh4":
+                root.setBackgroundResource(R.drawable.anh4);
+                break;
+            default:
+                root.setBackgroundColor(Color.BLACK);
+                break;
         }
     }
 }

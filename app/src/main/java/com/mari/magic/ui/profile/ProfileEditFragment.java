@@ -20,11 +20,12 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 import com.mari.magic.R;
+import com.mari.magic.ui.base.BaseFragment;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class ProfileEditFragment extends Fragment {
+public class ProfileEditFragment extends BaseFragment {
 
     private static final String TAG = "ProfileEditFragment";
 

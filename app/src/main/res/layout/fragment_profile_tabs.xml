@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="?android:attr/windowBackground">
+    android:background="#FFEEF9">
 
     <!-- Avatar và tên -->
     <LinearLayout
@@ -35,7 +35,7 @@
                 android:layout_gravity="bottom|end"
                 android:src="@drawable/ic_edit"
                 android:background="@drawable/circle_button_bg"
-                app:tint="@android:color/white"/>
+                app:tint="#FFFFFF"/>
         </FrameLayout>
 
         <!-- Tên hiển thị -->
@@ -44,8 +44,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Tên hiển thị"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold"
+            android:textColor="#FF66CC"
             android:layout_marginTop="8dp"/>
 
         <!-- Tên đăng nhập với @ -->
@@ -55,7 +56,8 @@
             android:layout_height="wrap_content"
             android:text="@string/username_placeholder"
             android:textSize="14sp"
-            android:textColor="#888"/>
+            android:textColor="#CC99FF"
+            android:layout_marginTop="2dp"/>
     </LinearLayout>
 
     <!-- TabLayout -->
@@ -63,10 +65,12 @@
         android:id="@+id/tabLayoutProfile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        app:tabIndicatorColor="@android:color/black"
-        app:tabSelectedTextColor="@android:color/black"
-        app:tabTextColor="@android:color/black"/>
+        android:background="#FF99FF"
+        app:tabIndicatorColor="#FFFFFF"
+        app:tabSelectedTextColor="#FFFFFF"
+        app:tabTextColor="#EECCFF"
+        app:tabIndicatorFullWidth="false"
+        app:tabMode="fixed"/>
 
     <!-- ViewPager2 cho nội dung tab -->
     <androidx.viewpager2.widget.ViewPager2

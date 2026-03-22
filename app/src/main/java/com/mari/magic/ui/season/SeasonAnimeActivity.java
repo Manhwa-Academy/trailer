@@ -1,7 +1,9 @@
 package com.mari.magic.ui.season;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,7 +16,9 @@ import com.mari.magic.R;
 import com.mari.magic.adapter.AnimeAdapter;
 import com.mari.magic.model.Anime;
 import com.mari.magic.network.VolleySingleton;
+import com.mari.magic.ui.component.PaginationView;
 import com.mari.magic.utils.AnimeParser;
+import com.mari.magic.utils.AppSettings;
 import com.mari.magic.utils.GridSpacingItemDecoration;
 
 import org.json.JSONArray;
@@ -30,19 +34,24 @@ public class SeasonAnimeActivity extends AppCompatActivity {
     RecyclerView recycler;
     AnimeAdapter adapter;
     TextView title;
+    PaginationView paginationView;
 
     List<Anime> list = new ArrayList<>();
 
     String season;
     int year;
+    int currentPage = 1;
+    int totalPages = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_genre_anime);
+        setContentView(R.layout.activity_genre_anime); // dùng layout có PaginationView
+        applyBackground();
 
         recycler = findViewById(R.id.genreAnimeRecycler);
         title = findViewById(R.id.txtGenreTitle);
+        paginationView = findViewById(R.id.paginationBottom);
 
         recycler.setLayoutManager(new GridLayoutManager(this,3));
         recycler.addItemDecoration(new GridSpacingItemDecoration(3,20,true));
@@ -58,63 +67,53 @@ public class SeasonAnimeActivity extends AppCompatActivity {
             season = "WINTER";
         }
 
-        Log.d(TAG,"Received season=" + season + " year=" + year);
-
         title.setText(getSeasonVN(season) + " " + year);
 
-        loadSeasonAnime();
+        paginationView.setOnPageChangeListener(page -> {
+            currentPage = page;
+            recycler.scrollToPosition(0);
+            loadSeasonAnime(currentPage);
+        });
+
+        // load lần đầu
+        loadSeasonAnime(currentPage);
     }
 
-    private void loadSeasonAnime(){
-
+    private void loadSeasonAnime(int page){
         String url = "https://graphql.anilist.co";
 
         try{
-
-            Log.d(TAG,"Loading anime for season=" + season + " year=" + year);
+            JSONObject variables = new JSONObject();
+            variables.put("season", season);
+            variables.put("year", year);
+            variables.put("page", page);
+            variables.put("perPage", 18); // số anime mỗi trang
 
             JSONObject body = new JSONObject();
-
             body.put("query",
-                    "query ($season: MediaSeason,$year: Int) {" +
-                            " Page(page:1,perPage:30) {" +
+                    "query ($season: MediaSeason,$year: Int,$page:Int,$perPage:Int) {" +
+                            " Page(page:$page, perPage:$perPage) {" +
+                            " pageInfo { currentPage lastPage total } " +
                             " media(type:ANIME,season:$season,seasonYear:$year,isAdult:false) {" +
-                            " id " +
-                            " title { romaji english native } " +
-                            " coverImage { large } " +
-                            " averageScore " +
-                            " description(asHtml:false) " +
-                            " genres " +
-                            " format " +
-                            " season " +
-                            " updatedAt " +
-                            " seasonYear " +
-                            " duration " +
-                            " episodes " +
-                            "nextAiringEpisode { episode airingAt } " +
-                            "status " +
-                            " trailer { id site } " +
-                            " studios(isMain:true){ nodes{ name } } " +
-                            "staff(perPage:20){ edges{ role node{ name{ full } } } } " +
-                            " }}}"
+                            " id title { romaji english native } coverImage { large } averageScore }}}"
             );
-
-            JSONObject variables = new JSONObject();
-            variables.put("season",season);
-            variables.put("year",year);
-
-            body.put("variables",variables);
+            body.put("variables", variables);
 
             JsonObjectRequest request = new JsonObjectRequest(
                     Request.Method.POST,
                     url,
                     body,
-
                     response -> {
-
-                        Log.d(TAG,"API Response received");
-
                         try{
+                            JSONObject pageInfo = response
+                                    .getJSONObject("data")
+                                    .getJSONObject("Page")
+                                    .getJSONObject("pageInfo");
+
+                            currentPage = pageInfo.getInt("currentPage");
+                            totalPages = pageInfo.getInt("lastPage");
+
+                            paginationView.setPages(currentPage, totalPages);
 
                             JSONArray array = response
                                     .getJSONObject("data")
@@ -122,57 +121,47 @@ public class SeasonAnimeActivity extends AppCompatActivity {
                                     .getJSONArray("media");
 
                             list.clear();
-
                             for(int i=0;i<array.length();i++){
-
-                                JSONObject obj = array.getJSONObject(i);
-
-                                Anime anime = AnimeParser.parse(obj,this);
-
-                                if(anime != null){
-                                    list.add(anime);
-                                }
-
+                                Anime anime = AnimeParser.parse(array.getJSONObject(i), this);
+                                if(anime != null) list.add(anime);
                             }
 
-                            Log.d(TAG,"Anime loaded: " + list.size());
-
                             adapter.notifyDataSetChanged();
-
                         }catch(Exception e){
-                            Log.e(TAG,"Parse error",e);
+                            e.printStackTrace();
                         }
-
                     },
-
-                    error -> Log.e(TAG,"API Error: " + error)
+                    error -> Log.e(TAG,"API Error: "+error)
             );
 
             VolleySingleton.getInstance(this).addToRequestQueue(request);
 
         }catch(Exception e){
-            Log.e(TAG,"Query build error",e);
+            e.printStackTrace();
         }
     }
 
     private String getSeasonVN(String season){
-
         switch(season){
+            case "WINTER": return getString(R.string.season_winter);
+            case "SPRING": return getString(R.string.season_spring);
+            case "SUMMER": return getString(R.string.season_summer);
+            case "FALL": return getString(R.string.season_fall);
+            default: return season;
+        }
+    }
 
-            case "WINTER":
-                return getString(R.string.season_winter);
+    private void applyBackground() {
+        View root = findViewById(R.id.rootLayout);
+        if (root == null) return;
 
-            case "SPRING":
-                return getString(R.string.season_spring);
-
-            case "SUMMER":
-                return getString(R.string.season_summer);
-
-            case "FALL":
-                return getString(R.string.season_fall);
-
-            default:
-                return season;
+        String bg = AppSettings.getBackground(this);
+        switch (bg){
+            case "anh1": root.setBackgroundResource(R.drawable.anh1); break;
+            case "anh2": root.setBackgroundResource(R.drawable.anh2); break;
+            case "anh3": root.setBackgroundResource(R.drawable.anh3); break;
+            case "anh4": root.setBackgroundResource(R.drawable.anh4); break;
+            default: root.setBackgroundColor(Color.BLACK); break;
         }
     }
 }

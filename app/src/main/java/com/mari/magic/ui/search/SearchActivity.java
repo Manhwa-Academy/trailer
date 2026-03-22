@@ -1,5 +1,6 @@
 package com.mari.magic.ui.search;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.inputmethod.EditorInfo;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mari.magic.ui.base.BaseFragment;
 import com.mari.magic.utils.HistoryManager;
 import com.mari.magic.utils.AppSettings;
 import com.mari.magic.adapter.SearchHistoryAdapter;
@@ -38,6 +40,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class SearchActivity extends AppCompatActivity {
 
@@ -79,7 +82,7 @@ public class SearchActivity extends AppCompatActivity {
         btnSearch = findViewById(R.id.btnSearch);
         btnClearSearch = findViewById(R.id.btnClearSearch);
         spinnerType = findViewById(R.id.spinnerType); // spinner chọn type
-
+        applyBackground();
         // spinner Type setup
         ArrayAdapter<String> typeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,
                 new String[]{"ANIME", "MANGA", "NOVEL"});
@@ -165,7 +168,31 @@ public class SearchActivity extends AppCompatActivity {
         });
         recyclerHistory.setAdapter(historyAdapter);
     }
+    private void applyBackground() {
+        View root = findViewById(R.id.rootLayout); // ✅ đúng layout của bạn
 
+        if (root == null) return;
+
+        String bg = AppSettings.getBackground(this);
+
+        switch (bg){
+            case "anh1":
+                root.setBackgroundResource(R.drawable.anh1);
+                break;
+            case "anh2":
+                root.setBackgroundResource(R.drawable.anh2);
+                break;
+            case "anh3":
+                root.setBackgroundResource(R.drawable.anh3);
+                break;
+            case "anh4":
+                root.setBackgroundResource(R.drawable.anh4);
+                break;
+            default:
+                root.setBackgroundColor(Color.BLACK);
+                break;
+        }
+    }
     private void doSearch(){
         String keyword = edtSearch.getText().toString().trim();
         if(keyword.isEmpty()) return;
@@ -189,7 +216,7 @@ public class SearchActivity extends AppCompatActivity {
         String url = "https://graphql.anilist.co";
         String query =
                 "query ($search:String,$page:Int,$type:MediaType) {" +
-                        " Page(page:$page, perPage:30) {" +
+                        " Page(page:$page, perPage:18) {" +
                         "   pageInfo { currentPage lastPage total }" +
                         "   media(search:$search, type:$type) {" +
                         "     id" +
