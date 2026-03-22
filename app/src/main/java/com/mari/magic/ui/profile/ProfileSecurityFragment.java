@@ -1,5 +1,6 @@
 package com.mari.magic.ui.profile;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -12,11 +13,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
 import com.mari.magic.R;
 import com.mari.magic.ui.base.BaseFragment;
 
@@ -44,29 +43,25 @@ public class ProfileSecurityFragment extends BaseFragment {
 
         user = FirebaseAuth.getInstance().getCurrentUser();
 
-        // Kiểm tra user login bằng phương thức email/password hiện tại
-        boolean isEmailLogin = false;
+        // =========================
+        // Lấy login method hiện tại từ SharedPreferences
+        // =========================
+        SharedPreferences prefs = getContext().getSharedPreferences("app_prefs", getContext().MODE_PRIVATE);
+        boolean isEmailLogin = prefs.getBoolean("isEmailLogin", false); // default false
 
-        if (user != null && user.getProviderData().size() > 1) {
+        Log.d("ProfileSecurity", "isEmailLogin: " + isEmailLogin);
 
-            String provider = user.getProviderData().get(1).getProviderId();
+        final boolean canChangePassword = isEmailLogin;
 
-            Log.d("ProfileSecurity", "Login Provider: " + provider);
-
-            if ("password".equals(provider)) {
-                isEmailLogin = true;
-            }
-        }
-        final boolean canChangePassword = isEmailLogin; // final để dùng trong lambda
-
-        // Ẩn/hiện EditText + Button đổi mật khẩu, hiển thị thông báo cho user Google login
-        if(!canChangePassword){
+        // Ẩn/hiện EditText + Button đổi mật khẩu
+        if (!canChangePassword) {
             edtCurrentPassword.setVisibility(View.GONE);
             edtNewPassword.setVisibility(View.GONE);
             edtConfirmPassword.setVisibility(View.GONE);
             btnChangePassword.setVisibility(View.GONE);
 
-            txtGoogleInfo.setVisibility(View.VISIBLE); // hiển thị thông báo
+            txtGoogleInfo.setVisibility(View.VISIBLE);
+            Log.d("ProfileSecurity", "Google login detected, password fields hidden");
         } else {
             edtCurrentPassword.setVisibility(View.VISIBLE);
             edtNewPassword.setVisibility(View.VISIBLE);
@@ -74,12 +69,14 @@ public class ProfileSecurityFragment extends BaseFragment {
             btnChangePassword.setVisibility(View.VISIBLE);
 
             txtGoogleInfo.setVisibility(View.GONE);
+            Log.d("ProfileSecurity", "Email login detected, password fields visible");
         }
 
         btnChangePassword.setOnClickListener(v -> changePassword(canChangePassword));
         setupPasswordToggle(edtCurrentPassword);
         setupPasswordToggle(edtNewPassword);
         setupPasswordToggle(edtConfirmPassword);
+
         return view;
     }
 
@@ -106,16 +103,14 @@ public class ProfileSecurityFragment extends BaseFragment {
         if(user != null){
             user.updatePassword(newPass)
                     .addOnSuccessListener(aVoid -> {
-
                         Toast.makeText(getContext(),
                                 R.string.change_password_success,
                                 Toast.LENGTH_SHORT).show();
-
                         clearPasswordFields();
-
                     });
         }
     }
+
     private void setupPasswordToggle(EditText editText){
 
         final boolean[] isVisible = {false};
@@ -128,7 +123,6 @@ public class ProfileSecurityFragment extends BaseFragment {
                         - editText.getCompoundDrawables()[2].getBounds().width())){
 
                     if(isVisible[0]){
-
                         editText.setInputType(
                                 android.text.InputType.TYPE_CLASS_TEXT |
                                         android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -137,7 +131,6 @@ public class ProfileSecurityFragment extends BaseFragment {
                                 0,0,R.drawable.ic_eye,0);
 
                     }else{
-
                         editText.setInputType(
                                 android.text.InputType.TYPE_CLASS_TEXT |
                                         android.text.InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
@@ -147,9 +140,7 @@ public class ProfileSecurityFragment extends BaseFragment {
                     }
 
                     isVisible[0] = !isVisible[0];
-
                     editText.setSelection(editText.getText().length());
-
                     return true;
                 }
             }
@@ -157,6 +148,7 @@ public class ProfileSecurityFragment extends BaseFragment {
             return false;
         });
     }
+
     private void clearPasswordFields(){
         edtCurrentPassword.setText("");
         edtNewPassword.setText("");

@@ -217,7 +217,7 @@ public class TopAnimeActivity extends AppCompatActivity {
 
         String bg = AppSettings.getBackground(this);
 
-        switch (bg){
+        switch (bg) {
             case "anh1":
                 root.setBackgroundResource(R.drawable.anh1);
                 break;
@@ -230,9 +230,10 @@ public class TopAnimeActivity extends AppCompatActivity {
             case "anh4":
                 root.setBackgroundResource(R.drawable.anh4);
                 break;
-            default:
-                root.setBackgroundColor(Color.BLACK);
+            case "anh5":
+                root.setBackgroundResource(R.drawable.anh5);
                 break;
+            // ✅ bỏ default → nếu bg không phải anh1~anh5 thì giữ nguyên background
         }
     }
 }

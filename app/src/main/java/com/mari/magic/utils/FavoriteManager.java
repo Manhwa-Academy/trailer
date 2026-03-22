@@ -203,11 +203,15 @@ public class FavoriteManager {
                 .document(animeId)
                 .delete()
                 .addOnSuccessListener(aVoid -> {
-                    // ✅ truyền đủ 2 tham số
+                    // ✅ Xóa notification liên quan
                     NotificationHelper.removeNotificationForAnime(context, animeId);
+
+                    // 🔹 Optionally, show Toast
+                    Toast.makeText(context, "Đã xóa khỏi Yêu thích", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    android.util.Log.e("FAV_DEBUG", "Failed: " + e.getMessage());
+                    android.util.Log.e("FAV_DEBUG", "Failed to remove favorite: " + e.getMessage());
+                    Toast.makeText(context, "Xóa favorite thất bại", Toast.LENGTH_SHORT).show();
                 });
     }
 }

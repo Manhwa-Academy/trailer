@@ -32,9 +32,10 @@ public class BaseFragment extends Fragment {
             case "anh4":
                 root.setBackgroundResource(R.drawable.anh4);
                 break;
-            default:
-                root.setBackgroundColor(Color.BLACK);
+            case "anh5":
+                root.setBackgroundResource(R.drawable.anh5);
                 break;
+            // ✅ không còn default → nếu bg không khớp anh1~4, fragment giữ nguyên nền hiện tại
         }
     }
 

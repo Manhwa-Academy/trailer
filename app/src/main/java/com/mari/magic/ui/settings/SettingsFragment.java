@@ -303,6 +303,7 @@ public class SettingsFragment extends BaseFragment {
             ImageView bg2 = dialogView.findViewById(R.id.bg2);
             ImageView bg3 = dialogView.findViewById(R.id.bg3);
             ImageView bg4 = dialogView.findViewById(R.id.bg4);
+            ImageView bg5 = dialogView.findViewById(R.id.bg5);
 
             View.OnClickListener listener = click -> {
                 String selected = "default";
@@ -310,21 +311,29 @@ public class SettingsFragment extends BaseFragment {
                 else if(click.getId() == R.id.bg2) selected = "anh2";
                 else if(click.getId() == R.id.bg3) selected = "anh3";
                 else if(click.getId() == R.id.bg4) selected = "anh4";
+                else if(click.getId() == R.id.bg5) selected = "anh5";
 
+                // ✅ Lưu background mới
                 AppSettings.setBackground(requireContext(), selected);
 
                 Toast.makeText(getContext(), "Đã chọn hình nền: " + selected, Toast.LENGTH_SHORT).show();
 
                 dialog.dismiss();
 
-                // apply background ngay cho fragment root
+                // ✅ Apply ngay cho fragment hiện tại
                 applyBackgroundToRoot(fragmentRoot);
+
+                // 🔥 Recreate activity để HomeFragment & các fragment khác cập nhật background
+                if(getActivity() != null){
+                    getActivity().recreate();
+                }
             };
 
             bg1.setOnClickListener(listener);
             bg2.setOnClickListener(listener);
             bg3.setOnClickListener(listener);
             bg4.setOnClickListener(listener);
+            bg5.setOnClickListener(listener); // ✅ nhớ set listener cho ảnh 5
 
             dialog.show();
         });
@@ -337,11 +346,22 @@ public class SettingsFragment extends BaseFragment {
         String bg = AppSettings.getBackground(requireContext());
 
         switch(bg){
-            case "anh1": root.setBackgroundResource(R.drawable.anh1); break;
-            case "anh2": root.setBackgroundResource(R.drawable.anh2); break;
-            case "anh3": root.setBackgroundResource(R.drawable.anh3); break;
-            case "anh4": root.setBackgroundResource(R.drawable.anh4); break;
-            default: root.setBackgroundColor(Color.BLACK); break;
+            case "anh1":
+                root.setBackgroundResource(R.drawable.anh1);
+                break;
+            case "anh2":
+                root.setBackgroundResource(R.drawable.anh2);
+                break;
+            case "anh3":
+                root.setBackgroundResource(R.drawable.anh3);
+                break;
+            case "anh4":
+                root.setBackgroundResource(R.drawable.anh4);
+                break;
+            case "anh5":
+                root.setBackgroundResource(R.drawable.anh5);
+                break;
+            // ✅ bỏ default → nếu bg không phải anh1~anh5, giữ nguyên background
         }
     }
     // ==============================

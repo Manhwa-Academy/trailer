@@ -95,7 +95,7 @@ public class NotificationActivity extends AppCompatActivity {
 
         String bg = AppSettings.getBackground(this);
 
-        switch (bg){
+        switch (bg) {
             case "anh1":
                 root.setBackgroundResource(R.drawable.anh1);
                 break;
@@ -108,9 +108,10 @@ public class NotificationActivity extends AppCompatActivity {
             case "anh4":
                 root.setBackgroundResource(R.drawable.anh4);
                 break;
-            default:
-                root.setBackgroundColor(Color.BLACK);
+            case "anh5":
+                root.setBackgroundResource(R.drawable.anh5);
                 break;
+            // ✅ bỏ default → nếu bg không phải anh1~anh5 thì giữ nguyên background
         }
     }
     private void setupSwipe() {
@@ -206,20 +207,6 @@ public class NotificationActivity extends AppCompatActivity {
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(recycler);
-    }
-
-    private void removeNotificationFromPrefs(NotificationItem item) {
-        List<NotificationItem> prefsList = NotificationHelper.getNotifications(this);
-        prefsList.removeIf(n -> n.getTitle().equals(item.getTitle())
-                && n.getNextAiringAt() == item.getNextAiringAt());
-        Gson gson = new Gson();
-        getSharedPreferences("app", MODE_PRIVATE)
-                .edit()
-                .putString("notification_list", gson.toJson(prefsList))
-                .apply();
-
-        // 🔹 reload lại RecyclerView sau khi xóa
-        loadData();
     }
 
     @Override

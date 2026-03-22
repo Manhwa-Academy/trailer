@@ -592,7 +592,7 @@ public class AnimeDetailActivity extends AppCompatActivity {
                     NotificationHelper.removeFavorite(this, safeId);
 
                     // 🔹 Xóa notification liên quan luôn
-                    NotificationHelper.removeNotificationForAnime(this, title);
+                    NotificationHelper.removeNotificationForAnime(this, safeId);
 
                     FirebaseMessaging.getInstance().unsubscribeFromTopic("anime_" + safeId);
 
@@ -848,12 +848,24 @@ public class AnimeDetailActivity extends AppCompatActivity {
         if (root == null) return;
 
         String bg = AppSettings.getBackground(this);
-        switch (bg){
-            case "anh1": root.setBackgroundResource(R.drawable.anh1); break;
-            case "anh2": root.setBackgroundResource(R.drawable.anh2); break;
-            case "anh3": root.setBackgroundResource(R.drawable.anh3); break;
-            case "anh4": root.setBackgroundResource(R.drawable.anh4); break;
-            default: root.setBackgroundColor(Color.BLACK); break;
+
+        switch (bg) {
+            case "anh1":
+                root.setBackgroundResource(R.drawable.anh1);
+                break;
+            case "anh2":
+                root.setBackgroundResource(R.drawable.anh2);
+                break;
+            case "anh3":
+                root.setBackgroundResource(R.drawable.anh3);
+                break;
+            case "anh4":
+                root.setBackgroundResource(R.drawable.anh4);
+                break;
+            case "anh5":
+                root.setBackgroundResource(R.drawable.anh5);
+                break;
+            // ✅ bỏ default → nếu bg không phải anh1~anh5 thì giữ nguyên background
         }
     }
     // ================= TRANSLATE =================

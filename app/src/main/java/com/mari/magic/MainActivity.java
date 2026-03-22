@@ -610,35 +610,56 @@ seasonDialog.show();
     }
     private void applyBackgroundToBottomSheet(View sheetView){
         String bg = AppSettings.getBackground(this);
+
         switch(bg){
-            case "anh1": sheetView.setBackgroundResource(R.drawable.anh1); break;
-            case "anh2": sheetView.setBackgroundResource(R.drawable.anh2); break;
-            case "anh3": sheetView.setBackgroundResource(R.drawable.anh3); break;
-            case "anh4": sheetView.setBackgroundResource(R.drawable.anh4); break;
-            default: sheetView.setBackgroundColor(Color.BLACK); break;
+            case "anh1":
+                sheetView.setBackgroundResource(R.drawable.anh1);
+                break;
+            case "anh2":
+                sheetView.setBackgroundResource(R.drawable.anh2);
+                break;
+            case "anh3":
+                sheetView.setBackgroundResource(R.drawable.anh3);
+                break;
+            case "anh4":
+                sheetView.setBackgroundResource(R.drawable.anh4);
+                break;
+            case "anh5":
+                sheetView.setBackgroundResource(R.drawable.anh5);
+                break;
+            // ✅ bỏ default → nếu bg không phải anh1~anh5, BottomSheet giữ nguyên background
         }
     }
     private void applyBackgroundToDrawerMenu() {
         if (menuRecycler == null) return;
 
         String bg = AppSettings.getBackground(this);
-        switch (bg) {
-            case "anh1":
-                menuRecycler.setBackgroundResource(R.drawable.anh1);
-                break;
-            case "anh2":
-                menuRecycler.setBackgroundResource(R.drawable.anh2);
-                break;
-            case "anh3":
-                menuRecycler.setBackgroundResource(R.drawable.anh3);
-                break;
-            case "anh4":
-                menuRecycler.setBackgroundResource(R.drawable.anh4);
-                break;
-            default:
-                menuRecycler.setBackgroundColor(Color.BLACK);
-                break;
-        }
+
+        // dùng post() để đảm bảo view đã layout xong trước khi đổi
+        menuRecycler.post(() -> {
+            switch (bg) {
+                case "anh1":
+                    menuRecycler.setBackgroundResource(R.drawable.anh1);
+                    break;
+                case "anh2":
+                    menuRecycler.setBackgroundResource(R.drawable.anh2);
+                    break;
+                case "anh3":
+                    menuRecycler.setBackgroundResource(R.drawable.anh3);
+                    break;
+                case "anh4":
+                    menuRecycler.setBackgroundResource(R.drawable.anh4);
+                    break;
+                case "anh5":
+                    menuRecycler.setBackgroundResource(R.drawable.anh5);
+                    break;
+                // ✅ bỏ default → nếu bg không phải anh1~anh5, drawer giữ nguyên background
+            }
+
+            // buộc RecyclerView vẽ lại ngay
+            menuRecycler.invalidate();
+            menuRecycler.requestLayout();
+        });
     }
     // Hiển thị anime theo page (20 anime / page)
     private void displaySchedulePage(RecyclerView recycler, PaginationView paginationView) {

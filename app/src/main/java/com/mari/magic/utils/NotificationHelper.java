@@ -284,11 +284,14 @@ public class NotificationHelper {
     }
 
     // 🔹 Xóa notification theo animeId hoặc animeTitle
-    public static void removeNotificationForAnime(Context context, String animeTitle){
+    public static void removeNotificationForAnime(Context context, String animeId){
         List<NotificationItem> list = getNotifications(context);
-        String animeId = animeTitle.replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
+        if(list == null || list.isEmpty()) return;
 
-        list.removeIf(n -> n.getTitle().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase().equals(animeId));
+        list.removeIf(n -> {
+            String nId = n.getTitle().replaceAll("[^a-zA-Z0-9]", "_").toLowerCase();
+            return nId.equals(animeId);
+        });
 
         Gson gson = new Gson();
         context.getSharedPreferences("app", Context.MODE_PRIVATE)
@@ -296,7 +299,6 @@ public class NotificationHelper {
                 .putString("notification_list", gson.toJson(list))
                 .apply();
     }
-
     public static void isFavorite(Context context, String animeId, FavoriteCallback callback) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 

@@ -21,6 +21,8 @@ import com.mari.magic.utils.NotificationHelper;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -179,6 +181,17 @@ public class AnimeWorker extends Worker {
                                 String nativeTitle,
                                 String trailer) {
 
+        // Lấy danh sách favorites từ SharedPreferences
+        Set<String> favs = new HashSet<>(getApplicationContext()
+                .getSharedPreferences("app", Context.MODE_PRIVATE)
+                .getStringSet("favorites", new HashSet<>()));
+
+        if (!favs.contains(animeId)) {
+            Log.d("WORKER", "Anime " + animeId + " không còn trong favorite, bỏ qua notify");
+            return; // không push notification nếu đã xóa favorite
+        }
+
+        // Tiếp tục check episode + gửi notification
         db.collection("episodes")
                 .document(animeId)
                 .get()
@@ -198,8 +211,8 @@ public class AnimeWorker extends Worker {
                                 description, genres, englishTitle, romajiTitle, nativeTitle, trailer
                         );
 
-                        EpisodeModel model = new EpisodeModel(currentEpisode, nextEpisode, airingAt);
-                        db.collection("episodes").document(animeId).set(model);
+                        db.collection("episodes").document(animeId)
+                                .set(new EpisodeModel(currentEpisode, nextEpisode, airingAt));
                     }
                 });
     }

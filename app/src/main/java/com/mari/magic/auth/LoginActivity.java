@@ -1,6 +1,7 @@
 package com.mari.magic.auth;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.MotionEvent;
@@ -21,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 import android.util.Log;
+
 public class LoginActivity extends AppCompatActivity {
 
     LinearLayout btnLoginGoogle;
@@ -49,6 +51,8 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+
         // =========================
         // Google Sign In config
         // =========================
@@ -57,7 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                 new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken(getString(R.string.default_web_client_id))
                         .requestEmail()
-                        .requestProfile() // thêm dòng này
+                        .requestProfile()
                         .build();
 
         googleSignInClient = GoogleSignIn.getClient(this, gso);
@@ -76,6 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             });
 
         });
+
         // =========================
         // Show / Hide password
         // =========================
@@ -139,6 +144,9 @@ public class LoginActivity extends AppCompatActivity {
                     .addOnCompleteListener(task -> {
 
                         if(task.isSuccessful()){
+
+                            // Lưu flag email login
+                            prefs.edit().putBoolean("isEmailLogin", true).apply();
 
                             Toast.makeText(this,
                                     "Đăng nhập thành công",
@@ -247,12 +255,17 @@ public class LoginActivity extends AppCompatActivity {
         AuthCredential credential =
                 GoogleAuthProvider.getCredential(account.getIdToken(), null);
 
+        SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
 
                     if(task.isSuccessful()){
 
                         FirebaseUser user = mAuth.getCurrentUser();
+
+                        // Lưu flag Google login
+                        prefs.edit().putBoolean("isEmailLogin", false).apply();
 
                         // Lấy thông tin từ Google
                         String name = account.getDisplayName();
